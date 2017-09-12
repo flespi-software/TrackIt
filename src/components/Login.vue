@@ -1,0 +1,156 @@
+<template>
+  <div class="login-page window-height window-width bg-light column items-center no-wrap">
+    <a href="https://github.com/flespi-software/TrackIt/" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0; width: 149px; height: 149px;" src="../statics/right-graphite@2x.png" alt="Fork me on GitHub"></a>
+    <div class="login-code flex items-center justify-center">
+      Track it!
+    </div>
+    <div v-if="!$route.params.token">
+      <div class="login-card shadow-4 bg-white column items-center justify-center no-wrap">
+        <p class="text-center" style="margin-bottom: 40px">Track your devices on the map.</p>
+        <div class="row full-width">
+          <div class="col-md-7 col-sm-12 text-center modify">
+            <div class="row__wrapper">
+              <q-input class="text-left" v-model="model" float-label="Enter Token" placeholder="FlespiToken XXXXXXXXXXXXXXXXXXXXXX" />
+            </div>
+            <q-btn
+              :class="[$q.platform.is.mobile ? 'full-width' : '']"
+              color="dark"
+              @click="logIn"
+              icon-right="arrow_forward"
+            >
+              LogIn
+            </q-btn>
+          </div>
+          <div class="col-md-5 col-sm-12 text-dark text-center" style="padding-top: 15px;">
+            <div class="row__wrapper">
+              <img src="../statics/flespi_logo_black.svg" alt="flespi" style="height: 30px; margin-bottom: 10px"><br>
+              Don`t have a token?
+            </div>
+            <a href="https://flespi.io" target="_blank">
+              <q-btn
+                :class="[$q.platform.is.mobile ? 'full-width' : '']"
+                color="dark"
+              >Register</q-btn>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div v-else>
+      <div class="login-card shadow-4 bg-white column items-center justify-center no-wrap">
+        <q-progress indeterminate color="positive" style="width: 100%; height: 45px" />
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  import { QInput, QBtn, QIcon, Cookies, QProgress, Dialog, LocalStorage } from 'quasar-framework'
+
+  export default {
+    data () {
+      return {
+        token: ''
+      }
+    },
+    computed: {
+      model: {
+        get () {
+          return this.token
+        },
+        set (val) {
+          this.token = val
+        }
+      }
+    },
+    methods: {
+      logIn () {
+        this.$store.commit('setToken', this.token)
+        this.$nextTick(() => { this.$router.push('/') })
+      },
+      autoLogin () {
+        this.$store.commit('setToken', this.$route.params.token)
+        setTimeout(() => {
+          this.$router.push('/')
+        }, 1000)
+      }
+    },
+    watch: {
+      $route (val) {
+        if (val.params && val.params.token) {
+          this.autoLogin()
+        }
+      }
+    },
+    created () {
+      let authCookie = Cookies.get('X-Flespi-Token'),
+        localStorageToken = LocalStorage.get.item('X-Flespi-Token')
+      if (this.$route.params && this.$route.params.token) {
+        this.autoLogin()
+      }
+      else if (localStorageToken) {
+        this.token = localStorageToken
+        this.logIn()
+      }
+      else if (authCookie) {
+        Dialog.create({
+          title: 'Confirm',
+          message: `Do you want log in by token ${authCookie}.`,
+          buttons: [
+            {
+              label: 'Disagree',
+              handler () {
+                // Toast.create('Disagreed...')
+              }
+            },
+            {
+              label: 'Agree',
+              handler: () => {
+                this.token = authCookie
+                this.logIn()
+              }
+            }
+          ]
+        })
+      }
+    },
+    components: {
+      QInput,
+      QBtn,
+      QIcon,
+      QProgress
+    }
+  }
+</script>
+
+<style lang="stylus">
+  .row__wrapper
+    height 80px
+  .login-page
+    .login-code
+      height 50vh
+      width 100%
+      padding-top 15vh
+      font-size 10vmax
+      background-image url(../statics/trackit.png)
+      background-position center
+      background-size contain
+      background-repeat no-repeat
+      background-color #333
+      color rgba(255,255,255,0.7)
+      overflow hidden
+    .login-card
+      border-radius 2px
+      margin-top -50px
+      width 80vw
+      max-width 600px
+      padding 25px
+      > i
+        font-size 5rem
+  @media (min-width 767px) {
+    .modify {
+      border-right: 1px solid #ccc;
+      padding-right: 30px;
+    }
+  }
+</style>
