@@ -226,6 +226,9 @@
         let devicesById = this.activeDevices.filter(device => device.id === id),
           currentDevice = devicesById.length ? devicesById[0] : null,
           currentPos = currentDevice && currentDevice.telemetry ? [currentDevice.telemetry['position.latitude'].value, currentDevice.telemetry['position.longitude'].value] : []
+        if (this.messages[id] && this.messages[id].length) {
+          currentPos = [this.messages[id][0]['position.latitude'], this.messages[id][0]['position.longitude']]
+        }
         if (currentPos.length) {
           this.map.flyTo(currentPos, 15)
         }

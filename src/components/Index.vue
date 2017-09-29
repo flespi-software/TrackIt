@@ -6,7 +6,7 @@
       </q-btn>
       <img src="statics/track-it-logo.png" alt="Track it!" style="height: 40px">
       <q-toolbar-title>
-        Track it!
+        Track it! <sup>{{version}}</sup>
         <span slot="subtitle">Find yourself</span>
       </q-toolbar-title>
       <a href="https://github.com/flespi-software/TrackIt/" target="_blank"><q-btn flat color="dark"><img style="height: 30px;" src="../statics/GitHub-Mark-Light-32px.png" alt="GitHub"><q-tooltip>Show on GitHub</q-tooltip></q-btn></a>
@@ -65,6 +65,7 @@
   import DeviceList from './DeviceList.vue'
   import Telemetry from './Telemetry.vue'
   import Login from './Login.vue'
+  import dist from '../../package.json'
 
   export default {
     data () {
@@ -78,7 +79,8 @@
         sides: {
           left: false,
           right: true
-        }
+        },
+        version: dist.version
       }
     },
     computed: {
