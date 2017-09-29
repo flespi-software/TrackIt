@@ -1,9 +1,9 @@
 {
   "name": "track-it",
-  "productName": "Track It",
-  "version": "0.0.1",
+  "productName": "Track it!",
+  "version": "0.0.2",
   "license": "MIT",
-  "description": "Track It",
+  "description": "A simple application based on flespi.io and built with Quasar and Leaflet.js. Allows tracking different devices on the map, viewing telemetry messages for these devices.",
   "author": "sebu@gurtam.com",
   "scripts": {
     "clean": "node build/script.clean.js",
