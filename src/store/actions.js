@@ -43,7 +43,7 @@ function postMessage ({ state, commit }, { data, id }) {
 }
 
 function checkConnection ({ state, commit }) {
-  Vue.http.get(`/statics/icons/favicon-16x16.png`)
+  Vue.http.get(`/statics/icons/favicon-16x16.png?_=${(new Date()).getTime()}`)
     .then(resp => {
       if (resp.status === 200) {
         commit('setOfflineFlag', false)
