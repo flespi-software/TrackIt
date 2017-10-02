@@ -32,6 +32,12 @@ function reqFailed (state, payload) {
     console.log(payload)
   }
   switch (payload.status) {
+    case 0: {
+      setOfflineFlag(state, true)
+      unsetDevicesInit(state)
+      Vue.set(state, 'token', '')
+      break
+    }
     case 401: {
       clearToken(state)
       break
@@ -42,6 +48,9 @@ function reqFailed (state, payload) {
       }
     }
   }
+}
+function setOfflineFlag (state, flag) {
+  Vue.set(state, 'offline', flag)
 }
 function setToken (state, val) {
   let token = val.replace('FlespiToken ', '')
@@ -93,5 +102,6 @@ export default {
   setActiveDevice,
   unsetActiveDevice,
   setDevicesInit,
-  unsetDevicesInit
+  unsetDevicesInit,
+  setOfflineFlag
 }

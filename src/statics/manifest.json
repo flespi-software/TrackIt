@@ -1,6 +1,6 @@
 {
-  "name": "Track it",
-  "short_name": "Track it",
+  "name": "Track it!",
+  "short_name": "Track it!",
   "icons": [
     {
       "src": "/statics/icons/icon-192x192.png",
@@ -15,6 +15,6 @@
   ],
   "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#333333",
   "theme_color": "#333333"
 }

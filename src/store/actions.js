@@ -42,7 +42,20 @@ function postMessage ({ state, commit }, { data, id }) {
     .catch((err) => { commit('reqFailed', err) })
 }
 
+function checkConnection ({ state, commit }) {
+  Vue.http.get(`/statics/icons/favicon-16x16.png`)
+    .then(resp => {
+      if (resp.status === 200) {
+        commit('setOfflineFlag', false)
+      }
+    })
+    .catch(err => {
+      console.log(err)
+    })
+}
+
 export default {
   getDevices,
-  postMessage
+  postMessage,
+  checkConnection
 }

@@ -1,12 +1,12 @@
 <template>
   <div class="login-page window-height window-width bg-light column items-center no-wrap">
-    <a href="https://github.com/flespi-software/TrackIt/" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0; width: 149px; height: 149px;" src="../statics/right-graphite@2x.png" alt="Fork me on GitHub"></a>
+    <a v-if="!$q.platform.is.mobile" href="https://github.com/flespi-software/TrackIt/" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0; width: 149px; height: 149px;" src="../statics/right-graphite@2x.png" alt="Fork me on GitHub"></a>
     <div class="login-code flex items-center justify-center">
       Track it!
     </div>
-    <div v-if="!$route.params.token">
+    <div v-if="!$route.params.token && !offline">
       <div class="login-card shadow-4 bg-white column items-center justify-center no-wrap">
-        <p class="text-center" style="margin-bottom: 40px">Track your devices on the map.</p>
+        <p class="text-center">Track your devices on the map.</p>
         <div class="row full-width">
           <div class="col-md-7 col-sm-12 text-center modify">
             <div class="row__wrapper">
@@ -36,6 +36,15 @@
         </div>
       </div>
     </div>
+    <div v-else-if="offline" class="login-card shadow-4 bg-white">
+      <div class="column items-center justify-center no-wrap text-grey-6 uppercase" style="font-size: 10vmax;">
+        Offline
+      </div>
+      <q-progress indeterminate color="grey-6" style="width: 100%; height: 3px" />
+      <div class="text-center text-grey-6 uppercase">
+        waiting for reconnection
+      </div>
+    </div>
     <div v-else>
       <div class="login-card shadow-4 bg-white column items-center justify-center no-wrap">
         <q-progress indeterminate color="positive" style="width: 100%; height: 45px" />
@@ -46,14 +55,17 @@
 
 <script>
   import { QInput, QBtn, QIcon, Cookies, QProgress, Dialog, LocalStorage } from 'quasar-framework'
+  import { mapState, mapActions } from 'vuex'
 
   export default {
     data () {
       return {
-        token: ''
+        token: '',
+        offlineIntervalId: 0
       }
     },
     computed: {
+      ...mapState(['offline']),
       model: {
         get () {
           return this.token
@@ -64,6 +76,7 @@
       }
     },
     methods: {
+      ...mapActions(['checkConnection']),
       logIn () {
         this.$store.commit('setToken', this.token)
         this.$nextTick(() => { this.$router.push('/') })
@@ -73,6 +86,38 @@
         setTimeout(() => {
           this.$router.push('/')
         }, 1000)
+      },
+      checkHasToken () {
+        let authCookie = Cookies.get('X-Flespi-Token'),
+          localStorageToken = LocalStorage.get.item('X-Flespi-Token')
+        if (this.$route.params && this.$route.params.token) {
+          this.autoLogin()
+        }
+        else if (localStorageToken) {
+          this.token = localStorageToken
+          this.logIn()
+        }
+        else if (authCookie) {
+          Dialog.create({
+            title: 'Confirm',
+            message: `Do you want log in by token ${authCookie}.`,
+            buttons: [
+              {
+                label: 'Disagree',
+                handler () {
+                  // Toast.create('Disagreed...')
+                }
+              },
+              {
+                label: 'Agree',
+                handler: () => {
+                  this.token = authCookie
+                  this.logIn()
+                }
+              }
+            ]
+          })
+        }
       }
     },
     watch: {
@@ -80,38 +125,27 @@
         if (val.params && val.params.token) {
           this.autoLogin()
         }
+      },
+      offline (val) {
+        if (val) {
+          if (!this.offlineIntervalId) {
+            this.offlineIntervalId = setInterval(this.checkConnection, 5000)
+          }
+        }
+        else {
+          clearInterval(this.offlineIntervalId)
+          this.checkHasToken()
+        }
       }
     },
     created () {
-      let authCookie = Cookies.get('X-Flespi-Token'),
-        localStorageToken = LocalStorage.get.item('X-Flespi-Token')
-      if (this.$route.params && this.$route.params.token) {
-        this.autoLogin()
+      if (!this.offline) {
+        this.checkHasToken()
       }
-      else if (localStorageToken) {
-        this.token = localStorageToken
-        this.logIn()
-      }
-      else if (authCookie) {
-        Dialog.create({
-          title: 'Confirm',
-          message: `Do you want log in by token ${authCookie}.`,
-          buttons: [
-            {
-              label: 'Disagree',
-              handler () {
-                // Toast.create('Disagreed...')
-              }
-            },
-            {
-              label: 'Agree',
-              handler: () => {
-                this.token = authCookie
-                this.logIn()
-              }
-            }
-          ]
-        })
+      else {
+        if (!this.offlineIntervalId) {
+          this.offlineIntervalId = setInterval(this.checkConnection, 5000)
+        }
       }
     },
     components: {

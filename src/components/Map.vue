@@ -167,8 +167,12 @@
         this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), {color: this.colors[this.colors[this.currentColor] ? this.currentColor++ : this.currentColor = 0]}).addTo(this.map)
       },
       updateDeviceOnMap (id) {
-        let currentArrPos = this.getLatLngArrByDevice(id)
-        if (this.deviceIdForWatch && this.messages[this.deviceIdForWatch] && this.messages[this.deviceIdForWatch].length) {
+        let currentArrPos = this.getLatLngArrByDevice(id),
+          markerWatchedPos = this.deviceIdForWatch && this.markers[this.deviceIdForWatch] && this.markers[this.deviceIdForWatch] instanceof L.Marker ? this.markers[this.deviceIdForWatch].getLatLng() : {},
+          isWatchedPosChanged = this.deviceIdForWatch && this.messages[this.deviceIdForWatch] && this.messages[this.deviceIdForWatch].length &&
+            markerWatchedPos.lat && markerWatchedPos.lat !== this.messages[this.deviceIdForWatch][0]['position.latitude'] &&
+            markerWatchedPos.lng && markerWatchedPos.lng !== this.messages[this.deviceIdForWatch][0]['position.longitude']
+        if (isWatchedPosChanged) {
           this.map.flyTo(this.getLatLngArrByDevice(this.deviceIdForWatch)[0], 15)
         }
         if (this.messages[id].length) {
@@ -370,6 +374,11 @@
     max-width: 200px;
     text-overflow: ellipsis;
     overflow: hidden;
+    background-color: rgba(255,255,255,0.8);
+    border: 2px solid #666;
+    color: #333;
+    border-radius: 5px;
+    padding: 2px;
   }
   .direction {
     border: 2px solid black;

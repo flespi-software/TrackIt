@@ -15,7 +15,8 @@ let state = {
   token: '',
   devices: [],
   activeDevicesID: [],
-  hasDevicesInit: false
+  hasDevicesInit: false,
+  offline: false
 }
 
 export default new Vuex.Store(
