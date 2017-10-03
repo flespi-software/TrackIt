@@ -51,7 +51,8 @@
       'messages',
       'activeDevicesID',
       'devices',
-      'isAdmin'
+      'isAdmin',
+      'telemetryDeviceId'
     ],
     data () {
       return {
@@ -111,6 +112,11 @@
         }
         if ((!this.selected || !newVal.includes(parseInt(this.selected))) && newVal.length) {
           this.selected = newVal[0].toString()
+        }
+      },
+      telemetryDeviceId (id) {
+        if (id) {
+          this.selected = id.toString()
         }
       }
     }

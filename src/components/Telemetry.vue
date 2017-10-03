@@ -10,10 +10,10 @@
     </q-item>
     <q-item v-for="key in Object.keys(telemetry)" :key="key" style="transition: all .5s ease-in-out" :class="[!prevTelemetry[key] || prevTelemetry[key].value !== telemetry[key].value ? 'bg-grey-9' : 'bg-dark', 'bg-dark']">
       <q-item-main>
-        <q-item-tile label class="ellipsis text-white">{{key}}<q-tooltip>{{key}}</q-tooltip></q-item-tile>
-        <q-item-tile sublabel class="ellipsis text-white">{{telemetry[key].value}}<q-tooltip>{{telemetry[key].value}}</q-tooltip></q-item-tile>
+        <q-item-tile label class="ellipsis text-white">{{key}}<q-tooltip v-if="!$q.platform.is.mobile">{{key}}</q-tooltip></q-item-tile>
+        <q-item-tile sublabel class="ellipsis text-white">{{telemetry[key].value}}<q-tooltip v-if="!$q.platform.is.mobile">{{telemetry[key].value}}</q-tooltip></q-item-tile>
       </q-item-main>
-      <q-item-side right><small class="text-white">{{fromNow(telemetry[key].ts * 1000)}}</small><q-tooltip><small>{{getTime(telemetry[key].ts * 1000)}}</small></q-tooltip></q-item-side>
+      <q-item-side right @click="timeChangeHandler"><small class="text-white">{{timeFlag ? fromNow(telemetry[key].ts * 1000) : getTime(telemetry[key].ts * 1000)}}</small><q-tooltip v-if="!$q.platform.is.mobile"><small>{{timeFlag ? getTime(telemetry[key].ts * 1000) : fromNow(telemetry[key].ts * 1000)}}</small></q-tooltip></q-item-side>
     </q-item>
   </q-list>
 </template>
@@ -35,7 +35,8 @@
       return {
         currentDelay: this.delay || 2000,
         intervalId: 0,
-        prevTelemetry: {...this.device.telemetry}
+        prevTelemetry: {...this.device.telemetry},
+        timeFlag: true
       }
     },
     computed: {
@@ -55,6 +56,9 @@
       },
       getTime (ts) {
         return moment(ts).format('L HH:mm:ss')
+      },
+      timeChangeHandler () {
+        this.timeFlag = !this.timeFlag
       }
     },
     components: { QList, QListHeader, QItem, QItemMain, QItemSide, QItemTile, QTooltip, QIcon },

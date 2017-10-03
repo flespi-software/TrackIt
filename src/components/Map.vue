@@ -9,6 +9,7 @@
       :needShowMessages="params.needShowMessages"
       :messages="messages"
       :isAdmin="admin.flag"
+      :telemetryDeviceId="telemetryDeviceId"
       @send="prepareForSendMessage"
       v-if="Object.keys(messages).length && params.needShowMessages">
     </queue>
@@ -45,11 +46,13 @@
       return {
         isDragged: false,
         map: null,
+        flyToZoom: 15,
         currentDelay: this.delay || 2000,
         intervalId: 0,
         markers: {},
         tracks: {},
         lastMessage: {},
+        telemetryDeviceId: -1,
         draggedMarker: {
           markerCurrentPosition: [],
           markerID: 0
@@ -93,6 +96,9 @@
           this.map = L.map('map', {
             center: [51.50853, -0.12574],
             zoom: 3
+          })
+          this.map.addEventListener('zoom', e => {
+            this.flyToZoom = e.target.getZoom()
           })
           this.map.addEventListener('click', e => {
             if (L.DomUtil.hasClass(this.map._container, 'crosshair-cursor-enabled')) {
@@ -160,7 +166,8 @@
           }
         })
         this.markers[id].addEventListener('click', e => {
-          this.$emit('update:telemetry-device-id', parseInt(id))
+          this.telemetryDeviceId = parseInt(id)
+          this.$emit('update:telemetry-device-id', this.telemetryDeviceId)
         })
         this.markers[id].addEventListener('move', e => {
           document.querySelector(`.icon-${id} .my-div-icon__inner`).style.transform = `rotate(${(this.messages[id][0]['position.direction'] ? this.messages[id][0]['position.direction'] : 0) - 45}deg)`
@@ -188,7 +195,7 @@
             markerWatchedPos.lat && markerWatchedPos.lat !== this.messages[this.deviceIdForWatch][0]['position.latitude'] &&
             markerWatchedPos.lng && markerWatchedPos.lng !== this.messages[this.deviceIdForWatch][0]['position.longitude']
         if (isWatchedPosChanged) {
-          this.map.flyTo(this.getLatLngArrByDevice(this.deviceIdForWatch)[0], 15)
+          this.map.flyTo(this.getLatLngArrByDevice(this.deviceIdForWatch)[0], this.flyToZoom)
         }
         if (this.messages[id].length) {
           if (!(this.markers[id] instanceof L.Marker)) {
@@ -249,7 +256,7 @@
           currentPos = [this.messages[id][0]['position.latitude'], this.messages[id][0]['position.longitude']]
         }
         if (currentPos.length) {
-          this.map.flyTo(currentPos, 15)
+          this.map.flyTo(currentPos, this.flyToZoom)
         }
         else {
           Toast.create('No Position!')
@@ -328,6 +335,8 @@
             let icon = document.querySelector(`.my-div-icon.icon-${id} .my-div-icon__inner`)
             icon.style.backgroundColor = icon.style.borderColor
           }
+          this.telemetryDeviceId = parseInt(id)
+          this.$emit('update:telemetry-device-id', this.telemetryDeviceId)
         }
         else {
           document.querySelectorAll('.my-div-icon__inner').forEach(elem => {

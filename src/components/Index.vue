@@ -51,7 +51,7 @@
             >
               Refresh
             </q-btn>
-            <q-btn color="dark" @click="exitHandler" icon-right="exit_to_app">Logout<q-tooltip>Logout</q-tooltip></q-btn>
+            <q-btn color="dark" @click="exitHandler" icon-right="exit_to_app">Logout</q-btn>
           </p>
           <q-icon name="error_outline" color="grey-5" />
           <p class="caption text-center">Devices not found.</p>
@@ -142,8 +142,15 @@
         LocalStorage.set('TrackIt Params', this.params)
       },
       updateTelemetryDeviceId (id) {
-        this.$refs.layout.showRight()
-        this.deviceIdForTelemetry = id
+        let devicesById = this.devices.filter(device => device.id === id)
+        if (devicesById.length && devicesById[0].telemetry) {
+          this.$refs.layout.showRight()
+          this.deviceIdForTelemetry = id
+        }
+        else {
+          this.deviceIdForTelemetry = null
+          this.$refs.layout.hideRight()
+        }
       }
     },
     watch: {
