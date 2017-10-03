@@ -114,21 +114,35 @@
           L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png').addTo(this.map)
         }
       },
-      generateIcon (id, name) {
+      generateIcon (id, name, color) {
         return L.divIcon({
           className: `my-div-icon icon-${id}`,
           iconSize: new L.Point(20, 20),
-          html: `<div style="border-color: ${this.colors[this.currentColor]}" class="my-div-icon__inner"></div>${this.params.needShowNamesOnMap ? `<div class="my-div-icon__name">${name}</div>` : ''}`
+          html: `<div style="border-color: ${color}" class="my-div-icon__inner"></div>${this.params.needShowNamesOnMap ? `<div class="my-div-icon__name">${name}</div>` : ''}`
         })
       },
+      getColor () {
+        let resColor = ''
+        if (this.colors[this.currentColor]) {
+          resColor = this.colors[this.currentColor]
+          this.currentColor++
+        }
+        else {
+          resColor = this.colors[0]
+          this.currentColor = 0
+        }
+        return resColor
+      },
       initMarker (id, name, position) {
-        let direction = this.messages[id][0]['position.direction'] ? this.messages[id][0]['position.direction'] : 0
+        let direction = this.messages[id][0]['position.direction'] ? this.messages[id][0]['position.direction'] : 0,
+          currentColor = this.tracks[id] ? this.tracks[id].options.color : this.getColor()
         this.markers[id] = L.marker(position, {
-          icon: this.generateIcon(id, name),
+          icon: this.generateIcon(id, name, currentColor),
           draggable: this.admin.flag,
           title: name
         })
         this.markers[id].id = id
+        this.markers[id].color = currentColor
         this.markers[id].addEventListener('dragstart', (e) => {
           this.isDragged = true
         })
@@ -141,7 +155,8 @@
         this.markers[id].addEventListener('add', e => {
           document.querySelector(`.icon-${id} .my-div-icon__inner`).style.transform = `rotate(${direction - 45}deg)`
           if (this.messages[id] && this.messages[id].length && this.deviceIdForWatch === parseInt(id)) {
-            document.querySelector(`.icon-${id} .my-div-icon__inner`).style.borderColor = 'red'
+            let icon = document.querySelector(`.icon-${id} .my-div-icon__inner`)
+            icon.style.backgroundColor = icon.style.borderColor
           }
         })
         this.markers[id].addEventListener('click', e => {
@@ -157,13 +172,14 @@
         if (!currentDevice.telemetry) {
           this.markers[id] = {}
           this.markers[id].id = id
+          this.markers[id].color = this.getColor()
           this.tracks[id] = {}
           return false
         }
         let position = [this.messages[id][0]['position.latitude'], this.messages[id][0]['position.longitude']],
           name = currentDevice.name || `#${id}`
         this.initMarker(id, name, position)
-        this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), {color: this.colors[this.colors[this.currentColor] ? this.currentColor++ : this.currentColor = 0]}).addTo(this.map)
+        this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), {color: this.markers[id].color}).addTo(this.map)
       },
       updateDeviceOnMap (id) {
         let currentArrPos = this.getLatLngArrByDevice(id),
@@ -379,7 +395,6 @@
     border-radius: 50% 0 50% 50%;
     background-color: rgba(255, 255, 255, .5);
     height:100%
-    box-shadow: 0 0 15px #fff
   }
   .my-div-icon__name {
     line-height: 20px;
