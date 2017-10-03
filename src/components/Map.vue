@@ -60,7 +60,6 @@
           '#26a59b',
           '#037be3',
           '#565456',
-          '#f1c037',
           '#db2929',
           '#777777',
           '#663bb5'
@@ -119,7 +118,7 @@
         return L.divIcon({
           className: `my-div-icon icon-${id}`,
           iconSize: new L.Point(20, 20),
-          html: `<div class="my-div-icon__inner"></div><div class="my-div-icon__name">${name}</div>`
+          html: `<div style="border-color: ${this.colors[this.currentColor]}" class="my-div-icon__inner"></div>${this.params.needShowNamesOnMap ? `<div class="my-div-icon__name">${name}</div>` : ''}`
         })
       },
       initMarker (id, name, position) {
@@ -307,31 +306,47 @@
         if (id) {
           this.flyToDevice(id)
           document.querySelectorAll('.my-div-icon__inner').forEach(elem => {
-            elem.style.borderColor = ''
+            elem.style.backgroundColor = ''
           })
           if (this.messages[id] && this.messages[id].length) {
-            document.querySelector(`.my-div-icon.icon-${id} .my-div-icon__inner`).style.borderColor = 'red'
+            let icon = document.querySelector(`.my-div-icon.icon-${id} .my-div-icon__inner`)
+            icon.style.backgroundColor = icon.style.borderColor
           }
         }
         else {
           document.querySelectorAll('.my-div-icon__inner').forEach(elem => {
-            elem.style.borderColor = ''
+            elem.style.backgroundColor = ''
           })
         }
       },
       'admin.flag': function (flag) {
         if (flag) {
           Object.keys(this.markers).forEach(id => {
-            this.markers[id].dragging.enable()
+            if (this.markers[id] instanceof L.Marker) {
+              this.markers[id].dragging.enable()
+            }
           })
           Toast.create('Send messages: enabled')
         }
         else {
           Object.keys(this.markers).forEach(id => {
-            this.markers[id].dragging.disable()
+            if (this.markers[id] instanceof L.Marker) {
+              this.markers[id].dragging.disable()
+            }
           })
           Toast.create('Send messages: disabled')
         }
+      },
+      'params.needShowNamesOnMap': function (needShowNamesOnMap) {
+        Object.keys(this.markers).forEach(id => {
+          let currentDevice = this.activeDevices.filter(device => device.id === parseInt(id))[0],
+            position = this.messages[id] && this.messages[id].length ? [this.messages[id][0]['position.latitude'], this.messages[id][0]['position.longitude']] : [],
+            name = currentDevice.name || `#${id}`
+          if (this.markers[id] instanceof L.Marker) {
+            this.markers[id].remove()
+            this.initMarker(id, name, position)
+          }
+        })
       }
     },
     created () {
@@ -360,25 +375,28 @@
     cursor:crosshair;
   }
   .my-div-icon__inner {
-    border: 2px solid rgba(0, 0, 0, .5);
+    border: 3px solid;
     border-radius: 50% 0 50% 50%;
     background-color: rgba(255, 255, 255, .5);
     height:100%
+    box-shadow: 0 0 15px #fff
   }
   .my-div-icon__name {
     line-height: 20px;
-    font-size: 1.05rem;
+    font-size: .9rem;
+    font-weight: bolder;
     position: absolute;
     top: 0;
     left: 30px;
     max-width: 200px;
     text-overflow: ellipsis;
     overflow: hidden;
-    background-color: rgba(255,255,255,0.8);
-    border: 2px solid #666;
-    color: #333;
+    background-color: rgba(0,0,0,0.5);
+    color: #fff;
     border-radius: 5px;
-    padding: 2px;
+    padding: 0 5px;
+    border: 1px solid white
+    box-shadow: 3px 3px 10px #999
   }
   .direction {
     border: 2px solid black;

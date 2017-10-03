@@ -15,10 +15,13 @@
         <q-popover ref="popover-menu">
           <q-list link separator class="scroll" style="min-width: 200px">
             <q-item>
-              <q-toggle @change="menuChnageHandler" v-model="params.needShowMessages" icon="dvr" label="Messages" />
+              <q-toggle @change="menuChangeHandler" v-model="params.needShowMessages" icon="dvr" label="Messages" />
             </q-item>
             <q-item>
-              <q-toggle @change="menuChnageHandler" v-model="params.needShowTelemetry" icon="av_timer" label="Telemetry" />
+              <q-toggle @change="menuChangeHandler" v-model="params.needShowTelemetry" icon="av_timer" label="Telemetry" />
+            </q-item>
+            <q-item>
+              <q-toggle @change="menuChangeHandler" v-model="params.needShowNamesOnMap" icon="pin_drop" label="Names" />
             </q-item>
             <q-item @click="exitHandler">
               <q-item-side icon="exit_to_app"/>
@@ -74,7 +77,8 @@
         deviceIdForTelemetry: null,
         params: {
           needShowMessages: false,
-          needShowTelemetry: true
+          needShowTelemetry: true,
+          needShowNamesOnMap: true
         },
         sides: {
           left: false,
@@ -134,7 +138,7 @@
       setWatchToDeviceID (id) {
         this.deviceIdForWatch = id
       },
-      menuChnageHandler () {
+      menuChangeHandler () {
         LocalStorage.set('TrackIt Params', this.params)
       },
       updateTelemetryDeviceId (id) {
@@ -180,7 +184,7 @@
       }
       let params = LocalStorage.get.item('TrackIt Params')
       if (params) {
-        this.params = params
+        this.params = Object.assign(this.params, params)
       }
     }
 }
