@@ -98,7 +98,9 @@
             zoom: 3
           })
           this.map.addEventListener('zoom', e => {
-            this.flyToZoom = e.target.getZoom()
+            if (!e.flyTo) {
+              this.flyToZoom = e.target.getZoom()
+            }
           })
           this.map.addEventListener('click', e => {
             if (L.DomUtil.hasClass(this.map._container, 'crosshair-cursor-enabled')) {
