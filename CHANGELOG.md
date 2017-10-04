@@ -1,6 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 ### [0.0.8] - 2017-10-04
+[fix] get telemetry w/o position
+### [0.0.8] - 2017-10-04
 [fix] save zoom by change customer
 ### [0.0.7] - 2017-10-03
 [feature] save zoom on map
