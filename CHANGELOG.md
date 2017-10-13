@@ -1,6 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
-### [0.0.8] - 2017-10-04
+### [0.0.10] - 2017-10-04
+[feature] reuse qtelemetry component
+### [0.0.9] - 2017-10-04
 [fix] get telemetry w/o position
 ### [0.0.8] - 2017-10-04
 [fix] save zoom by change customer

@@ -1,5 +1,5 @@
 <template>
-  <q-layout ref="layout" view="hHh LpR lFf" v-model="sides" :right-class="{'bg-dark':true}">
+  <q-layout ref="layout" view="hHh LpR lFf" v-model="sides" :right-class="{'bg-dark':telemetrySettings.inverted}">
     <q-toolbar v-if="devices.length" slot="header" color="dark">
       <q-btn flat @click="$refs.layout.toggleLeft()">
         <q-icon name="menu" />
@@ -34,7 +34,27 @@
       </q-btn>
     </q-toolbar>
     <device-list @update:watch-by-id="setWatchToDeviceID" :deviceIdForWatch="deviceIdForWatch" :activeDevicesID="activeDevicesID" :devices="devices" slot="left" v-show="devices.length"/>
-    <telemetry :device="deviceForTelemetry" :layout="$refs.layout" slot="right" v-if="params.needShowTelemetry && deviceIdForTelemetry && activeDevicesID.includes(deviceIdForTelemetry)"></telemetry>
+    <div slot="right" v-if="params.needShowTelemetry && deviceIdForTelemetry && activeDevicesID.includes(deviceIdForTelemetry)">
+      <q-item>
+        <q-item-side left><q-icon :color="telemetrySettings.inverted ? 'white' : ''" size="1.8rem" name="developer_board"/></q-item-side>
+        <q-item-main>
+          <q-item-tile label class="ellipsis text-bold" :class="{'text-white': telemetrySettings.inverted}">Telemetry</q-item-tile>
+          <q-item-tile sublabel class="ellipsis" :class="{'text-white': telemetrySettings.inverted}"><small>{{deviceForTelemetry.name || `#${deviceForTelemetry.id}`}}</small></q-item-tile>
+        </q-item-main>
+        <q-item-side right>
+          <q-checkbox  @change="telemetrySettingsChangeHandler" v-model="telemetrySettings.inverted" checked-icon="filter_b_and_w" unchecked-icon="filter_b_and_w" :color="telemetrySettings.inverted ? 'white' : 'grey'" class="text-grey">
+            <q-tooltip>Inverted</q-tooltip>
+          </q-checkbox>
+        </q-item-side>
+        <q-item-side right><q-icon :color="telemetrySettings.inverted ? 'white' : ''" class="pull-right cursor-pointer" name="arrow_forward" @click="$refs.layout.hideRight()" size="1.8rem"></q-icon></q-item-side>
+      </q-item>
+      <q-item>
+        <q-item-main>
+          <q-input type="text" float-label="Search" v-model="telemetrySearch" :inverted="telemetrySettings.inverted" :color="telemetrySettings.inverted ? 'none': ''" />
+        </q-item-main>
+      </q-item>
+      <q-telemetry :server="telemetryConfig.server" :propHistoryFlag="telemetryConfig.propHistoryFlag" :device="deviceForTelemetry" :inverted="telemetrySettings.inverted" :search="telemetrySearch" />
+    </div>
     <map-component @update:telemetry-device-id="updateTelemetryDeviceId" :activeDevices="activeDevices" :deviceIdForWatch="deviceIdForWatch" :params="params" v-if="devices.length"></map-component>
     <div class="error-page bg-light column items-center no-wrap" v-if="!devices.length && hasDevicesInit">
       <a v-if="!$q.platform.is.mobile" href="https://github.com/flespi-software/TrackIt/" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0; width: 149px; height: 149px;" src="../statics/right-graphite@2x.png" alt="Fork me on GitHub"></a>
@@ -63,10 +83,11 @@
 
 <script>
   import { mapState, mapMutations, mapActions } from 'vuex'
-  import { QLayout, QBtn, QIcon, QToolbar, QToolbarTitle, Loading, QTooltip, QToggle, QPopover, QItem, QList, QItemMain, QItemSide, QItemTile, LocalStorage } from 'quasar-framework'
+  import Vue from 'vue'
+  import { QLayout, QBtn, QIcon, QToolbar, QToolbarTitle, Loading, QTooltip, QToggle, QPopover, QItem, QList, QItemMain, QItemSide, QItemTile, LocalStorage, QCheckbox, QInput } from 'quasar-framework'
+  import { QTelemetry, install as installTelemetryVuexModule } from 'qtelemetry'
   import MapComponent from './Map.vue'
   import DeviceList from './DeviceList.vue'
-  import Telemetry from './Telemetry.vue'
   import Login from './Login.vue'
   import dist from '../../package.json'
 
@@ -83,6 +104,14 @@
         sides: {
           left: false,
           right: true
+        },
+        telemetrySettings: {
+          inverted: true
+        },
+        telemetrySearch: '',
+        telemetryConfig: {
+          server: Vue.config.flespiServer,
+          propHistoryFlag: true
         },
         version: dist.version
       }
@@ -118,7 +147,9 @@
       QItemMain,
       QItemSide,
       QItemTile,
-      Telemetry
+      QTelemetry,
+      QCheckbox,
+      QInput
     },
     methods: {
       ...mapMutations([
@@ -141,10 +172,13 @@
       menuChangeHandler () {
         LocalStorage.set('TrackIt Params', this.params)
       },
+      telemetrySettingsChangeHandler () {
+        LocalStorage.set('TrackIt TelemetrySettings', this.telemetrySettings)
+      },
       updateTelemetryDeviceId (id) {
         let devicesById = this.devices.filter(device => device.id === id)
         if (devicesById.length && devicesById[0].telemetry) {
-          this.$refs.layout.showRight()
+          setTimeout(this.$refs.layout.showRight, 0)
           this.deviceIdForTelemetry = id
         }
         else {
@@ -170,8 +204,8 @@
           Loading.show()
         }
       },
-      deviceIdForWatch (val) {
-        if (val) {
+      deviceIdForWatch (id) {
+        if (id) {
           this.$refs.layout.hideLeft()
         }
       },
@@ -186,12 +220,17 @@
       }
     },
     created () {
+      installTelemetryVuexModule(this.$store, Vue)
       if (!this.token) {
         this.$router.push('/login')
       }
       let params = LocalStorage.get.item('TrackIt Params')
       if (params) {
         this.params = Object.assign(this.params, params)
+      }
+      let telemetrySettings = LocalStorage.get.item('TrackIt TelemetrySettings')
+      if (telemetrySettings) {
+        this.telemetrySettings = Object.assign(this.telemetrySettings, telemetrySettings)
       }
     }
 }

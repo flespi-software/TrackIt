@@ -4,7 +4,10 @@
       <template v-for="(deviceID, index) in activeDevicesID">
         <q-tab-pane :style="[{height:'20vh'}]" class="no-padding" :key="`tab-pane-${deviceID}`" :name="deviceID.toString()">
           <div class="no-messages text-center" v-if="!messages[deviceID].length">
-            <div class="text-white" style="font-size: 3rem;">No messages</div>
+            <div class="text-white" style="font-size: 3rem;">
+              <div>No messages</div>
+              <div style="font-size: 1.5rem;">or position is empty</div>
+            </div>
             <q-btn color="dark" v-if="isAdmin" @click="sendInitMessages(deviceID)">Send message</q-btn>
           </div>
           <div :style="{height: '100%'}" class="table__wrapper" v-if="messages[deviceID].length">
@@ -128,8 +131,8 @@
     z-index: 1000
     table
       width 100%
-      td[data-th=Params]
-        word-break: break-word;
+      td
+        white-space nowrap
     .table__wrapper
       overflow auto
       font-size 80%
