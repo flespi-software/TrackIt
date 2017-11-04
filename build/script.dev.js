@@ -13,10 +13,11 @@ var
   webpackConfig = require('./webpack.dev.conf'),
   app = express(),
   port = process.env.PORT || config.dev.port,
-  uri = 'http://localhost:' + port
+  uri = 'http://localhost:' + port,
+  server = process.argv[3] || env.server
 
 console.log(' Starting dev server with "' + (process.argv[2] || env.platform.theme).bold + '" theme...')
-console.log(' Starting dev server for "' + (process.argv[3] || env.server).bold + '" server...')
+console.log(' Starting dev server for "' + (server).bold + '" server...')
 console.log(' Will listen at ' + uri.bold)
 if (config.dev.openBrowser) {
   console.log(' Browser will open when build is ready.\n')
@@ -47,13 +48,15 @@ compiler.plugin('compilation', function (compilation) {
 
 // proxy requests like API. See /config/index.js -> dev.proxyTable
 // https://github.com/chimurai/http-proxy-middleware
-Object.keys(proxyTable).forEach(function (context) {
-  var options = proxyTable[context]
-  if (typeof options === 'string') {
-    options = { target: options }
-  }
-  app.use(proxyMiddleware(context, options))
-})
+if (server === 'local') {
+  Object.keys(proxyTable).forEach(function (context) {
+    var options = proxyTable[context]
+    if (typeof options === 'string') {
+      options = { target: options }
+    }
+    app.use(proxyMiddleware(context, options))
+  })
+}
 
 // handle fallback for HTML5 history API
 app.use(require('connect-history-api-fallback')())

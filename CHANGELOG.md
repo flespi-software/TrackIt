@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.0.11] - 2017-11-04
+[feature] tab colored
+[feature] packages updated
+[fix] fix build with proxy
 ### [0.0.10] - 2017-10-04
 [feature] reuse qtelemetry component
 ### [0.0.9] - 2017-10-04

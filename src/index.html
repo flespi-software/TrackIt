@@ -18,15 +18,15 @@
     <link rel="apple-touch-icon" href="<%= htmlWebpackPlugin.files.publicPath %>statics/icons/apple-icon-152x152.png">
     <!-- Add to home screen for Windows -->
     <meta name="msapplication-TileImage" content="<%= htmlWebpackPlugin.files.publicPath %>statics/icons/ms-icon-144x144.png">
-    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileColor" content="#333333">
 
-    <meta name="theme-color" content="#027be3">
+    <meta name="theme-color" content="#333333">
 
     <% for (var chunk of webpack.chunks) {
         for (var file of chunk.files) {
           if (file.match(/\.(js|css)$/)) { %>
     <link rel="<%= chunk.initial?'preload':'prefetch' %>" href="<%= htmlWebpackPlugin.files.publicPath + file %>" as="<%= file.match(/\.css$/)?'style':'script' %>"><% }}} %>
-  
+
     <link rel="icon" href="statics/track-it-logo.png" type="image/x-icon">
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-93342359-3"></script>
     <script>
