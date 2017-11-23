@@ -10,7 +10,8 @@ var
   OptimizeCSSPlugin = require('optimize-css-assets-webpack-plugin'),
   CopyWebpackPlugin = require('copy-webpack-plugin'),
   SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin'),
-  fsUtils = require('./fs-utils')
+  fsUtils = require('./fs-utils'),
+  package = require('../package.json')
 
 module.exports = merge(baseWebpackConfig, {
   module: {
@@ -89,7 +90,7 @@ module.exports = merge(baseWebpackConfig, {
     ]),
     // service worker caching
     new SWPrecacheWebpackPlugin({
-      cacheId: 'my-quasar-app',
+      cacheId: 'track-it-'+package["version"],
       filename: 'service-worker.js',
       staticFileGlobs: ['dist/**/*.{js,html,css,woff,ttf,eof,woff2,json,svg,gif,jpg,png,mp3}'],
       minify: true,

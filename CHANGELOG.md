@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.0.12] - 2017-11-23
+[fix] service worker cache naming
 ### [0.0.11] - 2017-11-04
 [feature] tab colored
 [feature] packages updated
