@@ -1,8 +1,10 @@
 <template>
   <div class="login-page window-height window-width bg-light column items-center no-wrap">
     <a v-if="!$q.platform.is.mobile" href="https://github.com/flespi-software/TrackIt/" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0; width: 149px; height: 149px;" src="../statics/right-graphite@2x.png" alt="Fork me on GitHub"></a>
-    <div class="login-code flex items-center justify-center">
-      Track it!
+    <div class="login-back flex items-center justify-center">
+      <div class="login-code flex items-center justify-center">
+        Track it!
+      </div>
     </div>
     <div v-if="!$route.params.token && !offline">
       <div class="login-card shadow-4 bg-white column items-center justify-center no-wrap">
@@ -161,18 +163,27 @@
   .row__wrapper
     height 80px
   .login-page
-    .login-code
-      height 50vh
+    .login-back
       width 100%
-      padding-top 15vh
-      font-size 10vmax
-      background-image url(../statics/trackit.png)
-      background-position center
+      height 50vh
+      overflow hidden
+      font-size 8vmax
+      background-image url(../statics/mountain.svg)
+      background-position center 100px
       background-size contain
       background-repeat no-repeat
       background-color #333
-      color rgba(255,255,255,0.7)
-      overflow hidden
+      color rgba(255,255,255,0.9)
+      .login-code
+        height 50vh
+        width: 80vw;
+        max-width: 600px;
+        background-image url(../statics/trackit.png)
+        background-position center
+        background-size contain
+        background-repeat no-repeat
+        opacity .8
+        padding-top 20vh
     .login-card
       border-radius 2px
       margin-top -50px
