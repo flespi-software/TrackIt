@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.1.0] - 2017-12-11
+[fix] analytics
+[fix] build prod
 ### [0.0.12] - 2017-11-23
 [fix] service worker cache naming
 ### [0.0.11] - 2017-11-04

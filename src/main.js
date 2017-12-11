@@ -17,6 +17,11 @@ import store from './store/store'
 
 Vue.config.productionTip = false
 Vue.config.flespiServer = SERVER
+if (PROD && SERVER) {
+  if (window.location.host.indexOf('localhost:9004') !== -1 || window.location.host.indexOf('localhost:9005') !== -1) {
+    Vue.config.flespiServer = ''
+  }
+}
 Vue.use(Quasar) // Install Quasar Framework
 AddressbarColor.set('#333333')
 if (__THEME === 'mat') {
