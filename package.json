@@ -1,7 +1,7 @@
 {
   "name": "track-it",
   "productName": "Track it!",
-  "version": "0.0.12",
+  "version": "0.1.0",
   "license": "MIT",
   "description": "A simple application based on flespi.io and built with Quasar and Leaflet.js. Allows tracking different devices on the map, viewing telemetry messages for these devices.",
   "author": "sebu@gurtam.com",
@@ -12,7 +12,7 @@
     "build": "node build/script.build.js mat flespi",
     "build_local": "node build/script.build.js",
     "lint": "eslint --ext .js,.vue src",
-    "deploy": "npm run build && rm -rf deploy && mkdir deploy && cp -R dist/* misc CNAME LICENSE package.json deploy && cp README.md deploy/README.md && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rhttps://github.com/flespi-software/TrackIt.git && rm -rf deploy"
+    "deploy": "npm run build && rm -rf deploy && mkdir deploy && cp -R dist/* misc CNAME LICENSE package.json deploy && cp README.md deploy/README.md && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rhttps://git.gurtam.net/flespi/frontend/TrackIt.git && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rhttps://github.com/flespi-software/TrackIt.git && rm -rf deploy"
   },
   "dependencies": {
     "babel-runtime": "^6.25.0",
