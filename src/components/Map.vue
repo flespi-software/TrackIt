@@ -119,7 +119,7 @@
               this.admin.counter = 0
             }, 2000)
           })
-          L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png').addTo(this.map)
+          L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map)
         }
       },
       generateIcon (id, name, color) {
