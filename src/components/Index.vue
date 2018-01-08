@@ -46,7 +46,7 @@
             <q-tooltip>Inverted</q-tooltip>
           </q-checkbox>
         </q-item-side>
-        <q-item-side right><q-icon :color="telemetrySettings.inverted ? 'white' : ''" class="pull-right cursor-pointer" name="arrow_forward" @click="$refs.layout.hideRight()" size="1.8rem"></q-icon></q-item-side>
+        <q-item-side right><q-icon :color="telemetrySettings.inverted ? 'white' : ''" class="pull-right cursor-pointer" name="arrow_forward" @click="$refs.layout.hideRight(), deviceIdForTelemetry = 0" size="1.8rem"></q-icon></q-item-side>
       </q-item>
       <q-item>
         <q-item-main>

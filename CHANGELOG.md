@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.1.1] - 2018-01-08
+[fix] hide right panel
 ### [0.1.0] - 2017-12-11
 [fix] analytics
 [fix] build prod
