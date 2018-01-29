@@ -22,7 +22,46 @@ function reqSuccessful (state, { type, payload }) {
       break
     }
     default: {
-      Vue.set(state, type, result)
+      /* if result has difference with state */
+      if (JSON.stringify(state[type]) !== JSON.stringify(result)) {
+        Vue.set(state, type, result)
+      }
+    }
+  }
+}
+function updateDevices (state, log) {
+  let parsedLog = JSON.parse(log),
+    eventCode = parsedLog.event_code
+
+  switch (eventCode) {
+    /* created */
+    case 1: {
+      state.devices.push(parsedLog.item_data)
+      break
+    }
+    /* updated */
+    case 2: {
+      let itemData = parsedLog.item_data
+      state.devices.some((device, index) => {
+        if (device.id === itemData.id) {
+          state.devices[index] = Object.assign(state.devices[index], itemData)
+          return true
+        }
+        return false
+      })
+      break
+    }
+    /* deleted */
+    case 3: {
+      let itemData = parsedLog.item_data
+      state.devices.some((device, index) => {
+        if (device.id === itemData.id) {
+          state.devices.splice(index, 1)
+          return true
+        }
+        return false
+      })
+      break
     }
   }
 }
@@ -31,7 +70,7 @@ function reqFailed (state, payload) {
     console.log('Failed Request')
     console.log(payload)
   }
-  switch (payload.status) {
+  switch (payload.response.status) {
     case 0: {
       setOfflineFlag(state, true)
       unsetDevicesInit(state)
@@ -55,11 +94,12 @@ function setOfflineFlag (state, flag) {
 function setToken (state, val) {
   let token = val.replace('FlespiToken ', '')
   if (val && token.match(/^[a-z0-9]+$/i)) {
-    Vue.http.headers.common['Authorization'] = `FlespiToken ${token}`
+    Vue.connector.token = `FlespiToken ${token}`
     LocalStorage.set('X-Flespi-Token', token)
   }
   else {
     token = ''
+    Vue.connector.token = ''
     clearToken(state)
   }
   Vue.set(state, 'token', token)
@@ -71,7 +111,7 @@ function clearToken (state) {
     Cookies.remove('X-Flespi-Token')
   }
   LocalStorage.remove('X-Flespi-Token')
-  Vue.http.headers.common['Authorization'] = ''
+  Vue.connector.token = ''
   Vue.set(state, 'token', '')
 }
 function setActiveDevice (state, id) {
@@ -103,5 +143,6 @@ export default {
   unsetActiveDevice,
   setDevicesInit,
   unsetDevicesInit,
-  setOfflineFlag
+  setOfflineFlag,
+  updateDevices
 }

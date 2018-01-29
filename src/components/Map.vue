@@ -47,8 +47,6 @@
         isDragged: false,
         map: null,
         flyToZoom: 15,
-        currentDelay: this.delay || 2000,
-        intervalId: 0,
         markers: {},
         tracks: {},
         lastMessage: {},
@@ -88,7 +86,6 @@
         'clear'
       ]),
       ...mapActions([
-        'get',
         'getHistoryByDeviceID'
       ]),
       initMap () {
@@ -143,7 +140,7 @@
       },
       initMarker (id, name, position) {
         let direction = this.messages[id][0]['position.direction'] ? this.messages[id][0]['position.direction'] : 0,
-          currentColor = this.tracks[id] ? this.tracks[id].options.color : this.getColor()
+          currentColor = this.tracks[id] && this.tracks[id].options ? this.tracks[id].options.color : this.markers[id] ? this.markers[id].color : this.getColor()
         this.markers[id] = L.marker(position, {
           icon: this.generateIcon(id, name, currentColor),
           draggable: this.admin.flag,
@@ -179,10 +176,12 @@
       initDeviceOnMap (id) {
         let currentDevice = this.activeDevices.filter(device => device.id === parseInt(id))[0]
         if (!currentDevice.telemetry) {
-          this.markers[id] = {}
-          this.markers[id].id = id
-          this.markers[id].color = this.getColor()
-          this.tracks[id] = {}
+          if (!this.markers[id]) {
+            this.markers[id] = {}
+            this.markers[id].id = id
+            this.markers[id].color = this.getColor()
+            this.tracks[id] = {}
+          }
           return false
         }
         let position = [this.messages[id][0]['position.latitude'], this.messages[id][0]['position.longitude']],
@@ -206,7 +205,7 @@
             this.initMarker(id, name, position)
           }
           if (!(this.tracks[id] instanceof L.Polyline)) {
-            this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), {color: this.colors[this.colors[this.currentColor] ? this.currentColor++ : this.currentColor = 0]}).addTo(this.map)
+            this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), {color: this.markers[id] ? this.markers[id].color : this.colors[this.colors[this.currentColor] ? this.currentColor++ : this.currentColor = 0]}).addTo(this.map)
           }
         }
         if (!this.isDragged) {
@@ -235,8 +234,11 @@
         }
       },
       updateMarkerHandler ({ id, lastPos }) {
-        if (this.markers[id]) {
+        if (this.markers[id] && this.markers[id] instanceof L.Marker) {
           this.markers[id].setLatLng(lastPos).update()
+        }
+        else {
+          this.initDeviceOnMap(id)
         }
       },
       updateFlagHandler (value) {
@@ -318,7 +320,7 @@
             break
           }
           case 'add': {
-            let addedDeviceID = activeDevicesId.filter(id => !currentDevicesID.includes(id))[0]
+            let addedDeviceID = activeDevicesId.filter(id => !currentDevicesID.includes(id))
             if (addedDeviceID) {
               this.getHistoryByDeviceID(addedDeviceID)
             }
@@ -379,16 +381,14 @@
       }
     },
     created () {
-      this.setActiveDevicesID(this.activeDevices.map(device => device.id))
-      this.intervalId = setInterval(this.get, this.currentDelay)
+      let activeDeviceIds = this.activeDevices.map(device => device.id)
+      this.setActiveDevicesID(activeDeviceIds)
+      this.getHistoryByDeviceID(activeDeviceIds)
     },
     mounted () {
       this.initMap()
     },
     beforeDestroy () {
-      if (this.intervalId) {
-        clearInterval(this.intervalId)
-      }
       this.clear()
     },
     components: { Queue, PostMessageModal, QResizeObservable }

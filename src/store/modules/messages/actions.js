@@ -1,26 +1,6 @@
 import Vue from 'vue'
 
-function get ({ state, commit, rootState }) {
-  commit('reqStart')
-  let data = {
-    count: 10,
-    reverse: true,
-    filter: 'position.latitude,position.longitude',
-    from: state.timestamp + 1 || 0
-  }
-  return (rootState.token && state.activeDevicesID.length) ? Vue.http.get(`${Vue.config.flespiServer}/registry/devices/${state.activeDevicesID}/messages`, {
-    params: {
-      data: JSON.stringify(data)
-    }
-  })
-    .then((resp) => resp.json())
-    .then((json) => {
-      commit('reqSuccessful', json)
-    })
-    .catch((err) => { commit('reqFailed', err, { root: true }) }) : false
-}
-
-function getHistoryByDeviceID ({ state, commit, rootState }, id) {
+function getHistoryByDeviceID ({ state, commit, rootState }, ids) {
   commit('reqStart')
   let data = {
     count: 10,
@@ -28,22 +8,25 @@ function getHistoryByDeviceID ({ state, commit, rootState }, id) {
     filter: 'position.latitude,position.longitude',
     to: state.timestamp || 0
   }
-  if (!state.entities[id]) {
-    Vue.set(state.entities, id, [])
-  }
-  return (rootState.token) ? Vue.http.get(`${Vue.config.flespiServer}/registry/devices/${id}/messages`, {
-    params: {
-      data: JSON.stringify(data)
+  ids.forEach((id) => {
+    if (!state.entities[id]) {
+      Vue.set(state.entities, id, [])
     }
   })
-    .then((resp) => resp.json())
-    .then((json) => {
-      commit('reqSuccessful', json)
-    })
-    .catch((err) => { commit('reqFailed', err) }) : false
+  try {
+    if (rootState.token) {
+      ids.forEach(async (id) => {
+        let devicesMessagesResp = await Vue.connector.getDevicesMessages(id, {
+          data: JSON.stringify(data)
+        })
+        let devicesMessages = devicesMessagesResp.data
+        commit('reqSuccessful', devicesMessages)
+      })
+    }
+  }
+  catch (error) { commit('reqFailed', error, { root: true }) }
 }
 
 export default {
-  get,
   getHistoryByDeviceID
 }

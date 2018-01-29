@@ -20,16 +20,15 @@
       'activeDevicesID',
       'deviceIdForWatch'
     ],
-    data () {
-      return {
-        intervalId: 0
-      }
-    },
     components: {
       QList, QListHeader, QIcon, Device
     },
     methods: {
-      ...mapActions(['getDevices']),
+      ...mapActions([
+        'getDevices',
+        'subscribeDevices',
+        'unsubscribeDevices'
+      ]),
       setWatchByDeviceID (id) {
         this.$emit('update:watch-by-id', id)
       }
@@ -39,12 +38,10 @@
         return false
       }
       this.getDevices()
-      this.intervalId = setInterval(this.getDevices, 30000)
+      this.subscribeDevices()
     },
     beforeDestroy () {
-      if (this.intervalId) {
-        clearInterval(this.intervalId)
-      }
+      this.unsubscribeDevices()
     }
   }
 </script>

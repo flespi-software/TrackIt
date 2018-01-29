@@ -1,49 +1,56 @@
 import Vue from 'vue'
 import { LocalStorage } from 'quasar-framework'
 
-function getDevices ({ state, commit }) {
+async function getDevices ({ state, commit }) {
   commit('reqStart')
-  return state.token ? Vue.http.get(`${Vue.config.flespiServer}/registry/devices/all`, {
-    params: {
-      fields: 'id,name,ident,phone,telemetry,messages_ttl'
-    }
-  }).then((resp) => resp.json())
-    .then((json) => {
+  try {
+    if (state.token) {
+      let devicesResp = await Vue.connector.getDevices(`all`, { fields: 'id,name,ident,phone,telemetry,messages_ttl' })
+      let devices = devicesResp.data
       commit('reqSuccessful', {
         type: 'devices',
-        payload: json
+        payload: devices
       })
       if (!state.hasDevicesInit) {
         commit('setDevicesInit')
         let activeDevicesFromLocalStorage = LocalStorage.get.item('TrackIt Active Devices')
         if (activeDevicesFromLocalStorage && activeDevicesFromLocalStorage.length) {
           activeDevicesFromLocalStorage.forEach(id => {
-            if (json.result.filter(device => device.id === id).length) {
+            if (devices.result.filter(device => device.id === id).length) {
               commit('setActiveDevice', id)
             }
           })
         }
       }
-      return json.result
-    })
-    .catch((err) => { commit('reqFailed', err) }) : false
+      return devices.result
+    }
+  }
+  catch (error) { commit('reqFailed', error) }
 }
 
-function postMessage ({ state, commit }, { data, id }) {
+async function subscribeDevices ({ state, commit }) {
+  await Vue.connector.subscribeLogs('registry', 'devices/+', '#', (log) => { commit('updateDevices', log) })
+}
+
+async function postMessage ({ state, commit }, { data, id }) {
   commit('reqStart')
-  return Vue.http.post(`${Vue.config.flespiServer}/registry/devices/${id}/messages`, data)
-    .then(resp => resp.json())
-    .then(json => {
-      commit('reqSuccessful', {
-        type: 'postMessage',
-        payload: json
-      })
+  try {
+    let postMessageResp = await Vue.connector.postDevicesMessages(id, data)
+    let postMessage = postMessageResp.data
+    commit('reqSuccessful', {
+      type: 'postMessage',
+      payload: postMessage
     })
-    .catch((err) => { commit('reqFailed', err) })
+  }
+  catch (error) { commit('reqFailed', error) }
+}
+
+async function unsubscribeDevices ({ state, commit }) {
+  await Vue.connector.unsubscribeLogs('registry', 'devices/+', '#')
 }
 
 function checkConnection ({ state, commit }) {
-  Vue.http.get(`/statics/icons/favicon-16x16.png?_=${(new Date()).getTime()}`)
+  Vue.connector.http.get(`/statics/icons/favicon-16x16.png?_=${(new Date()).getTime()}`)
     .then(resp => {
       if (resp.status === 200) {
         commit('setOfflineFlag', false)
@@ -57,5 +64,7 @@ function checkConnection ({ state, commit }) {
 export default {
   getDevices,
   postMessage,
-  checkConnection
+  checkConnection,
+  subscribeDevices,
+  unsubscribeDevices
 }

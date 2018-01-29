@@ -14,14 +14,30 @@ import Vue from 'vue'
 import Quasar, { AddressbarColor } from 'quasar'
 import router from './router'
 import store from './store/store'
-
+import VueConnection from 'flespi-io-js/dist/vue-plugin'
 Vue.config.productionTip = false
-Vue.config.flespiServer = SERVER
-if (PROD && SERVER) {
-  if (window.location.host.indexOf('localhost:9004') !== -1 || window.location.host.indexOf('localhost:9005') !== -1) {
-    Vue.config.flespiServer = ''
+
+let connectionConfig = {}
+
+/* if local dev build */
+if (DEV && !SERVER) {
+  connectionConfig = {
+    httpConfig: { server: 'https://localhost', port: 9005 },
+    mqttConfig: { server: `ws://localhost:9016` }
   }
 }
+
+// check for pfront SERVER
+if (PROD && SERVER) {
+  if (window.location.host.indexOf('localhost:9004') !== -1 || window.location.host.indexOf('localhost:9005') !== -1 || window.location.host.indexOf('localhost:7004') !== -1) {
+    connectionConfig = {
+      httpConfig: { server: 'https://localhost', port: 9005 },
+      mqttConfig: { server: `ws://localhost:9016` }
+    }
+  }
+}
+
+Vue.use(VueConnection, connectionConfig)
 Vue.use(Quasar) // Install Quasar Framework
 AddressbarColor.set('#333333')
 if (__THEME === 'mat') {

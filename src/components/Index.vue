@@ -85,7 +85,7 @@
   import { mapState, mapMutations, mapActions } from 'vuex'
   import Vue from 'vue'
   import { QLayout, QBtn, QIcon, QToolbar, QToolbarTitle, Loading, QTooltip, QToggle, QPopover, QItem, QList, QItemMain, QItemSide, QItemTile, LocalStorage, QCheckbox, QInput } from 'quasar-framework'
-  import { QTelemetry, install as installTelemetryVuexModule } from 'qtelemetry'
+  import { QTelemetry, module as telemetryVuexModule } from 'qtelemetry'
   import MapComponent from './Map.vue'
   import DeviceList from './DeviceList.vue'
   import Login from './Login.vue'
@@ -220,7 +220,7 @@
       }
     },
     created () {
-      installTelemetryVuexModule(this.$store, Vue)
+      this.$store.registerModule('telemetry', telemetryVuexModule(this.$store, Vue))
       if (!this.token) {
         this.$router.push('/login')
       }

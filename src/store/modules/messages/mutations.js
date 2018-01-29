@@ -24,6 +24,7 @@ function reqSuccessful (state, payload) {
 
 function clear (state) {
   if (state.activeDevicesID.length) {
+    state.activeDevicesID.forEach(async (id) => { await Vue.connector.unsubscribeMessagesDevices(id) })
     Vue.set(state, 'entities', {})
     Vue.set(state, 'activeDevicesID', [])
     Vue.set(state, 'timestamp', 0)
@@ -31,10 +32,15 @@ function clear (state) {
 }
 
 function clearByID (state, id) {
+  Vue.connector.unsubscribeMessagesDevices(id)
   Vue.delete(state.entities, id)
 }
 
 function setActiveDevicesID (state, ids) {
+  let newDevicesID = ids.filter((id) => !state.activeDevicesID.includes(id))
+  // oldDevicesID = state.activeDevicesID.filter((id) => !ids.includes(id))
+  newDevicesID.forEach(async (id) => { await Vue.connector.subscribeMessagesDevices(id, (message) => { reqSuccessful(state, {result: [JSON.parse(message)]}) }) })
+  // oldDevicesID.forEach(async (id) => { await Vue.connector.unsubscribeMessagesDevices(id) })
   Vue.set(state, 'activeDevicesID', ids)
 }
 
