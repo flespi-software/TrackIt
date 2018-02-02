@@ -29,33 +29,42 @@ function reqSuccessful (state, { type, payload }) {
     }
   }
 }
-function updateDevices (state, log) {
-  let parsedLog = JSON.parse(log),
-    eventCode = parsedLog.event_code
-
-  switch (eventCode) {
-    /* created */
-    case 1: {
-      state.devices.push(parsedLog.item_data)
+function setDevices (state, devices) {
+  /* if result has difference with state */
+  if (JSON.stringify(state.devices) !== JSON.stringify(devices.data.result)) {
+    Vue.set(state, 'devices', devices.data.result)
+    if (!state.hasDevicesInit) {
+      setDevicesInit(state)
+      let activeDevicesFromLocalStorage = LocalStorage.get.item('TrackIt Active Devices')
+      if (activeDevicesFromLocalStorage && activeDevicesFromLocalStorage.length) {
+        activeDevicesFromLocalStorage.forEach(id => {
+          if (devices.data.result.filter(device => device.id === id).length) {
+            setActiveDevice(state, id)
+          }
+        })
+      }
+    }
+  }
+}
+function updateDevices (state, payload) {
+  switch (payload.type) {
+    case 'created': {
+      state.devices.push(payload.device)
       break
     }
-    /* updated */
-    case 2: {
-      let itemData = parsedLog.item_data
+    case 'updated': {
       state.devices.some((device, index) => {
-        if (device.id === itemData.id) {
-          state.devices[index] = Object.assign(state.devices[index], itemData)
+        if (device.id === payload.device.id) {
+          state.devices[index] = Object.assign(state.devices[index], payload.device)
           return true
         }
         return false
       })
       break
     }
-    /* deleted */
-    case 3: {
-      let itemData = parsedLog.item_data
+    case 'deleted': {
       state.devices.some((device, index) => {
-        if (device.id === itemData.id) {
+        if (device.id === payload.device.id) {
           state.devices.splice(index, 1)
           return true
         }
@@ -144,5 +153,6 @@ export default {
   setDevicesInit,
   unsetDevicesInit,
   setOfflineFlag,
-  updateDevices
+  updateDevices,
+  setDevices
 }

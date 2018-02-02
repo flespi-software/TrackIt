@@ -64,13 +64,6 @@
       <div>
         <div class="error-card shadow-4 bg-white column items-center justify-center no-wrap">
           <p class="text-center group">
-            <q-btn
-              color="dark"
-              @click="getDevices"
-              icon="refresh"
-            >
-              Refresh
-            </q-btn>
             <q-btn color="dark" @click="exitHandler" icon-right="exit_to_app">Logout</q-btn>
           </p>
           <q-icon name="error_outline" color="grey-5" />
@@ -82,7 +75,7 @@
 </template>
 
 <script>
-  import { mapState, mapMutations, mapActions } from 'vuex'
+  import { mapState, mapMutations } from 'vuex'
   import Vue from 'vue'
   import { QLayout, QBtn, QIcon, QToolbar, QToolbarTitle, Loading, QTooltip, QToggle, QPopover, QItem, QList, QItemMain, QItemSide, QItemTile, LocalStorage, QCheckbox, QInput } from 'quasar-framework'
   import { QTelemetry, module as telemetryVuexModule } from 'qtelemetry'
@@ -157,9 +150,6 @@
         'clearToken',
         'setDevicesInit',
         'unsetDevicesInit'
-      ]),
-      ...mapActions([
-        'getDevices'
       ]),
       exitHandler (e) {
         this.unsetDevicesInit()
