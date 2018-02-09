@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.1.4] - 2018-02-09
+[feature] rebased for new version of flespi-io-js lib
 ### [0.1.3] - 2018-02-02
 [feature] rebased for new abilities of flespi-io-js lib
 ### [0.1.2] - 2018-01-29
