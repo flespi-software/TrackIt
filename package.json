@@ -1,7 +1,7 @@
 {
   "name": "track-it",
   "productName": "Track it!",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "license": "MIT",
   "description": "A simple application based on flespi.io and built with Quasar and Leaflet.js. Allows tracking different devices on the map, viewing telemetry messages for these devices.",
   "author": "sebu@gurtam.com",
@@ -72,7 +72,7 @@
     "vue-loader": "~12.2.2",
     "vue-style-loader": "^3.1.2",
     "vue-template-compiler": "^2.5.13",
-    "webpack": "^3.10.0",
+    "webpack": "^3.11.0",
     "webpack-dev-middleware": "^1.12.2",
     "webpack-hot-middleware": "^2.21.0",
     "webpack-merge": "^4.1.1"

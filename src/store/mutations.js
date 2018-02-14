@@ -33,16 +33,16 @@ function setDevices (state, devices) {
   /* if result has difference with state */
   if (JSON.stringify(state.devices) !== JSON.stringify(devices.data.result)) {
     Vue.set(state, 'devices', devices.data.result)
-    if (!state.hasDevicesInit) {
-      setDevicesInit(state)
-      let activeDevicesFromLocalStorage = LocalStorage.get.item('TrackIt Active Devices')
-      if (activeDevicesFromLocalStorage && activeDevicesFromLocalStorage.length) {
-        activeDevicesFromLocalStorage.forEach(id => {
-          if (devices.data.result.filter(device => device.id === id).length) {
-            setActiveDevice(state, id)
-          }
-        })
-      }
+  }
+  if (!state.hasDevicesInit) {
+    setDevicesInit(state)
+    let activeDevicesFromLocalStorage = LocalStorage.get.item('TrackIt Active Devices')
+    if (activeDevicesFromLocalStorage && activeDevicesFromLocalStorage.length) {
+      activeDevicesFromLocalStorage.forEach(id => {
+        if (devices.data.result.filter(device => device.id === id).length) {
+          setActiveDevice(state, id)
+        }
+      })
     }
   }
 }

@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.1.5]] - 2018-02-14
+[fix] empty device page
 ### [0.1.4] - 2018-02-09
 [feature] rebased for new version of flespi-io-js lib
 ### [0.1.3] - 2018-02-02
