@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.1.7] - 2018-02-20
+[feature] flespi-io-js updated
 ### [0.1.6] - 2018-02-15
 [feature] unique client id for all app
 ### [0.1.5] - 2018-02-14

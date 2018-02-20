@@ -23,7 +23,7 @@ let connectionConfig = {socketConfig: { clientId: `trackit-${Math.random().toStr
 if (DEV && !SERVER) {
   connectionConfig = {
     httpConfig: { server: 'https://localhost', port: 9005 },
-    socketConfig: { server: `ws://localhost:9016`, clientId: `trackit-dev-${Math.random().toString(16).substr(2, 8)}` }
+    socketConfig: { server: `wss://localhost:9017`, clientId: `trackit-dev-${Math.random().toString(16).substr(2, 8)}` }
   }
 }
 
@@ -32,7 +32,7 @@ if (PROD && SERVER) {
   if (window.location.host.indexOf('localhost:9004') !== -1 || window.location.host.indexOf('localhost:9005') !== -1 || window.location.host.indexOf('localhost:7004') !== -1) {
     connectionConfig = {
       httpConfig: { server: 'https://localhost', port: 9005 },
-      socketConfig: { server: `ws://localhost:9016`, clientId: `trackit-dev-${Math.random().toString(16).substr(2, 8)}` }
+      socketConfig: { server: `wss://localhost:9017`, clientId: `trackit-dev-${Math.random().toString(16).substr(2, 8)}` }
     }
   }
 }
