@@ -53,7 +53,7 @@
           <q-input type="text" float-label="Search" v-model="telemetrySearch" :inverted="telemetrySettings.inverted" :color="telemetrySettings.inverted ? 'none': ''" />
         </q-item-main>
       </q-item>
-      <q-telemetry :server="telemetryConfig.server" :propHistoryFlag="telemetryConfig.propHistoryFlag" :device="deviceForTelemetry" :inverted="telemetrySettings.inverted" :search="telemetrySearch" />
+      <q-telemetry :propHistoryFlag="telemetryConfig.propHistoryFlag" :device="deviceForTelemetry" :inverted="telemetrySettings.inverted" :search="telemetrySearch" />
     </div>
     <map-component @update:telemetry-device-id="updateTelemetryDeviceId" :activeDevices="activeDevices" :deviceIdForWatch="deviceIdForWatch" :params="params" v-if="devices.length"></map-component>
     <div class="error-page bg-light column items-center no-wrap" v-if="!devices.length && hasDevicesInit">
@@ -76,9 +76,8 @@
 
 <script>
   import { mapState, mapMutations } from 'vuex'
-  import Vue from 'vue'
   import { QLayout, QBtn, QIcon, QToolbar, QToolbarTitle, Loading, QTooltip, QToggle, QPopover, QItem, QList, QItemMain, QItemSide, QItemTile, LocalStorage, QCheckbox, QInput } from 'quasar-framework'
-  import { QTelemetry, module as telemetryVuexModule } from 'qtelemetry'
+  import QTelemetry from 'qtelemetry'
   import MapComponent from './Map.vue'
   import DeviceList from './DeviceList.vue'
   import Login from './Login.vue'
@@ -103,7 +102,6 @@
         },
         telemetrySearch: '',
         telemetryConfig: {
-          server: Vue.config.flespiServer,
           propHistoryFlag: true
         },
         version: dist.version
@@ -167,7 +165,7 @@
       },
       updateTelemetryDeviceId (id) {
         let devicesById = this.devices.filter(device => device.id === id)
-        if (devicesById.length && devicesById[0].telemetry) {
+        if (devicesById.length) {
           setTimeout(this.$refs.layout.showRight, 0)
           this.deviceIdForTelemetry = id
         }
@@ -210,7 +208,6 @@
       }
     },
     created () {
-      this.$store.registerModule('telemetry', telemetryVuexModule(this.$store, Vue))
       if (!this.token) {
         this.$router.push('/login')
       }
