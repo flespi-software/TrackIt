@@ -16,7 +16,7 @@ function getHistoryByDeviceID ({ state, commit, rootState }, ids) {
   try {
     if (rootState.token) {
       ids.forEach(async (id) => {
-        let devicesMessagesResp = await Vue.connector.registry.getDevicesMessages(id, {
+        let devicesMessagesResp = await Vue.connector.gw.getDevicesMessages(id, {
           data: JSON.stringify(data)
         })
         let devicesMessages = devicesMessagesResp.data

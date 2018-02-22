@@ -14,7 +14,7 @@ async function poolDevices ({ state, commit }) {
 async function postMessage ({ state, commit }, { data, id }) {
   commit('reqStart')
   try {
-    let postMessageResp = await Vue.connector.registry.postDevicesMessages(id, data)
+    let postMessageResp = await Vue.connector.gw.postDevicesMessages(id, data)
     let postMessage = postMessageResp.data
     commit('reqSuccessful', {
       type: 'postMessage',

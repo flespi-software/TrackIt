@@ -35,6 +35,15 @@
                     // fresh content will have been added to the cache.
                     // It's the perfect time to display a "New content is
                     // available; please refresh." message in the page's interface.
+                    if (confirm('The new version of TrackIt! is available. Refresh the page to update?')) {
+                      if (window.caches) {/* todo remove after few versions */
+                        window.caches.keys().then(function (cacheNames) {
+                          cacheNames.filter(function (cacheName) { return cacheName.indexOf('toolbox-cache') === -1 })
+                            .map(function (cacheName) { return caches.delete(cacheName) })
+                        })
+                      }
+                      window.location.reload()
+                    }
                     break;
 
                   case 'redundant':
