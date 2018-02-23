@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.1.10] - 2018-02-22
+[fix] packages
 ### [0.1.9] - 2018-02-22
 [feature] migrate from registry to gw
 ### [0.1.8] - 2018-02-21
