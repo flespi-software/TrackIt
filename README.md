@@ -33,19 +33,13 @@ $ cd mytracker
 $ npm install
 
 # serve with hot reload at localhost:7006 for flespi.io
-$ quasar dev
+$ npm run dev
 
 # build for production with minification for flespi.io
-$ quasar build
-
-# lint code
-$ quasar lint
+$ npm run build
 
 # serve with hot reload at localhost:7006 for localhost:9005
 $ npm run dev_local
-
-# build for production with minification for current host
-$ npm run build_local
 ```
 ## Demo
 Check it out [live](http://trackit.flespi.io)!
