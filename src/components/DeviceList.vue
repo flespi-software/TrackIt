@@ -2,7 +2,7 @@
   <q-list separator>
     <q-list-header>
       <big>
-        <q-icon name="mdi-arrow-left" size="1.8rem" class="cursor-pointer lt-lg" style="margin-right: 15px" @click.native="$emit('click:hide')"/>
+        <q-icon name="mdi-arrow-left" size="1.8rem" class="cursor-pointer lt-sm" style="margin-right: 15px" @click.native="$emit('click:hide')"/>
         Devices
       </big>
     </q-list-header>

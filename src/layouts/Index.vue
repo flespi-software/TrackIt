@@ -35,7 +35,7 @@
         </q-btn>
       </q-toolbar>
     </q-layout-header>
-    <q-layout-drawer side="left" v-model="side_left">
+    <q-layout-drawer side="left" v-model="side_left" :breakpoint="576">
       <device-list v-show="devices.length" @update:watch-by-id="setWatchToDeviceID" :deviceIdForWatch="deviceIdForWatch" :activeDevicesID="activeDevicesID" :devices="devices" @click:hide="side_left = false"/>
     </q-layout-drawer>
     <q-layout-drawer side="right" :content-class="{'bg-dark':telemetrySettings.inverted}" v-model="side_right">
