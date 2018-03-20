@@ -23,8 +23,7 @@ function getHistoryByDeviceID ({ state, commit, rootState }, ids) {
         commit('reqSuccessful', devicesMessages)
       })
     }
-  }
-  catch (error) { commit('reqFailed', error, { root: true }) }
+  } catch (error) { commit('reqFailed', error, { root: true }) }
 }
 
 export default {

@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.1.13] - 2018-03-20
+[feature] migrate to new version of quasar
+[update] packages
 ### [0.1.12] - 2018-03-01
 [feature] 403 codes removed
 ### [0.1.11] - 2018-02-27

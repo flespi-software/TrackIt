@@ -1,7 +1,7 @@
 <template>
   <div id="queue" class="absolute-bottom-left absolute-bottom-right">
     <q-tabs v-model="selected" no-pane-border position="bottom" color="dark">
-      <template v-for="(deviceID, index) in activeDevicesID">
+      <template v-for="(deviceID) in activeDevicesID">
         <q-tab-pane :style="[{height:'20vh'}]" class="no-padding" :key="`tab-pane-${deviceID}`" :name="deviceID.toString()">
           <div class="no-messages text-center" v-if="!messages[deviceID].length">
             <div class="text-white" style="font-size: 3rem;">
@@ -25,7 +25,7 @@
               </tr>
               </thead>
               <tbody>
-              <tr v-for="message in messages[deviceID]">
+              <tr v-for="(message, index) in messages[deviceID]" :key="index">
                 <td data-th="Lat">{{message['position.latitude']}}</td>
                 <td data-th="Lon">{{message['position.longitude']}}</td>
                 <td data-th="Alt">{{message['position.altitude']}}</td>
@@ -46,84 +46,80 @@
 </template>
 
 <script>
-  import { QAlert, QTabs, QTab, QTabPane, QBtn } from 'quasar-framework'
-  import moment from 'moment'
-  export default {
-    name: 'Queue',
-    props: [
-      'messages',
-      'activeDevicesID',
-      'devices',
-      'isAdmin',
-      'telemetryDeviceId'
-    ],
-    data () {
-      return {
-        selected: this.activeDevicesID.length ? this.activeDevicesID[0].toString() : '',
-        telemetryOfActiveDevices: this.devices.filter(device => this.activeDevicesID.includes(device.id)).reduce((res, device) => {
+import moment from 'moment'
+export default {
+  name: 'Queue',
+  props: [
+    'messages',
+    'activeDevicesID',
+    'devices',
+    'isAdmin',
+    'telemetryDeviceId'
+  ],
+  data () {
+    return {
+      selected: this.activeDevicesID.length ? this.activeDevicesID[0].toString() : '',
+      telemetryOfActiveDevices: this.devices.filter(device => this.activeDevicesID.includes(device.id)).reduce((res, device) => {
+        res[device.id] = device.telemetry ? device.telemetry : null
+        return res
+      }, {})
+    }
+  },
+  methods: {
+    getEtc (msg) {
+      let buf = Object.assign({}, msg)
+      delete buf['position.latitude']
+      delete buf['position.longitude']
+      delete buf['position.altitude']
+      delete buf['position.direction']
+      delete buf['position.satellites']
+      delete buf['position.speed']
+      delete buf['timestamp']
+      delete buf['device_id']
+      if (!Object.keys(buf).length) {
+        return '*Empty*'
+      }
+      return JSON.stringify(buf)
+    },
+    getNameById (id) {
+      return this.devices.filter(device => device.id === id)[0].name || `&lt;#${id}&gt;`
+    },
+    getTime (ts) {
+      return moment(ts).format('L HH:mm:ss')
+    },
+    sendInitMessages (id) {
+      this.$emit('send', id)
+    }
+  },
+  watch: {
+    devices: {
+      deep: true,
+      handler (val) {
+        this.telemetryOfActiveDevices = val.filter(device => this.activeDevicesID.includes(device.id)).reduce((res, device) => {
           res[device.id] = device.telemetry ? device.telemetry : null
           return res
         }, {})
       }
     },
-    methods: {
-      getEtc (msg) {
-        let buf = Object.assign({}, msg)
-        delete buf['position.latitude']
-        delete buf['position.longitude']
-        delete buf['position.altitude']
-        delete buf['position.direction']
-        delete buf['position.satellites']
-        delete buf['position.speed']
-        delete buf['timestamp']
-        delete buf['device_id']
-        if (!Object.keys(buf).length) {
-          return '*Empty*'
-        }
-        return JSON.stringify(buf)
-      },
-      getNameById (id) {
-        return this.devices.filter(device => device.id === id)[0].name || `&lt;#${id}&gt;`
-      },
-      getTime (ts) {
-        return moment(ts).format('L HH:mm:ss')
-      },
-      sendInitMessages (id) {
-        this.$emit('send', id)
+    activeDevicesID (newVal) {
+      this.telemetryOfActiveDevices = this.devices.filter(device => newVal.includes(device.id)).reduce((res, device) => {
+        res[device.id] = device.telemetry ? device.telemetry : null
+        return res
+      }, {})
+      if (!newVal.length) {
+        this.selected = ''
+      }
+      if ((!this.selected || !newVal.includes(parseInt(this.selected))) && newVal.length) {
+        this.selected = newVal[0].toString()
       }
     },
-    components: {
-      QAlert, QTabs, QTab, QTabPane, QBtn
-    },
-    watch: {
-      devices: {
-        deep: true,
-        handler (val) {
-          this.telemetryOfActiveDevices = val.filter(device => this.activeDevicesID.includes(device.id)).reduce((res, device) => {
-            res[device.id] = device.telemetry ? device.telemetry : null
-            return res
-          }, {})
-        }
-      },
-      activeDevicesID (newVal) {
-        this.telemetryOfActiveDevices = this.devices.filter(device => newVal.includes(device.id)).reduce((res, device) => {
-          res[device.id] = device.telemetry ? device.telemetry : null
-          return res
-        }, {})
-        if (!newVal.length) {
-          this.selected = ''
-        }
-        if ((!this.selected || !newVal.includes(parseInt(this.selected))) && newVal.length) {
-          this.selected = newVal[0].toString()
-        }
-      },
-      telemetryDeviceId (id) {
-        if (id) {
-          this.selected = id.toString()
-        }
+    telemetryDeviceId (id) {
+      if (id) {
+        this.selected = id.toString()
       }
     }
   }
+}
 </script>
 
 <style lang="stylus">
@@ -139,6 +135,19 @@
       transition all .5s ease-in-out
       thead
         background-color: rgba(255, 255, 255, .3);
+        tr
+          height inherit
+          th
+            padding .1rem .3rem
+            text-align left
+            color white
+      tbody
+        tr
+          &:nth-child(odd)
+            background-color rgba(0,0,0,0.1)
+          td
+            height inherit
+            padding .1rem .3rem
     .no-messages
       min-height: 140px;
       opacity: 0.7;

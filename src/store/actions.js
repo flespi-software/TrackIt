@@ -7,8 +7,7 @@ async function poolDevices ({ state, commit }) {
       let ids = await Vue.connector.poolDevices((resp) => { commit('setDevices', resp) }, (type, device) => { commit('updateDevices', { type, device }) })
       return async () => { await Vue.connector.poolDevicesStop(ids) }
     }
-  }
-  catch (error) { commit('reqFailed', error) }
+  } catch (error) { commit('reqFailed', error) }
 }
 
 async function postMessage ({ state, commit }, { data, id }) {
@@ -20,8 +19,7 @@ async function postMessage ({ state, commit }, { data, id }) {
       type: 'postMessage',
       payload: postMessage
     })
-  }
-  catch (error) { commit('reqFailed', error) }
+  } catch (error) { commit('reqFailed', error) }
 }
 
 function checkConnection ({ state, commit }) {

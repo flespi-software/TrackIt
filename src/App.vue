@@ -1,17 +1,14 @@
 <template>
-  <!-- Don't drop "q-app" class -->
   <div id="q-app">
     <router-view />
   </div>
 </template>
 
 <script>
-/*
- * Root component
- */
-export default {}
+export default {
+  name: 'App'
+}
 </script>
 
-<style lang="stylus">
-@import '~variables'
+<style>
 </style>

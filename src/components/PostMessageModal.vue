@@ -1,5 +1,5 @@
 <template>
-  <q-modal @open="modalOpenHandler" ref="postMessageModal" :content-css="{minWidth: '50vw', minHeight: '50vh'}">
+  <q-modal @show="modalOpenHandler" ref="postMessageModal" :content-css="{minWidth: '50vw', minHeight: '50vh'}">
     <q-modal-layout>
       <q-toolbar slot="footer" color="dark">
         <q-btn class="full-width" flat @click="modalSubmit">Send</q-btn>
@@ -7,7 +7,7 @@
       <q-toolbar slot="header" color="dark">
         <span class="header__label">Send message</span>
         <q-icon name="close" class="absolute-top-right cursor-pointer" size="2.5rem" flat
-                @click="modalButtonCloseHandler"></q-icon>
+                @click.native="modalButtonCloseHandler"></q-icon>
       </q-toolbar>
     <div class="modal__wrapper">
       <div class="row">
@@ -57,7 +57,7 @@
         </div>
         <div class="col-2 relative-position">
           <q-icon name="add" class="pull-right cursor-pointer absolute-bottom-right" style="bottom: 10px" size="2rem"
-                  flat @click="addCustomFieldHandler"></q-icon>
+                  flat @click.native="addCustomFieldHandler"></q-icon>
         </div>
       </div>
       <div v-for="(value, key) in custom" class="row" :key="key" style="margin-top: 10px">
@@ -69,7 +69,7 @@
         </div>
         <div class="col-2">
           <q-icon name="remove" class="pull-right cursor-pointer" size="1.5rem" flat
-                  @click="removeCustomFieldHandler(key)"></q-icon>
+                  @click.native="removeCustomFieldHandler(key)"></q-icon>
         </div>
       </div>
     </div>
@@ -78,108 +78,106 @@
 </template>
 
 <script>
-  import Vue from 'vue'
-  import { QModal, QIcon, QBtn, QSelect, QInput, QKnob, QCheckbox, QModalLayout, QToolbar } from 'quasar-framework'
+import Vue from 'vue'
 
-  export default {
-    props: [
-      'currentPos',
-      'deviceID',
-      'lastMessage'
-    ],
-    data () {
-      return {
-        type_current_field: 'string',
-        types_current_field: [
-          {
-            label: 'String',
-            value: 'string'
-          },
-          {
-            label: 'Number',
-            value: 'number'
-          },
-          {
-            label: 'Boolean',
-            value: 'bool'
-          }
-        ],
-        current_custom_field: {
-          key: null,
-          value: null
+export default {
+  props: [
+    'currentPos',
+    'deviceID',
+    'lastMessage'
+  ],
+  data () {
+    return {
+      type_current_field: 'string',
+      types_current_field: [
+        {
+          label: 'String',
+          value: 'string'
         },
-        altitude: 0,
-        speed: 0,
-        satellites: 0,
-        direction: 0,
-        custom: {}
-      }
+        {
+          label: 'Number',
+          value: 'number'
+        },
+        {
+          label: 'Boolean',
+          value: 'bool'
+        }
+      ],
+      current_custom_field: {
+        key: null,
+        value: null
+      },
+      altitude: 0,
+      speed: 0,
+      satellites: 0,
+      direction: 0,
+      custom: {}
+    }
+  },
+  methods: {
+    show () {
+      this.$refs.postMessageModal.show()
     },
-    methods: {
-      open () {
-        this.$refs.postMessageModal.open()
-      },
-      modalOpenHandler () {
-        this.direction = this.lastMessage && this.lastMessage['position.direction'] ? this.lastMessage['position.direction'] : 0
-        let latlonOfLastMessage = Object.keys(this.lastMessage).length ? [this.lastMessage['position.latitude'], this.lastMessage['position.longitude']] : [51.50853, -0.12574]
-        this.$emit('update:marker', {id: this.deviceID, lastPos: latlonOfLastMessage})
-      },
-      modalSubmit () {
-        let data = Object.assign({
-          'position.latitude': this.currentPos.lat,
-          'position.longitude': this.currentPos.lng,
-          'position.altitude': this.altitude,
-          'position.direction': this.direction,
-          'position.satellites': this.satellites,
-          'position.speed': this.speed
-        }, this.custom)
-        this.$store.dispatch('postMessage', {data, id: this.deviceID})
-        this.$emit('update:dragged', false)
-        this.altitude = 0
-        this.satellites = 0
-        this.speed = 0
-        this.custom = {}
+    modalOpenHandler () {
+      this.direction = this.lastMessage && this.lastMessage['position.direction'] ? this.lastMessage['position.direction'] : 0
+      let latlonOfLastMessage = Object.keys(this.lastMessage).length ? [this.lastMessage['position.latitude'], this.lastMessage['position.longitude']] : [51.50853, -0.12574]
+      this.$emit('update:marker', {id: this.deviceID, lastPos: latlonOfLastMessage})
+    },
+    modalSubmit () {
+      let data = Object.assign({
+        'position.latitude': this.currentPos.lat,
+        'position.longitude': this.currentPos.lng,
+        'position.altitude': this.altitude,
+        'position.direction': this.direction,
+        'position.satellites': this.satellites,
+        'position.speed': this.speed
+      }, this.custom)
+      this.$store.dispatch('postMessage', {data, id: this.deviceID})
+      this.$emit('update:dragged', false)
+      this.altitude = 0
+      this.satellites = 0
+      this.speed = 0
+      this.custom = {}
+      this.type_current_field = 'string'
+      this.current_custom_field = {
+        key: null,
+        value: null
+      }
+      this.$refs.postMessageModal.hide()
+    },
+    modalButtonCloseHandler () {
+      this.$emit('update:dragged', false)
+      this.$refs.postMessageModal.hide()
+    },
+    addCustomFieldHandler () {
+      if (this.current_custom_field.key) {
+        Vue.set(this.custom, this.current_custom_field.key, this.current_custom_field.value)
+        this.current_custom_field.key = null
+        this.current_custom_field.value = null
         this.type_current_field = 'string'
-        this.current_custom_field = {
-          key: null,
-          value: null
-        }
-        this.$refs.postMessageModal.close()
-      },
-      modalButtonCloseHandler () {
-        this.$emit('update:dragged', false)
-        this.$refs.postMessageModal.close()
-      },
-      addCustomFieldHandler () {
-        if (this.current_custom_field.key) {
-          Vue.set(this.custom, this.current_custom_field.key, this.current_custom_field.value)
-          this.current_custom_field.key = null
-          this.current_custom_field.value = null
-          this.type_current_field = 'string'
-        }
-      },
-      removeCustomFieldHandler (fieldName) {
-        Vue.delete(this.custom, fieldName)
-      },
-      inputChange (val) {
-        switch (val) {
-          case 'number': {
-            this.current_custom_field.value = 0
-            break
-          }
-          case 'string': {
-            this.current_custom_field.value = ''
-            break
-          }
-          case 'bool': {
-            this.current_custom_field.value = false
-            break
-          }
-        }
       }
     },
-    components: { QModal, QIcon, QBtn, QSelect, QInput, QKnob, QCheckbox, QModalLayout, QToolbar }
+    removeCustomFieldHandler (fieldName) {
+      Vue.delete(this.custom, fieldName)
+    },
+    inputChange (val) {
+      switch (val) {
+        case 'number': {
+          this.current_custom_field.value = 0
+          break
+        }
+        case 'string': {
+          this.current_custom_field.value = ''
+          break
+        }
+        case 'bool': {
+          this.current_custom_field.value = false
+          break
+        }
+      }
+    }
   }
+}
 </script>
 
 <style lang="stylus">

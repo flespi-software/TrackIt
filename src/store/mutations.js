@@ -1,4 +1,4 @@
-import { Cookies, Toast, LocalStorage } from 'quasar-framework'
+import { Cookies, Notify, LocalStorage } from 'quasar'
 import Vue from 'vue'
 
 function reqStart (state) {
@@ -10,8 +10,9 @@ function reqSuccessful (state, { type, payload }) {
   let { result } = payload
   switch (type) {
     case 'postMessage': {
-      Toast.create.positive({
-        html: `Post message to devices with IDs ${result} success`,
+      Notify.create({
+        message: `Post message to devices with IDs ${result} success`,
+        type: 'positive',
         icon: 'alarm_add',
         timeout: 2500,
         bgColor: 'white'
@@ -105,8 +106,7 @@ function setToken (state, val) {
   if (val && token.match(/^[a-z0-9]+$/i)) {
     Vue.connector.token = `FlespiToken ${token}`
     LocalStorage.set('X-Flespi-Token', token)
-  }
-  else {
+  } else {
     token = ''
     Vue.connector.token = ''
     clearToken(state)
