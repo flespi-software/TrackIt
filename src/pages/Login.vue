@@ -100,22 +100,13 @@ export default {
         this.$q.dialog({
           title: 'Confirm',
           message: `Do you want log in by token ${authCookie}.`,
-          buttons: [
-            {
-              label: 'Disagree',
-              handler () {
-                // Toast.create('Disagreed...')
-              }
-            },
-            {
-              label: 'Agree',
-              handler: () => {
-                this.token = authCookie
-                this.logIn()
-              }
-            }
-          ]
+          ok: true,
+          cancel: true
+        }).then(() => {
+          this.token = authCookie
+          this.logIn()
         })
+          .catch(() => {})
       }
     }
   },

@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.2.2] - 2018-03-23
+[feature] new style
+[fix] dialog
 ### [0.2.1] - 2018-03-20
 [fix] hide arrow left drawer
 ### [0.2.0] - 2018-03-20

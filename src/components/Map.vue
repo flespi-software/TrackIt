@@ -397,41 +397,46 @@ export default {
 
 <style lang="stylus">
   @import "~leaflet/dist/leaflet.css";
-  #map {
-    height: 100%;
-  }
-  .leaflet-container.crosshair-cursor-enabled {
-    cursor:crosshair;
-  }
-  .my-div-icon__inner {
-    border: 3px solid;
-    border-radius: 50% 0 50% 50%;
-    background-color: rgba(255, 255, 255, .5);
-    height:100%
-  }
-  .my-div-icon__name {
-    line-height: 20px;
-    font-size: .9rem;
-    font-weight: bolder;
-    position: absolute;
-    top: 0;
-    left: 30px;
-    max-width: 200px;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    background-color: rgba(0,0,0,0.5);
-    color: #fff;
-    border-radius: 5px;
-    padding: 0 5px;
-    border: 1px solid white
-    box-shadow: 3px 3px 10px #999
-  }
-  .direction {
-    border: 2px solid black;
-    border-radius: 50% 0 50% 50%;
-    background-color: white;
-    opacity: .5;
-    height: 20px
+  #map
+    height 100%
+  .leaflet-container.crosshair-cursor-enabled
+    cursor crosshair
+  .leaflet-control-zoom.leaflet-bar
+    top 50px
+    left 6px
+    border none
+    .leaflet-control-zoom-in, .leaflet-control-zoom-out
+      background-color rgba(0,0,0,.25)
+      color #333
+      border-color #666
+      border-radius 50%!important
+      margin-bottom 5px
+  .my-div-icon__inner
+    border 3px solid
+    border-radius 50% 0 50% 50%
+    background-color rgba(255, 255, 255, .5)
+    height 100%
+  .my-div-icon__name
+    line-height 20px
+    font-size .9rem
+    font-weight bolder
+    position absolute
+    top 0
+    left 30px
+    max-width 200px
+    text-overflow ellipsis
+    overflow hidden
+    background-color rgba(0,0,0,0.5)
+    color #fff
+    border-radius 5px
+    padding 0 5px
+    border 1px solid white
+    box-shadow 3px 3px 10px #999
+  .direction
+    border 2px solid black
+    border-radius 50% 0 50% 50%
+    background-color white
+    opacity .5
+    height 20px
     width 20px
-  }
 </style>
