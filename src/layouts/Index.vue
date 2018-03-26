@@ -28,39 +28,41 @@
     </q-layout-drawer>
     <q-page-container>
       <q-page>
-        <q-toolbar color="none" style="z-index: 2000" v-if="devices.length">
-          <q-btn @click="side_left = !side_left" small round flat color="dark" size="md">
-            <q-icon name="menu" />
-          </q-btn>
-          <img src="../statics/track-it-logo.png" alt="Track it!" style="height: 40px; margin-top: 3px">
-          <q-toolbar-title style="color: #333">
-            Track it! <sup>0.2.1</sup>
-            <span slot="subtitle">Find yourself</span>
-          </q-toolbar-title>
-          <a href="https://github.com/flespi-software/TrackIt/" target="_blank"><q-btn flat color="dark"><img style="height: 30px;" src="../statics/GitHub-Mark-32px.png" alt="GitHub"><q-tooltip>Show on GitHub</q-tooltip></q-btn></a>
-          <q-btn small round flat size="md">
-            <q-icon color="dark" name="more_vert" />
-            <q-popover ref="popover-menu">
-              <q-list link separator class="scroll" style="min-width: 200px">
-                <q-item>
-                  <q-toggle @input="menuChangeHandler" v-model="params.needShowMessages" icon="dvr" label="Messages" />
-                </q-item>
-                <q-item>
-                  <q-toggle @input="menuChangeHandler" v-model="params.needShowTelemetry" icon="av_timer" label="Telemetry" />
-                </q-item>
-                <q-item>
-                  <q-toggle @input="menuChangeHandler" v-model="params.needShowNamesOnMap" icon="pin_drop" label="Names" />
-                </q-item>
-                <q-item @click.native="exitHandler">
-                  <q-item-side icon="exit_to_app"/>
-                  <q-item-main>
-                    <q-item-tile label>Exit</q-item-tile>
-                  </q-item-main>
-                </q-item>
-              </q-list>
-            </q-popover>
-          </q-btn>
-        </q-toolbar>
+        <q-btn @click="side_left = !side_left" small round flat color="dark" size="md" v-if="devices.length" class="floated menu">
+          <q-icon name="menu" />
+        </q-btn>
+        <div class="floated label">
+          <img src="../statics/track-it-logo.png" alt="Track it!" style="height: 40px; margin-top: 3px; display: inline-block">
+          <div class="q-toolbar-title" style="color: rgb(51, 51, 51); display: inline-block">
+            Track it! <sup>{{version}}</sup>
+            <div class="q-toolbar-subtitle">
+              Find yourself
+            </div>
+          </div>
+        </div>
+        <a href="https://github.com/flespi-software/TrackIt/" class="floated github" target="_blank"><q-btn flat color="dark"><img style="height: 30px;" src="../statics/GitHub-Mark-32px.png" alt="GitHub"><q-tooltip>Show on GitHub</q-tooltip></q-btn></a>
+        <q-btn small round flat size="md" v-if="devices.length" class="floated options">
+          <q-icon color="dark" name="more_vert" />
+          <q-popover ref="popover-menu">
+            <q-list link separator class="scroll" style="min-width: 200px">
+              <q-item>
+                <q-toggle @input="menuChangeHandler" v-model="params.needShowMessages" icon="dvr" label="Messages" />
+              </q-item>
+              <q-item>
+                <q-toggle @input="menuChangeHandler" v-model="params.needShowTelemetry" icon="av_timer" label="Telemetry" />
+              </q-item>
+              <q-item>
+                <q-toggle @input="menuChangeHandler" v-model="params.needShowNamesOnMap" icon="pin_drop" label="Names" />
+              </q-item>
+              <q-item @click.native="exitHandler">
+                <q-item-side icon="exit_to_app"/>
+                <q-item-main>
+                  <q-item-tile label>Exit</q-item-tile>
+                </q-item-main>
+              </q-item>
+            </q-list>
+          </q-popover>
+        </q-btn>
         <map-component @update:telemetry-device-id="updateTelemetryDeviceId" :activeDevices="activeDevices" :deviceIdForWatch="deviceIdForWatch" :params="params" v-if="devices.length"></map-component>
         <div class="error-page bg-light column items-center no-wrap" v-if="!devices.length && hasDevicesInit">
           <a v-if="!$q.platform.is.mobile" href="https://github.com/flespi-software/TrackIt/" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0; width: 149px; height: 149px;" src="../statics/right-graphite@2x.png" alt="Fork me on GitHub"></a>
@@ -211,6 +213,32 @@ export default {
 </script>
 
 <style lang="stylus">
+  .floated
+    &.label
+      color: #333
+      position: absolute
+      top: 5px
+      left: 70px
+      z-index: 2000
+      border-radius: 5px
+      opacity: .9
+      pointer-events none
+      user-select none
+    &.menu
+      z-index 2000
+      position absolute
+      top 5px
+      left 10px
+    &.github
+      z-index 2000
+      position absolute
+      top 5px
+      right 50px
+    &.options
+      z-index 2000
+      position absolute
+      top 5px
+      right 10px
   .error-page
     height 100vh
     .error-code

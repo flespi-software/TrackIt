@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.2.3] - 2018-03-26
+[fix] rebuild header
 ### [0.2.2] - 2018-03-23
 [feature] new style
 [fix] dialog
