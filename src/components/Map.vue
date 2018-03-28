@@ -91,7 +91,11 @@ export default {
       if (!this.map) {
         this.map = L.map('map', {
           center: [51.50853, -0.12574],
-          zoom: 3
+          zoom: 3,
+          maxBounds: [
+            [90, -180],
+            [-90, 180]
+          ]
         })
         this.map.addEventListener('zoom', e => {
           if (!e.flyTo) {
@@ -115,7 +119,7 @@ export default {
             this.admin.counter = 0
           }, 2000)
         })
-        L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map)
+        L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {minZoom: 3, noWrap: true}).addTo(this.map)
       }
     },
     generateIcon (id, name, color) {

@@ -25,7 +25,7 @@
               </tr>
               </thead>
               <tbody>
-              <tr v-for="(message, index) in messages[deviceID]" :key="index">
+              <tr v-for="(message, index) in messages[deviceID]" :key="index" @click="selectedMessageIndex = index, $refs.messageViewer.show()" class="cursor-pointer">
                 <td data-th="Lat">{{message['position.latitude']}}</td>
                 <td data-th="Lon">{{message['position.longitude']}}</td>
                 <td data-th="Alt">{{message['position.altitude']}}</td>
@@ -42,11 +42,13 @@
         <q-tab :key="`tab-${deviceID}`" :label="getNameById(deviceID)" slot="title" :name="deviceID.toString()" />
       </template>
     </q-tabs>
+    <message-viewer ref="messageViewer" :message="typeof selectedMessageIndex !== 'undefined' ? messages[selected][selectedMessageIndex] : {}" inverted @close="selectedMessageIndex = undefined"></message-viewer>
   </div>
 </template>
 
 <script>
 import moment from 'moment'
+import MessageViewer from './MessageViewer'
 export default {
   name: 'Queue',
   props: [
@@ -58,6 +60,7 @@ export default {
   ],
   data () {
     return {
+      selectedMessageIndex: undefined,
       selected: this.activeDevicesID.length ? this.activeDevicesID[0].toString() : '',
       telemetryOfActiveDevices: this.devices.filter(device => this.activeDevicesID.includes(device.id)).reduce((res, device) => {
         res[device.id] = device.telemetry ? device.telemetry : null
@@ -118,7 +121,8 @@ export default {
         this.selected = id.toString()
       }
     }
-  }
+  },
+  components: {MessageViewer}
 }
 </script>
 

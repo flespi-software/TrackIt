@@ -8,7 +8,8 @@ module.exports = function (ctx) {
     // app plugins (/src/plugins)
     plugins: [
       'i18n',
-      'flespi-io'
+      'flespi-io',
+      'clipboard'
     ],
     css: [
       'app.styl'
