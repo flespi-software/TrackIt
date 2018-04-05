@@ -13,7 +13,8 @@ let state = {
   devices: [],
   activeDevicesID: [],
   hasDevicesInit: false,
-  offline: false
+  offline: false,
+  isLoading: false
 }
 
 const store = new Vuex.Store(

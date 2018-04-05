@@ -3,7 +3,7 @@
     <q-layout-drawer side="left" v-model="side_left" :breakpoint="576" behavior="mobile">
       <device-list v-show="devices.length" @update:watch-by-id="setWatchToDeviceID" :deviceIdForWatch="deviceIdForWatch" :activeDevicesID="activeDevicesID" :devices="devices" @click:hide="side_left = false"/>
     </q-layout-drawer>
-    <q-layout-drawer side="right" :content-class="{'bg-dark':telemetrySettings.inverted}" v-model="side_right">
+    <q-layout-drawer side="right" no-swipe-open no-swipe-close :content-class="{'bg-dark':telemetrySettings.inverted}" v-model="side_right">
       <div v-if="params.needShowTelemetry && deviceIdForTelemetry && activeDevicesID.includes(deviceIdForTelemetry)">
         <q-item>
           <q-item-side left><q-icon :color="telemetrySettings.inverted ? 'white' : ''" size="1.8rem" name="developer_board"/></q-item-side>
@@ -40,7 +40,25 @@
             </div>
           </div>
         </div>
-        <a href="https://github.com/flespi-software/TrackIt/" class="floated github" target="_blank"><q-btn flat color="dark"><img style="height: 30px;" src="../statics/GitHub-Mark-32px.png" alt="GitHub"><q-tooltip>Show on GitHub</q-tooltip></q-btn></a>
+        <div v-if="devices.length && mode === 0" class="floated date">
+          <q-datetime
+            format="DD-MM-YYYY"
+            style="display: inline-flex;"
+            v-model="date"
+            color="grey-8"
+            modal
+          />
+        </div>
+        <div v-if="!activeDevicesID.length" class="floated no-devices">
+          <span class="no-devices__message">You have no selected devices</span>
+          <div style="margin-top: 15px;">
+            <q-btn style="pointer-events: auto" @click="side_left = !side_left" color="black" size="md" v-if="devices.length">
+              select devices
+            </q-btn>
+          </div>
+        </div>
+        <q-btn small round flat size="md" v-if="devices.length" class="floated mode" :icon="mode === 1 ? 'playlist_play' : 'history'" @click="changeMode"/>
+        <a v-if="$q.platform.is.desktop" href="https://github.com/flespi-software/TrackIt/" class="floated github" target="_blank"><q-btn flat round color="dark"><img style="height: 30px;" src="../statics/GitHub-Mark-32px.png" alt="GitHub"><q-tooltip>Show on GitHub</q-tooltip></q-btn></a>
         <q-btn small round flat size="md" v-if="devices.length" class="floated options">
           <q-icon color="dark" name="more_vert" />
           <q-popover ref="popover-menu">
@@ -54,7 +72,7 @@
               <q-item>
                 <q-toggle @input="menuChangeHandler" v-model="params.needShowNamesOnMap" icon="pin_drop" label="Names" />
               </q-item>
-              <q-item @click.native="exitHandler">
+              <q-item class="within-iframe-hide" @click.native="exitHandler">
                 <q-item-side icon="exit_to_app"/>
                 <q-item-main>
                   <q-item-tile label>Exit</q-item-tile>
@@ -63,7 +81,15 @@
             </q-list>
           </q-popover>
         </q-btn>
-        <map-component @update:telemetry-device-id="updateTelemetryDeviceId" :activeDevices="activeDevices" :deviceIdForWatch="deviceIdForWatch" :params="params" v-if="devices.length"></map-component>
+        <map-component
+          @update:telemetry-device-id="updateTelemetryDeviceId"
+          :activeDevices="activeDevices"
+          :deviceIdForWatch="deviceIdForWatch"
+          :params="params"
+          :mode="mode"
+          v-if="devices.length"
+          :date="date"
+        />
         <div class="error-page bg-light column items-center no-wrap" v-if="!devices.length && hasDevicesInit">
           <a v-if="!$q.platform.is.mobile" href="https://github.com/flespi-software/TrackIt/" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0; width: 149px; height: 149px;" src="../statics/right-graphite@2x.png" alt="Fork me on GitHub"></a>
           <div class="error-code flex items-center justify-center">
@@ -85,7 +111,7 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex'
+import { mapState, mapMutations, mapActions } from 'vuex'
 import QTelemetry from 'qtelemetry'
 import MapComponent from '../components/Map.vue'
 import DeviceList from '../components/DeviceList.vue'
@@ -106,23 +132,48 @@ export default {
       telemetrySettings: {
         inverted: true
       },
+      mode: 1,
       telemetrySearch: '',
       telemetryConfig: {
         propHistoryFlag: true
       },
-      version: dist.version
+      version: dist.version,
+      date: 0
     }
   },
   computed: {
     ...mapState({
+
       token: (state) => state.token,
       devices: (state) => state.devices,
-      activeDevicesID: (state) => state.activeDevicesID,
-      hasDevicesInit: state => state.hasDevicesInit
+      isLoading: (state) => {
+        return state.isLoading
+      },
+      activeDevicesID (state) {
+        if (this.mode === 0) {
+          this.getLastUpdatePosition()
+            .then((date) => {
+              this.date = date
+            })
+        }
+        return state.activeDevicesID
+      },
+      hasDevicesInit: state => state.hasDevicesInit,
+      activeDevices: state => state.devices.filter(device => state.activeDevicesID.includes(device.id)),
+      lastActiveDevicesUpdate (state) {
+        return this.activeDevicesID.reduce((result, id) => {
+          let messages = state.messages[id].messages.filter((message) => {
+            return !!message['position.latitude'] && !!message['position.longitude']
+          })
+          if (!messages.length) {
+            result[id] = 0
+          } else {
+            result[id] = Math.floor(messages[messages.length - 1].timestamp * 1000)
+          }
+          return result
+        }, {})
+      }
     }),
-    activeDevices () {
-      return this.$store.state.devices.filter(device => this.$store.state.activeDevicesID.includes(device.id))
-    },
     deviceForTelemetry () {
       return this.deviceIdForTelemetry ? this.devices.filter(device => device.id === this.deviceIdForTelemetry)[0] : {}
     }
@@ -139,6 +190,7 @@ export default {
       'setDevicesInit',
       'unsetDevicesInit'
     ]),
+    ...mapActions(['getLastUpdatePosition']),
     exitHandler (e) {
       this.unsetDevicesInit()
       this.clearToken()
@@ -163,6 +215,20 @@ export default {
       } else {
         this.deviceIdForTelemetry = null
         this.side_right = false
+      }
+    },
+    changeMode () {
+      if (this.mode === 1) {
+        /* history mode change logic */
+        this.getLastUpdatePosition()
+          .then((date) => {
+            this.date = date
+            this.mode = 0
+          })
+      } else {
+        /* rt mode change logic */
+        this.date = 0
+        this.mode = 1
       }
     }
   },
@@ -239,6 +305,29 @@ export default {
       position absolute
       top 5px
       right 10px
+    &.mode
+      z-index 2000
+      position absolute
+      top 50px
+      right 10px
+    &.date
+      z-index 2000
+      position absolute
+      top 60px
+      right 50px
+    &.no-devices
+      z-index 2000
+      position absolute
+      bottom 150px
+      text-align center
+      width 100%
+      pointer-events none
+      user-select none
+      .no-devices__message
+        font-size 3rem
+        opacity .5
+        font-weight bolder
+        text-transform uppercase
   .error-page
     height 100vh
     .error-code

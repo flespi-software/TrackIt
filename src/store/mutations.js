@@ -131,7 +131,8 @@ function setActiveDevice (state, id) {
   LocalStorage.set('TrackIt Active Devices', state.activeDevicesID)
 }
 function unsetActiveDevice (state, id) {
-  state.activeDevicesID = state.activeDevicesID.filter(currentId => currentId !== id)
+  let index = state.activeDevicesID.indexOf(id)
+  state.activeDevicesID.splice(index, 1)
   LocalStorage.set('TrackIt Active Devices', state.activeDevicesID)
 }
 function setDevicesInit (state) {

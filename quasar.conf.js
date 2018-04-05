@@ -86,7 +86,12 @@ module.exports = function (ctx) {
         'QToggle',
         'QPopover',
         'QProgress',
-        'QSpinnerGears'
+        'QSpinnerGears',
+        'QWindowResizeObservable',
+        'QDatetime',
+        'QSearch',
+        'QSlider',
+        'QField'
       ],
       // Quasar plugins
       plugins: [

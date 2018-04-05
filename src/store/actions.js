@@ -22,20 +22,42 @@ async function postMessage ({ state, commit }, { data, id }) {
   } catch (error) { commit('reqFailed', error) }
 }
 
-function checkConnection ({ state, commit }) {
-  Vue.connector.http.get(`/statics/icons/favicon-16x16.png?_=${(new Date()).getTime()}`)
-    .then(resp => {
-      if (resp.status === 200) {
-        commit('setOfflineFlag', false)
-      }
-    })
-    .catch(err => {
-      console.log(err)
-    })
+async function checkConnection ({ state, commit }) {
+  try {
+    let resp = await Vue.connector.http.external.get(`./statics/icons/favicon-16x16.png?_=${(new Date()).getTime()}`)
+    if (resp.status === 200 && state.offline) {
+      commit('setOfflineFlag', false)
+    }
+  } catch (e) {
+    if (DEV) {
+      console.log(e)
+    }
+    if (!state.offline) {
+      commit('setOfflineFlag', true)
+    }
+  }
+}
+
+async function getLastUpdatePosition ({ state }, selector) {
+  let items = selector || state.activeDevicesID.join(',')
+  if (items) {
+    let telemetryResp = await Vue.connector.gw.getDevices(items, {fields: 'id,telemetry'}),
+      now = Math.max(
+        ...telemetryResp.data.result.reduce((result, info) => {
+          result.push(info.telemetry && info.telemetry['position.latitude'] ? Math.floor(info.telemetry['position.latitude'].ts * 1000) : 0)
+          result.push(info.telemetry && info.telemetry['position.longitude'] ? Math.floor(info.telemetry['position.longitude'].ts * 1000) : 0)
+          return result
+        }, [])
+      )
+    return now - (now % 86400000)
+  } else {
+    return Date.now()
+  }
 }
 
 export default {
   poolDevices,
   postMessage,
-  checkConnection
+  checkConnection,
+  getLastUpdatePosition
 }

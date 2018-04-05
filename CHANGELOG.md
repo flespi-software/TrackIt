@@ -1,5 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.3.0] - 2018-04-05
+[feature] rebased messages
+[feature] rebased offline mode
+[feature] added history mode
+[feature] added messages with no selected devices
 ### [0.2.4] - 2018-03-27
 [feature] message viewer added
 [feature] fixed map
