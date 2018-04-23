@@ -80,20 +80,22 @@ function reqFailed (state, payload) {
     console.log('Failed Request')
     console.log(payload)
   }
-  switch (payload.response.status) {
-    case 0: {
-      setOfflineFlag(state, true)
-      unsetDevicesInit(state)
-      Vue.set(state, 'token', '')
-      break
-    }
-    case 401: {
-      clearToken(state)
-      break
-    }
-    default: {
-      if (DEV) {
-        console.log(`${payload.status} - ${payload.statusText}`)
+  if (payload.response && payload.response.status) {
+    switch (payload.response.status) {
+      case 0: {
+        setOfflineFlag(state, true)
+        unsetDevicesInit(state)
+        Vue.set(state, 'token', '')
+        break
+      }
+      case 401: {
+        clearToken(state)
+        break
+      }
+      default: {
+        if (DEV) {
+          console.log(`${payload.status} - ${payload.statusText}`)
+        }
       }
     }
   }

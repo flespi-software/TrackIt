@@ -2,25 +2,22 @@
   <div id="queue" class="absolute-bottom-left absolute-bottom-right">
     <q-tabs v-model="selected" no-pane-border position="bottom" color="dark">
       <template v-for="(deviceID) in activeDevicesID">
-        <q-tab-pane :style="[{height:'20vh', position: 'relative'}]" class="no-padding" :key="`tab-pane-${deviceID}`" :name="deviceID.toString()">
-          <div class="no-messages text-center" v-if="!messages[deviceID].length">
-            <div class="text-white" style="font-size: 3rem;">
-              <div>No messages</div>
-              <div style="font-size: 1.5rem;">or position is empty</div>
-            </div>
-            <q-btn color="dark" v-if="isAdmin && mode === 1" @click="sendInitMessages(deviceID)">Send message</q-btn>
-          </div>
-          <div class="table__wrapper" v-if="messages[deviceID].length">
-            <messages
-              :messages="messages[deviceID]"
-              :mode="mode"
-              :item="devices[deviceID]"
-              :activeId="deviceID"
-              :limit="2000"
-              :date="date"
-            ></messages>
-          </div>
-        </q-tab-pane>
+        <queue-item
+          :key="`tab-pane-${deviceID}`"
+          :id="deviceID"
+          :messages="messages[deviceID]"
+          :mode="mode"
+          :date="date"
+          :isAdmin="isAdmin"
+          :device="devices[deviceID]"
+          :needShowMessages="needShowMessages"
+          :needShowPlayer="needShowPlayer"
+          @send="sendInitMessages"
+          @play="playHandler"
+          @stop="stopHandler"
+          @change:needShowTail="(flag) => {$emit('change:needShowTail', flag)}"
+          @change:needShowMessages="(flag) => {$emit('change:needShowMessages', flag)}"
+        />
         <q-tab :key="`tab-${deviceID}`" :label="getNameById(deviceID)" slot="title" :name="deviceID.toString()" />
       </template>
     </q-tabs>
@@ -28,7 +25,7 @@
 </template>
 
 <script>
-import Messages from './Messages'
+import QueueItem from './QueueItem'
 export default {
   name: 'Queue',
   props: [
@@ -38,7 +35,9 @@ export default {
     'isAdmin',
     'telemetryDeviceId',
     'mode',
-    'date'
+    'date',
+    'needShowMessages',
+    'needShowPlayer'
   ],
   data () {
     return {
@@ -46,7 +45,8 @@ export default {
       telemetryOfActiveDevices: this.devices.filter(device => this.activeDevicesID.includes(device.id)).reduce((res, device) => {
         res[device.id] = device.telemetry ? device.telemetry : null
         return res
-      }, {})
+      }, {}),
+      playerValue: 0
     }
   },
   methods: {
@@ -55,6 +55,17 @@ export default {
     },
     sendInitMessages (id) {
       this.$emit('send', id)
+    },
+    playHandler (data) {
+      this.$emit('play', data)
+    },
+    stopHandler (data) {
+      this.$emit('stop', data)
+    }
+  },
+  created () {
+    if (this.activeDevicesID.length) {
+      this.$emit('change:selected', parseInt(this.activeDevicesID[0]))
     }
   },
   watch: {
@@ -83,35 +94,31 @@ export default {
       if (id) {
         this.selected = id.toString()
       }
+    },
+    selected (selected) {
+      this.$emit('change:selected', parseInt(selected))
     }
   },
-  components: {Messages}
+  components: { QueueItem }
 }
 </script>
 
 <style lang="stylus">
   #queue
-    z-index: 1000
-    table
-      width 100%
-      td
-        white-space nowrap
+    z-index 1000
     .table__wrapper
       overflow auto
       font-size 80%
-      transition all .5s ease-in-out
-      height 100%
+      position relative
     .no-messages
-      min-height: 140px;
-      opacity: 0.7;
+      min-height 140px
+      opacity 0.7
     .q-tabs
       height 100%
-      .q-tab-label {
-        max-width: 100px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
+      .q-tab-label
+        max-width 100px
+        overflow hidden
+        text-overflow ellipsis
       .q-tab-pane
-        background-color rgba(0,0,0,.5);
-        transition all .5s ease-in-out
+        background-color rgba(0,0,0,.5)
 </style>

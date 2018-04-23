@@ -1,6 +1,6 @@
 <template>
   <q-layout ref="layout" view="hHh LpR lFf">
-    <q-layout-drawer side="left" v-model="side_left" :breakpoint="576" behavior="mobile">
+    <q-layout-drawer side="left" :no-swipe-open="$q.platform.is.desktop" :no-swipe-close="$q.platform.is.desktop" v-model="side_left" :breakpoint="576" behavior="mobile">
       <device-list v-show="devices.length" @update:watch-by-id="setWatchToDeviceID" :deviceIdForWatch="deviceIdForWatch" :activeDevicesID="activeDevicesID" :devices="devices" @click:hide="side_left = false"/>
     </q-layout-drawer>
     <q-layout-drawer side="right" no-swipe-open no-swipe-close :content-class="{'bg-dark':telemetrySettings.inverted}" v-model="side_right">
@@ -67,6 +67,9 @@
                 <q-toggle @input="menuChangeHandler" v-model="params.needShowMessages" icon="dvr" label="Messages" />
               </q-item>
               <q-item>
+                <q-toggle @input="menuChangeHandler" v-model="params.needShowPlayer" :disable="mode === 1" icon="mdi-play" label="Player" />
+              </q-item>
+              <q-item>
                 <q-toggle @input="menuChangeHandler" v-model="params.needShowTelemetry" icon="av_timer" label="Telemetry" />
               </q-item>
               <q-item>
@@ -89,6 +92,7 @@
           :mode="mode"
           v-if="devices.length"
           :date="date"
+          @change:needShowMessages="(value) => { params.needShowMessages = value }"
         />
         <div class="error-page bg-light column items-center no-wrap" v-if="!devices.length && hasDevicesInit">
           <a v-if="!$q.platform.is.mobile" href="https://github.com/flespi-software/TrackIt/" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0; width: 149px; height: 149px;" src="../statics/right-graphite@2x.png" alt="Fork me on GitHub"></a>
@@ -125,7 +129,8 @@ export default {
       params: {
         needShowMessages: false,
         needShowTelemetry: true,
-        needShowNamesOnMap: true
+        needShowNamesOnMap: true,
+        needShowPlayer: true
       },
       side_left: false,
       side_right: false,

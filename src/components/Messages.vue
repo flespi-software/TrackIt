@@ -29,11 +29,11 @@
                           :rowWidth="rowWidth"
                           :etcVisible="etcVisible"
                           :actionsVisible="actionsVisible"
-                          :selected="`${JSON.stringify(item)}${index}` === selectedItemKey"
+                          :selected="index === selected"
                           @item-click="viewMessagesHandler"
       />
     </virtual-scroll-list>
-    <message-viewer ref="messageViewer" :message="typeof selectedMessage !== 'undefined' ? selectedMessage : {}" inverted @close="selectedItemKey = null, selectedMessage = undefined"></message-viewer>
+    <message-viewer ref="messageViewer" :message="typeof selectedMessage !== 'undefined' ? selectedMessage : {}" inverted @close="closeHandler"></message-viewer>
   </div>
 </template>
 
@@ -64,20 +64,20 @@ export default {
   props: [
     'mode',
     'item',
-    'activeId',
+    'activeDeviceId',
     'limit',
     'messages',
-    'date'
+    'date',
+    'activeMessagesIds'
   ],
   data () {
     return {
       selectedMessage: undefined,
-      selectedItemKey: null,
       theme: config.theme,
       i18n: {},
       viewConfig: config.viewConfig,
       actions: config.actions,
-      moduleName: this.activeId
+      moduleName: this.activeDeviceId
     }
   },
   computed: {
@@ -120,6 +120,14 @@ export default {
       set (val) {
         val ? this.$store.commit(`messages/${this.moduleName}/setLimit`, val) : this.$store.commit(`messages/${this.moduleName}/setLimit`, 1000)
       }
+    },
+    selected: {
+      get () {
+        return this.$store.state.messages[this.moduleName].selected
+      },
+      set (val) {
+        this.$store.commit(`messages/${this.moduleName}/setSelected`, val)
+      }
     }
   },
   methods: {
@@ -153,9 +161,17 @@ export default {
       this.$store.dispatch(`messages/${this.moduleName}/get`, {name: 'paginationNext', payload: timestamp})
     },
     viewMessagesHandler ({index, content}) {
-      this.selectedItemKey = `${JSON.stringify(content)}${index}`
+      this.selected = index
       this.selectedMessage = content
       this.$refs.messageViewer.show()
+      this.$emit('view')
+    },
+    closeHandler () {
+      this.selected = null
+      this.selectedMessage = undefined
+      if (this.activeMessagesIds.length) {
+        this.selected = this.activeMessagesIds[this.activeMessagesIds.length - 1]
+      }
     },
     copyMessageHandler ({index, content}) {
       this.$copyText(JSON.stringify(content)).then((e) => {
@@ -175,18 +191,29 @@ export default {
       })
     },
     unselect () {
-      if (this.selectedItemKey) {
-        this.selectedItemKey = null
+      if (this.selected) {
+        this.selected = null
+      }
+    },
+    highlightSelected (indexes) {
+      if (indexes.length) {
+        indexes.forEach((index) => {
+          this.selected = index
+        })
       }
     }
   },
   watch: {
     limit (limit) {
       this.currentLimit = limit
+    },
+    activeMessagesIds (indexes) {
+      this.highlightSelected(indexes)
     }
   },
   async created () {
     this.currentLimit = this.limit
+    this.highlightSelected(this.activeMessagesIds)
   },
   components: { VirtualScrollList, MessagesListItem, MessageViewer }
 }

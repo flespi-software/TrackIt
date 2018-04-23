@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.0] - 2018-04-23
+[feature] added player for history mode
 ### [0.3.0] - 2018-04-05
 [feature] rebased messages
 [feature] rebased offline mode

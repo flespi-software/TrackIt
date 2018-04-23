@@ -91,7 +91,8 @@ module.exports = function (ctx) {
         'QDatetime',
         'QSearch',
         'QSlider',
-        'QField'
+        'QField',
+        'QRange'
       ],
       // Quasar plugins
       plugins: [
@@ -100,7 +101,8 @@ module.exports = function (ctx) {
         'LocalStorage',
         'Cookies',
         'Dialog'
-      ]
+      ],
+      directives: ['TouchPan']
     },
     // animations: 'all' --- includes all animations
     animations: [
