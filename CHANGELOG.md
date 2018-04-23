@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.5] - 2018-04-23
+[fix] tail logic
 ### [0.4.4] - 2018-04-23
 [fix] empty messages case
 ### [0.4.4] - 2018-04-23

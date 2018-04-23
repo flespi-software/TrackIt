@@ -419,7 +419,7 @@ export default {
     },
     changeShowTail (flag) {
       Object.keys(this.tracks).forEach((trackId) => {
-        if (this.tracks[trackId].tail && this.tracks[trackId].tail instanceof L.Polyline) {
+        if (this.tracks[trackId] && this.tracks[trackId].tail && this.tracks[trackId].tail instanceof L.Polyline) {
           flag ? this.tracks[trackId].tail.addTo(this.map) : this.tracks[trackId].tail.remove()
         }
       })
