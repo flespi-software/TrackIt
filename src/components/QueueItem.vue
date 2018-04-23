@@ -1,10 +1,5 @@
 <template>
-  <q-tab-pane
-    :keep-alive="mode === 0"
-    :style="[{height: height, position: 'relative'}]"
-    class="no-padding"
-    :name="id.toString()"
-  >
+  <div :style="[{height: height, position: 'relative'}]">
     <div class="no-messages text-center" v-if="!messages.length && needShowMessages">
       <div class="text-white" style="font-size: 3rem;">
         <div>No messages</div>
@@ -75,7 +70,7 @@
         @prev="playerPrevHandler"
       />
     </div>
-  </q-tab-pane>
+  </div>
 </template>
 
 <script>
@@ -95,7 +90,7 @@ export default {
   ],
   data () {
     return {
-      playerValue: this.messages.length ? Math.floor(this.messages[0].timestamp) : 0,
+      playerValue: 0,
       activeMessagesIndexes: [],
       needPolyline: false,
       messagesFlag: this.needShowMessages
@@ -129,7 +124,7 @@ export default {
         if (this.needShowMessages && !this.needShowPlayer) {
           return '20vh'
         } else if (!this.needShowMessages && this.needShowPlayer) {
-          return '6vh'
+          return '65px'
         } else {
           return '30vh'
         }
@@ -139,7 +134,7 @@ export default {
         } else if (this.needShowMessages && !this.needShowPlayer) {
           return '20vh'
         } else if (!this.needShowMessages && this.needShowPlayer) {
-          return '6vh'
+          return '65px'
         } else {
           return '0vh'
         }
@@ -159,6 +154,10 @@ export default {
         }
       })
       return currentTimestamp
+    },
+    update (timestamp) {
+      this.$emit('play', {id: this.id, messagesIndexes: this.indexesByTimestamp[timestamp]})
+      this.activeMessagesIndexes = this.indexesByTimestamp[timestamp]
     },
     playerNextHandler () {
       let timestamps = Object.keys(this.indexesByTimestamp),
@@ -212,17 +211,34 @@ export default {
         }
       })
       if (!isEquilPrevTimestamp) {
-        this.$emit('play', {id: this.id, messagesIndexes: this.indexesByTimestamp[currentTimestamp]})
-        this.activeMessagesIndexes = this.indexesByTimestamp[currentTimestamp]
+        this.update(currentTimestamp)
       }
     },
+    needShowMessages (val) {
+      this.messagesFlag = val
+    },
     messages (messages) {
-      if (this.mode === 0) {
+      if (this.mode === 0 && messages.length) {
+        let currentTimestamp = Math.floor(messages[0].timestamp)
         this.playerValue = messages.length ? Math.floor(messages[0].timestamp) : 0
+        this.update(currentTimestamp)
       }
     }
   },
-  components: {Messages, Player}
+  components: {Messages, Player},
+  beforeDestroy () {
+    if (this.mode === 0 && this.messages.length) {
+      let currentTimestamp = Math.floor(this.messages[this.messages.length - 1].timestamp)
+      this.update(currentTimestamp)
+    }
+  },
+  created () {
+    if (this.mode === 0 && this.messages.length) {
+      let currentTimestamp = Math.floor(this.messages[0].timestamp)
+      this.playerValue = this.messages.length ? Math.floor(this.messages[0].timestamp) : 0
+      this.update(currentTimestamp)
+    }
+  }
 }
 </script>
 

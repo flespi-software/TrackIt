@@ -2,22 +2,28 @@
   <div id="queue" class="absolute-bottom-left absolute-bottom-right">
     <q-tabs v-model="selected" no-pane-border position="bottom" color="dark">
       <template v-for="(deviceID) in activeDevicesID">
-        <queue-item
+        <q-tab-pane
+          class="no-padding"
+          :name="deviceID.toString()"
           :key="`tab-pane-${deviceID}`"
-          :id="deviceID"
-          :messages="messages[deviceID]"
-          :mode="mode"
-          :date="date"
-          :isAdmin="isAdmin"
-          :device="devices[deviceID]"
-          :needShowMessages="needShowMessages"
-          :needShowPlayer="needShowPlayer"
-          @send="sendInitMessages"
-          @play="playHandler"
-          @stop="stopHandler"
-          @change:needShowTail="(flag) => {$emit('change:needShowTail', flag)}"
-          @change:needShowMessages="(flag) => {$emit('change:needShowMessages', flag)}"
-        />
+        >
+          <queue-item
+            :key="`tab-pane-${deviceID}`"
+            :id="deviceID"
+            :messages="messages[deviceID]"
+            :mode="mode"
+            :date="date"
+            :isAdmin="isAdmin"
+            :device="devices[deviceID]"
+            :needShowMessages="needShowMessages"
+            :needShowPlayer="needShowPlayer"
+            @send="sendInitMessages"
+            @play="playHandler"
+            @stop="stopHandler"
+            @change:needShowTail="(flag) => {$emit('change:needShowTail', flag)}"
+            @change:needShowMessages="(flag) => {$emit('change:needShowMessages', flag)}"
+          />
+        </q-tab-pane>
         <q-tab :key="`tab-${deviceID}`" :label="getNameById(deviceID)" slot="title" :name="deviceID.toString()" />
       </template>
     </q-tabs>

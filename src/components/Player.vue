@@ -19,7 +19,7 @@
       <div class="player__main">
         <div class="player__container" style="transform: translate3d(0,0,0)" ref="playerContainer">
           <q-range v-if="max > min" color="white" square v-model="range" :min="min" :max="max" :step="1"/>
-          <div class="player__line cursor-pointer" :class="{disabled: max <= min}" @click="max > min ? clickLineHandler : ''">
+          <div class="player__line cursor-pointer" :class="{disabled: max <= min}" @click="clickLineHandler">
             <div class="line line__disabled line__disabled--left" :style="{width: `${(100 * (rangeMin - min)) / (max - min)}%`}"></div>
             <div class="line line__active" :style="{left: `${current}%`, width: `${100 - current - 100 / max * (max - rangeMax)}%`}"></div>
             <div class="line line__disabled line__disabled--right" :style="{width: `${100 / (max - min) * (max - rangeMax)}%`}"></div>
@@ -104,6 +104,12 @@ export default {
         return false
       }
       this.currentValue = value
+    },
+    min (val) {
+      this.rangeMin = val
+    },
+    max (val) {
+      this.rangeMax = val
     }
   },
   methods: {
@@ -177,6 +183,9 @@ export default {
       this.currentValue = data.isFinal ? Math.round(position) : position
     },
     clickLineHandler (ev) {
+      if (this.max <= this.min) {
+        return false
+      }
       let x = ev.clientX,
         {left, step} = this.getPlayerParams(),
         current = this.min + ((x - left) / step)
