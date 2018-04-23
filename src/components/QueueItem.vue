@@ -5,7 +5,7 @@
     class="no-padding"
     :name="id.toString()"
   >
-    <div class="no-messages text-center" v-if="!messages.length">
+    <div class="no-messages text-center" v-if="!messages.length && needShowMessages">
       <div class="text-white" style="font-size: 3rem;">
         <div>No messages</div>
         <div style="font-size: 1.5rem;">or position is empty</div>
@@ -27,7 +27,7 @@
     <div
       style="display: flex; background-color: #424242;"
       :style="{height: mode === 0 && needShowMessages ? '65px' : '100%'}"
-      v-if="messages.length > 1 && mode === 0 && needShowPlayer"
+      v-if="mode === 0 && needShowPlayer"
     >
       <q-btn
         icon="more_vert"
@@ -106,7 +106,7 @@ export default {
       if (!this.messages.length) {
         return {
           min: 0,
-          max: 1
+          max: 0
         }
       }
       return {
@@ -134,8 +134,12 @@ export default {
           return '30vh'
         }
       } else {
-        if (this.needShowMessages) {
+        if (this.needShowMessages && this.needShowPlayer) {
+          return '205px'
+        } else if (this.needShowMessages && !this.needShowPlayer) {
           return '20vh'
+        } else if (!this.needShowMessages && this.needShowPlayer) {
+          return '6vh'
         } else {
           return '0vh'
         }

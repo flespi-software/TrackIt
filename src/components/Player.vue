@@ -1,8 +1,8 @@
 <template>
   <div style="display: flex; background-color: #424242; width: 100%">
-    <q-btn class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat>
+    <q-btn :disable="max <= min" class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat>
       x{{speed}}
-      <q-popover ref="speedPopover" anchor="top left" style="background-color: #424242">
+      <q-popover ref="speedPopover" anchor="top left" style="background-color: #424242" v-if="max > min">
         <div class="column">
           <q-btn class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 100">x100</q-btn>
           <q-btn class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 70">x70</q-btn>
@@ -13,22 +13,22 @@
         </div>
       </q-popover>
     </q-btn>
-    <q-btn class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :icon="status === 'play' ? 'mdi-pause' : 'mdi-play'" flat @click="playClickHandler"/>
-    <q-btn class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" icon="mdi-skip-previous" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="$emit('prev')"/>
+    <q-btn :disable="max <= min" class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :icon="status === 'play' ? 'mdi-pause' : 'mdi-play'" flat @click="playClickHandler"/>
+    <q-btn :disable="max <= min" class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" icon="mdi-skip-previous" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="$emit('prev')"/>
     <div class="player">
       <div class="player__main">
         <div class="player__container" style="transform: translate3d(0,0,0)" ref="playerContainer">
-          <q-range color="white" square v-model="range" :min="min" :max="max" :step="1"/>
-          <div class="player__line cursor-pointer" @click="clickLineHandler">
+          <q-range v-if="max > min" color="white" square v-model="range" :min="min" :max="max" :step="1"/>
+          <div class="player__line cursor-pointer" :class="{disabled: max <= min}" @click="max > min ? clickLineHandler : ''">
             <div class="line line__disabled line__disabled--left" :style="{width: `${(100 * (rangeMin - min)) / (max - min)}%`}"></div>
             <div class="line line__active" :style="{left: `${current}%`, width: `${100 - current - 100 / max * (max - rangeMax)}%`}"></div>
             <div class="line line__disabled line__disabled--right" :style="{width: `${100 / (max - min) * (max - rangeMax)}%`}"></div>
           </div>
-          <div :style="{left: `${current}%`}" v-touch-pan.horizontal="dragPlayerControl" class="player__control cursor-pointer" :class="{'player__control--mobile': $q.platform.is.mobile}"></div>
+          <div :style="{left: `${current}%`}" v-touch-pan.horizontal="dragPlayerControl" class="player__control cursor-pointer" :class="{'player__control--mobile': $q.platform.is.mobile, disabled: max <= min}"></div>
         </div>
       </div>
     </div>
-    <q-btn class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" icon="mdi-skip-next" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="$emit('next')"/>
+    <q-btn :disable="max <= min" class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" icon="mdi-skip-next" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="$emit('next')"/>
   </div>
 </template>
 
@@ -163,6 +163,9 @@ export default {
       }
     },
     dragPlayerControl (data) {
+      if (this.max <= this.min) {
+        return false
+      }
       let {left, step} = this.getPlayerParams(),
         position = this.min + ((data.position.left - left) / step)
       if (position < this.rangeMin) {

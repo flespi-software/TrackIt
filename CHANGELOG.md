@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.3] - 2018-04-23
+[fix] visibility of player
 ### [0.4.2] - 2018-04-23
 [fix] messages count for player
 ### [0.4.1] - 2018-04-23
