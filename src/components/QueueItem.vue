@@ -12,7 +12,7 @@
       </div>
       <q-btn color="dark" v-if="isAdmin && mode === 1" @click="$emit('send', id)">Send message</q-btn>
     </div>
-    <div :style="{height: mode === 0 && needShowPlayer ? 'calc(100% - 65px)' : '100%'}" class="table__wrapper" v-if="messages.length && needShowMessages">
+    <div :style="{height: messages.length > 1 && mode === 0 && needShowPlayer ? 'calc(100% - 65px)' : '100%'}" class="table__wrapper" v-if="messages.length && needShowMessages">
       <messages
         :messages="messages"
         :mode="mode"
@@ -27,7 +27,7 @@
     <div
       style="display: flex; background-color: #424242;"
       :style="{height: mode === 0 && needShowMessages ? '65px' : '100%'}"
-      v-if="messages.length && mode === 0 && needShowPlayer"
+      v-if="messages.length > 1 && mode === 0 && needShowPlayer"
     >
       <q-btn
         icon="more_vert"
