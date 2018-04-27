@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.6] - 2018-04-27
+[feature] repeat for player
+[feature] start play from start position after end
+[feature] added tooltips
 ### [0.4.5] - 2018-04-23
 [fix] tail logic
 ### [0.4.4] - 2018-04-23

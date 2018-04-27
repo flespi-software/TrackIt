@@ -12,9 +12,14 @@
           <q-btn class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 1">x1</q-btn>
         </div>
       </q-popover>
+      <q-tooltip v-if="$q.platform.is.desktop">Speed</q-tooltip>
     </q-btn>
-    <q-btn :disable="max <= min" class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :icon="status === 'play' ? 'mdi-pause' : 'mdi-play'" flat @click="playClickHandler"/>
-    <q-btn :disable="max <= min" class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" icon="mdi-skip-previous" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="$emit('prev')"/>
+    <q-btn :color="status === 'play' ? 'blue' : 'white'" :disable="max <= min" class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :icon="status === 'play' ? repeatFlag ? 'mdi-repeat' : 'mdi-pause' : 'mdi-play'" flat @click="playClickHandler" @click.ctrl="playRepeatClickHandler">
+      <q-tooltip v-if="$q.platform.is.desktop">Play/Pause (Ctrl+Click to repeat)</q-tooltip>
+    </q-btn>
+    <q-btn :disable="max <= min" class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" icon="mdi-skip-previous" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="$emit('prev')">
+      <q-tooltip v-if="$q.platform.is.desktop">Prev message</q-tooltip>
+    </q-btn>
     <div class="player">
       <div class="player__main">
         <div class="player__container" style="transform: translate3d(0,0,0)" ref="playerContainer">
@@ -28,7 +33,9 @@
         </div>
       </div>
     </div>
-    <q-btn :disable="max <= min" class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" icon="mdi-skip-next" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="$emit('next')"/>
+    <q-btn :disable="max <= min" class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" icon="mdi-skip-next" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="$emit('next')">
+      <q-tooltip v-if="$q.platform.is.desktop">Next message</q-tooltip>
+    </q-btn>
   </div>
 </template>
 
@@ -50,7 +57,8 @@ export default {
       timer: 0,
       speed: 10,
       percentsByPixel: 0,
-      current: 0
+      current: 0,
+      repeatFlag: false
     }
   },
   computed: {
@@ -118,6 +126,12 @@ export default {
         this.current = newVal
       }
     },
+    playRepeatClickHandler () {
+      this.repeatFlag = !this.repeatFlag
+      if (this.status === 'pause') {
+        this.playClickHandler()
+      }
+    },
     playClickHandler () {
       switch (this.status) {
         case 'pause': {
@@ -142,9 +156,19 @@ export default {
       if (this.status === 'pause') {
         this.status = 'play'
       }
+      if (this.currentValue === this.max) {
+        this.currentValue = this.min
+      }
       this.timer = setInterval(this.changeCurrent, 1000 / this.speed)
     },
     stop () {
+      if (this.repeatFlag) {
+        this.repeatFlag = false
+        if (this.currentValue === this.max) {
+          this.currentValue = this.min
+          return false
+        }
+      }
       if (this.timer) {
         clearInterval(this.timer)
         this.timer = 0

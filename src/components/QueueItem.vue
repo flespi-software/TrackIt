@@ -51,7 +51,9 @@
         flat
         @click="needPolyline = !needPolyline, $emit('change:needShowTail', needPolyline)"
         v-if="$q.platform.is.desktop"
-      />
+      >
+        <q-tooltip v-if="$q.platform.is.desktop">Tail</q-tooltip>
+      </q-btn>
       <q-btn
         icon="dvr"
         :color="needShowMessages ? 'blue' : 'white'"
@@ -60,7 +62,9 @@
         flat
         @click="messagesFlag = !messagesFlag, $emit('change:needShowMessages', messagesFlag)"
         v-if="$q.platform.is.desktop"
-      />
+      >
+        <q-tooltip v-if="$q.platform.is.desktop">Messages</q-tooltip>
+      </q-btn>
       <player
         ref="player"
         v-model="playerValue"
