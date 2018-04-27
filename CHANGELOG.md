@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.7] - 2018-04-27
+[update] packages
 ### [0.4.6] - 2018-04-27
 [feature] repeat for player
 [feature] start play from start position after end
