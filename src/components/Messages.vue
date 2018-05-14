@@ -118,7 +118,7 @@ export default {
         return this.$store.state.messages[this.moduleName].limit
       },
       set (val) {
-        val ? this.$store.commit(`messages/${this.moduleName}/setLimit`, val) : this.$store.commit(`messages/${this.moduleName}/setLimit`, 1000)
+        val ? this.$store.commit(`messages/${this.moduleName}/setLimit`, val) : this.$store.commit(`messages/${this.moduleName}/setLimit`, 0)
       }
     },
     selected: {

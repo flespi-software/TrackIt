@@ -13,7 +13,7 @@
         :mode="mode"
         :item="device"
         :activeDeviceId="id"
-        :limit="2000"
+        :limit="0"
         :date="date"
         :activeMessagesIds="activeMessagesIndexes"
         @view="viewMessageHandler"

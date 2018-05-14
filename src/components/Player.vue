@@ -2,7 +2,7 @@
   <div style="display: flex; background-color: #424242; width: 100%">
     <q-btn :disable="max <= min" class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat>
       x{{speed}}
-      <q-popover ref="speedPopover" anchor="top left" style="background-color: #424242" v-if="max > min">
+      <q-popover ref="speedPopover" anchor="top left" style="background-color: #424242">
         <div class="column">
           <q-btn class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 100">x100</q-btn>
           <q-btn class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 70">x70</q-btn>

@@ -246,9 +246,9 @@ export default {
     hasDevicesInit (val) {
       if (val) {
         this.$q.loading.hide()
-        if (this.devices.length) {
-          this.side_left = true
-        }
+        // if (this.devices.length) {
+        //   this.side_left = true
+        // }
       } else {
         this.$q.loading.show()
       }
@@ -262,9 +262,10 @@ export default {
       if (!devices.length) {
         this.side_left = false
         this.side_right = false
-      } else if (devices.length && !prev.length) {
-        this.side_left = true
       }
+      // else if (devices.length && !prev.length) {
+      //   this.side_left = true
+      // }
     }
   },
   created () {
