@@ -11,7 +11,7 @@
     "dev": "node ./build.js \"dev -m pwa\" \"flespi\"",
     "build": "node ./build.js \"build -m pwa\" \"flespi\"",
     "dev_local": "node ./build.js \"dev -m pwa\" \"local\"",
-    "deploy": "npm run build && rm -rf deploy && mkdir deploy && cp -R dist/pwa-mat/* misc CNAME LICENSE package.json deploy && cp README.md deploy/README.md && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rhttps://git.gurtam.net/flespi/frontend/TrackIt.git && rm -rf deploy && git push github gh-pages"
+    "deploy": "npm run build && rm -rf deploy && mkdir deploy && cp -R dist/pwa-mat/* misc LICENSE package.json deploy && cp README.md deploy/README.md && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rhttps://git.gurtam.net/flespi/frontend/TrackIt.git && rm -rf deploy && git push github gh-pages"
   },
   "dependencies": {
     "flespi-io-js": "git+https://github.com/flespi-software/flespi-io-js.git",
