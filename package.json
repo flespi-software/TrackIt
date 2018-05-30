@@ -1,6 +1,6 @@
 {
   "name": "track-it",
-  "version": "0.4.8",
+  "version": "0.4.9",
   "description": "A simple application based on flespi.io and built with Quasar and Leaflet.js. Allows tracking different devices on the map, viewing telemetry messages for these devices.",
   "productName": "Track it!",
   "cordovaId": "org.cordova.quasar.app",
@@ -35,7 +35,7 @@
     "eslint-plugin-standard": "^3.1.0",
     "eslint-plugin-vue": "^4.5.0",
     "git-directory-deploy": "^1.5.1",
-    "quasar-cli": "^0.15.14"
+    "quasar-cli": "^0.16.3"
   },
   "engines": {
     "node": ">= 8.9.0",
