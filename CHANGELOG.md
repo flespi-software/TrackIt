@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.9] - 2018-05-30
+[feature] router for devices
+[feature] hold touch
+[fix] styles
 ### [0.4.8] - 2018-05-14
 [fix] limits
 [fix] popover

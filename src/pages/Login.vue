@@ -67,12 +67,12 @@ export default {
   methods: {
     logIn () {
       this.$store.commit('setToken', this.token)
-      this.$nextTick(() => { this.$router.push('/') })
+      this.$nextTick(() => { this.$router.back() })
     },
     autoLogin () {
       this.$store.commit('setToken', this.$route.params.token)
       setTimeout(() => {
-        this.$router.push('/')
+        this.$router.back()
       }, 1000)
     },
     checkHasToken () {

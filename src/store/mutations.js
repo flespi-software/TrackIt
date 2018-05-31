@@ -1,5 +1,6 @@
 import { Cookies, Notify, LocalStorage } from 'quasar'
 import Vue from 'vue'
+import Router from '../router'
 
 function reqStart (state) {
   if (DEV) {
@@ -37,13 +38,26 @@ function setDevices (state, devices) {
   }
   if (!state.hasDevicesInit) {
     setDevicesInit(state)
-    let activeDevicesFromLocalStorage = LocalStorage.get.item('TrackIt Active Devices')
-    if (activeDevicesFromLocalStorage && activeDevicesFromLocalStorage.length) {
-      activeDevicesFromLocalStorage.forEach(id => {
+    if (Router.currentRoute.params.devices) {
+      let active = Router.currentRoute.params.devices.split(',').map(id => +id)
+      active.forEach(id => {
         if (devices.data.result.filter(device => device.id === id).length) {
           setActiveDevice(state, id)
         }
       })
+      if (!state.activeDevicesID.length) {
+        console.log('asdf')
+        Router.push('/')
+      }
+    } else {
+      let activeDevicesFromLocalStorage = LocalStorage.get.item('TrackIt Active Devices')
+      if (activeDevicesFromLocalStorage && activeDevicesFromLocalStorage.length) {
+        activeDevicesFromLocalStorage.forEach(id => {
+          if (devices.data.result.filter(device => device.id === id).length) {
+            setActiveDevice(state, id)
+          }
+        })
+      }
     }
   }
 }
@@ -131,11 +145,17 @@ function setActiveDevice (state, id) {
   }
   state.activeDevicesID.push(id)
   LocalStorage.set('TrackIt Active Devices', state.activeDevicesID)
+  Router.push(`/devices/${state.activeDevicesID.join(',')}`)
 }
 function unsetActiveDevice (state, id) {
   let index = state.activeDevicesID.indexOf(id)
   state.activeDevicesID.splice(index, 1)
   LocalStorage.set('TrackIt Active Devices', state.activeDevicesID)
+  if (state.activeDevicesID.length) {
+    Router.push(`/devices/${state.activeDevicesID.join(',')}`)
+  } else {
+    Router.push('/')
+  }
 }
 function setDevicesInit (state) {
   state.hasDevicesInit = true
