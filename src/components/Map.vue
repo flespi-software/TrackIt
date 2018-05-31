@@ -35,6 +35,7 @@
 
 <script>
 import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 import Vue from 'vue'
 import Queue from './Queue.vue'
 import PostMessageModal from './PostMessageModal.vue'
@@ -392,7 +393,10 @@ export default {
           let message = this.messages[id][messageIndex]
           this.markers[id].setLatLng([message['position.latitude'], message['position.longitude']]).update()
           if (message['position.direction']) {
-            document.querySelector(`.icon-${id} .my-div-icon__inner`).style.transform = `rotate(${(message['position.direction'] ? message['position.direction'] : 0) - 45}deg)`
+            let element = document.querySelector(`.icon-${id} .my-div-icon__inner`)
+            if (element) {
+              element.style.transform = `rotate(${(message['position.direction'] ? message['position.direction'] : 0) - 45}deg)`
+            }
           }
         }
       })
@@ -586,7 +590,6 @@ export default {
 </script>
 
 <style lang="stylus">
-  @import "~leaflet/dist/leaflet.css";
   #map
     height 100%
   .leaflet-container.crosshair-cursor-enabled

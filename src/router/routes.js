@@ -1,6 +1,15 @@
 
 export default [
-  { path: '/', component: () => import('layouts/Index') },
+  {
+    path: '/',
+    component: () => import('layouts/Index'),
+    children: [
+      {
+        path: 'devices/:devices',
+        component: () => import('layouts/Index')
+      }
+    ]
+  },
   { path: '/login', component: () => import('pages/Login') },
   { path: '/login/:token', component: () => import('pages/Login') },
 

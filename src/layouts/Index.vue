@@ -1,6 +1,6 @@
 <template>
   <q-layout ref="layout" view="hHh LpR lFf">
-    <q-layout-drawer side="left" :no-swipe-open="$q.platform.is.desktop" :no-swipe-close="$q.platform.is.desktop" v-model="side_left" :breakpoint="576" behavior="mobile">
+    <q-layout-drawer no-hide-on-route-change side="left" :no-swipe-open="$q.platform.is.desktop" :no-swipe-close="$q.platform.is.desktop" v-model="side_left" :breakpoint="576" behavior="mobile">
       <device-list v-show="devices.length" @update:watch-by-id="setWatchToDeviceID" :deviceIdForWatch="deviceIdForWatch" :activeDevicesID="activeDevicesID" :devices="devices" @click:hide="side_left = false"/>
     </q-layout-drawer>
     <q-layout-drawer side="right" no-swipe-open no-swipe-close :content-class="{'bg-dark':telemetrySettings.inverted}" v-model="side_right">
@@ -193,7 +193,8 @@ export default {
       'setToken',
       'clearToken',
       'setDevicesInit',
-      'unsetDevicesInit'
+      'unsetDevicesInit',
+      'setActiveDevice'
     ]),
     ...mapActions(['getLastUpdatePosition']),
     exitHandler (e) {
@@ -269,7 +270,16 @@ export default {
     }
   },
   created () {
+    if (this.activeDevicesID.length) {
+      this.$router.push(`devices/${this.activeDevicesID.join(',')}`)
+    }
     if (!this.token) {
+      if (this.$route.params.devices) {
+        let active = this.$route.params.devices.split(',').map(id => +id)
+        active.forEach((id) => {
+          this.setActiveDevice(id)
+        })
+      }
       this.$router.push('/login')
     }
     let params = this.$q.localStorage.get.item('TrackIt Params')

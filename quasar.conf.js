@@ -102,7 +102,7 @@ module.exports = function (ctx) {
         'Cookies',
         'Dialog'
       ],
-      directives: ['TouchPan']
+      directives: ['TouchPan', 'TouchHold']
     },
     // animations: 'all' --- includes all animations
     animations: [

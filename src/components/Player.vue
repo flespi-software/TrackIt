@@ -14,8 +14,19 @@
       </q-popover>
       <q-tooltip v-if="$q.platform.is.desktop">Speed</q-tooltip>
     </q-btn>
-    <q-btn :color="status === 'play' ? 'blue' : 'white'" :disable="max <= min" class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :icon="status === 'play' ? repeatFlag ? 'mdi-repeat' : 'mdi-pause' : 'mdi-play'" flat @click="playClickHandler" @click.ctrl="playRepeatClickHandler">
+    <q-btn
+      :color="status === 'play' ? 'blue' : 'white'"
+      :disable="max <= min" class="text-white"
+      :class="{'btn-less-padding': !$q.platform.is.desktop }"
+      :size="$q.platform.is.desktop ? '1.4rem' : 'md'"
+      :icon="status === 'play' ? repeatFlag ? 'mdi-repeat' : 'mdi-pause' : 'mdi-play'"
+      flat
+      @click="playClickHandler"
+      @click.ctrl="playRepeatClickHandler"
+      v-touch-hold.noMouse="playRepeatClickHandler"
+    >
       <q-tooltip v-if="$q.platform.is.desktop">Play/Pause (Ctrl+Click to repeat)</q-tooltip>
+      <q-tooltip v-if="$q.platform.is.mobile">Play/Pause (Touch hold to repeat)</q-tooltip>
     </q-btn>
     <q-btn :disable="max <= min" class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" icon="mdi-skip-previous" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="$emit('prev')">
       <q-tooltip v-if="$q.platform.is.desktop">Prev message</q-tooltip>
@@ -163,9 +174,8 @@ export default {
     },
     stop () {
       if (this.repeatFlag) {
-        this.repeatFlag = false
         if (this.currentValue === this.max) {
-          this.currentValue = this.min
+          setTimeout(() => { this.currentValue = this.min }, 600)
           return false
         }
       }
@@ -232,7 +242,7 @@ export default {
     padding 4px 5px
   .player
     width 100%
-    padding 0 15px
+    padding 0 17px
     overflow hidden
     .player__main
       height calc(100% - 18px)

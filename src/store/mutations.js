@@ -1,5 +1,6 @@
 import { Cookies, Notify, LocalStorage } from 'quasar'
 import Vue from 'vue'
+import Router from '../router'
 
 function reqStart (state) {
   if (DEV) {
@@ -36,14 +37,23 @@ function setDevices (state, devices) {
     Vue.set(state, 'devices', devices.data.result)
   }
   if (!state.hasDevicesInit) {
-    setDevicesInit(state)
-    let activeDevicesFromLocalStorage = LocalStorage.get.item('TrackIt Active Devices')
-    if (activeDevicesFromLocalStorage && activeDevicesFromLocalStorage.length) {
-      activeDevicesFromLocalStorage.forEach(id => {
-        if (devices.data.result.filter(device => device.id === id).length) {
-          setActiveDevice(state, id)
+    if (state.activeDevicesID.length) {
+      state.activeDevicesID.forEach(id => {
+        if (!devices.data.result.filter(device => device.id === id).length) {
+          unsetActiveDevice(state, id)
         }
       })
+      setDevicesInit(state)
+    } else {
+      setDevicesInit(state)
+      let activeDevicesFromLocalStorage = LocalStorage.get.item('TrackIt Active Devices')
+      if (activeDevicesFromLocalStorage && activeDevicesFromLocalStorage.length) {
+        activeDevicesFromLocalStorage.forEach(id => {
+          if (devices.data.result.filter(device => device.id === id).length) {
+            setActiveDevice(state, id)
+          }
+        })
+      }
     }
   }
 }
@@ -126,16 +136,24 @@ function clearToken (state) {
   Vue.set(state, 'token', '')
 }
 function setActiveDevice (state, id) {
-  if (!state.devices.filter(device => device.id === id)[0].messages_ttl) {
+  if (state.hasDevicesInit && !state.devices.filter(device => device.id === id)[0].messages_ttl) {
     return
   }
   state.activeDevicesID.push(id)
   LocalStorage.set('TrackIt Active Devices', state.activeDevicesID)
+  if (state.hasDevicesInit) {
+    Router.push(`/devices/${state.activeDevicesID.join(',')}`)
+  }
 }
 function unsetActiveDevice (state, id) {
   let index = state.activeDevicesID.indexOf(id)
   state.activeDevicesID.splice(index, 1)
   LocalStorage.set('TrackIt Active Devices', state.activeDevicesID)
+  if (state.activeDevicesID.length) {
+    Router.push(`/devices/${state.activeDevicesID.join(',')}`)
+  } else {
+    Router.push('/')
+  }
 }
 function setDevicesInit (state) {
   state.hasDevicesInit = true
