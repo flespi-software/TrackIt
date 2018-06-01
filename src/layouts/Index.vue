@@ -280,7 +280,11 @@ export default {
           this.setActiveDevice(id)
         })
       }
-      this.$router.push('/login')
+      if (this.$route.params.token) {
+        this.$router.push(`/login/${this.$route.params.token}`)
+      } else {
+        this.$router.push('/login')
+      }
     }
     let params = this.$q.localStorage.get.item('TrackIt Params')
     if (params) {

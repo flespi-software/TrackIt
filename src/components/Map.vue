@@ -146,6 +146,20 @@ export default {
       }
       return color
     },
+    getAccuracyParams (message) {
+      let position = [message['position.latitude'], message['position.longitude']],
+        accuracy = message['position.hdop'] || message['position.pdop'] || 0,
+        circleStyle = {
+          stroke: true,
+          color: '#444',
+          weight: 3,
+          opacity: 0.5,
+          fillOpacity: 0.15,
+          fillColor: '#444',
+          clickable: false
+        }
+      return {position, accuracy, circleStyle}
+    },
     initMarker (id, name, position) {
       let direction = this.messages[id][this.messages[id].length - 1]['position.direction'] ? this.messages[id][this.messages[id].length - 1]['position.direction'] : 0,
         currentColor = this.tracks[id] && this.tracks[id].options ? this.tracks[id].options.color : this.markers[id] ? this.markers[id].color : this.getColor()
@@ -156,6 +170,9 @@ export default {
       })
       this.markers[id].id = id
       this.markers[id].color = currentColor
+      let {position: pos, accuracy, circleStyle} = this.getAccuracyParams(this.messages[id][this.messages[id].length - 1])
+      this.markers[id].accuracy = L.circle(pos, accuracy, circleStyle)
+      this.markers[id].accuracy.addTo(this.map)
       this.markers[id].addEventListener('dragstart', (e) => {
         this.isDragged = true
       })
@@ -229,6 +246,9 @@ export default {
         if (this.tracks[id].tail && this.tracks[id].tail instanceof L.Polyline) {
           this.tracks[id].tail.remove()
         }
+        if (this.markers[id].accuracy) {
+          this.map.removeLayer(this.markers[id].accuracy)
+        }
         this.map.removeLayer(this.tracks[id])
         this.map.removeLayer(this.markers[id])
         this.tracks[id] = undefined
@@ -245,6 +265,8 @@ export default {
       }
       if (!this.isDragged) {
         this.markers[id].setLatLng(currentArrPos[currentArrPos.length - 1]).update()
+        this.markers[id].accuracy.setRadius(this.getAccuracyParams(this.messages[id][this.messages[id].length - 1]).accuracy)
+        this.markers[id].accuracy.setLatLng(currentArrPos[currentArrPos.length - 1])
       }
       this.markers[id].setOpacity(1)
       this.tracks[id].setLatLngs(currentArrPos)
@@ -275,6 +297,8 @@ export default {
     updateMarkerHandler ({ id, lastPos }) {
       if (this.markers[id] && this.markers[id] instanceof L.Marker) {
         this.markers[id].setLatLng(lastPos).update()
+        // this.markers[id].accuracy.setRadius(this.getAccuracyParams(this.messages[id][this.messages[id].length - 1]).accuracy)
+        this.markers[id].accuracy.setLatLng(lastPos)
       } else {
         this.initDeviceOnMap(id)
       }
@@ -285,6 +309,7 @@ export default {
     removeMarker (id) {
       if (this.markers[id] && this.markers[id] instanceof L.Marker) {
         this.removeFlags(id)
+        this.map.removeLayer(this.markers[id].accuracy)
         this.markers[id].remove()
         if (this.tracks[id].tail && this.tracks[id].tail instanceof L.Polyline) {
           this.tracks[id].tail.remove()
@@ -388,10 +413,15 @@ export default {
       this.activeDeviceID = id || 0
     },
     playHandler ({id, messagesIndexes}) {
+      if (!this.messages[id]) { return false }
       messagesIndexes.forEach((messageIndex) => {
         if (this.markers[id] && this.markers[id] instanceof L.Marker) {
           let message = this.messages[id][messageIndex]
-          this.markers[id].setLatLng([message['position.latitude'], message['position.longitude']]).update()
+          if (!message || !message['position.latitude'] || !message['position.longitude']) { return false }
+          let pos = [message['position.latitude'], message['position.longitude']]
+          this.markers[id].setLatLng(pos).update()
+          this.markers[id].accuracy.setRadius(this.getAccuracyParams(message).accuracy)
+          this.markers[id].accuracy.setLatLng(pos)
           if (message['position.direction']) {
             let element = document.querySelector(`.icon-${id} .my-div-icon__inner`)
             if (element) {
@@ -551,6 +581,7 @@ export default {
           name = currentDevice.name || `#${id}`
         if (this.markers[id] instanceof L.Marker) {
           this.markers[id].remove()
+          this.map.removeLayer(this.markers[id].accuracy)
           this.initMarker(id, name, position)
         }
       })

@@ -1,6 +1,6 @@
 {
   "name": "track-it",
-  "version": "0.4.9",
+  "version": "0.4.10",
   "description": "A simple application based on flespi.io and built with Quasar and Leaflet.js. Allows tracking different devices on the map, viewing telemetry messages for these devices.",
   "productName": "Track it!",
   "cordovaId": "org.cordova.quasar.app",
@@ -16,12 +16,12 @@
   "dependencies": {
     "flespi-io-js": "git+https://github.com/flespi-software/flespi-io-js.git",
     "leaflet": "^1.3.1",
-    "moment": "^2.22.1",
+    "moment": "^2.22.2",
     "qtelemetry": "git+https://github.com/flespi-software/QTelemetry.git",
     "qvirtualscroll": "git+https://github.com/flespi-software/QVirtualScroll.git",
     "shelljs": "^0.8.2",
-    "vue-clipboard2": "^0.1.0",
-    "vue-i18n": "^7.3.3"
+    "vue-clipboard2": "^0.1.1",
+    "vue-i18n": "^7.7.0"
   },
   "devDependencies": {
     "babel-eslint": "^8.2.3",
@@ -29,13 +29,13 @@
     "eslint-config-standard": "^11.0.0",
     "eslint-friendly-formatter": "^3.0.0",
     "eslint-loader": "^2.0.0",
-    "eslint-plugin-import": "^2.11.0",
+    "eslint-plugin-import": "^2.12.0",
     "eslint-plugin-node": "^6.0.1",
-    "eslint-plugin-promise": "^3.7.0",
+    "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-standard": "^3.1.0",
     "eslint-plugin-vue": "^4.5.0",
     "git-directory-deploy": "^1.5.1",
-    "quasar-cli": "^0.15.14"
+    "quasar-cli": "^0.15.20"
   },
   "engines": {
     "node": ">= 8.9.0",

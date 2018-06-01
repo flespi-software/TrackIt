@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.10] - 2018-06-01
+[feature] accuracy
+[feature] route for devices with login
+[update] packages
 ### [0.4.9] - 2018-05-30
 [feature] router for devices
 [feature] hold touch
