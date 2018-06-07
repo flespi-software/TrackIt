@@ -5,8 +5,8 @@
     <q-item-main>
       <q-item-tile class="ellipsis" label>{{device.name || '&lt;noname&gt;'}}</q-item-tile>
       <small>
-        <q-item-tile class="ellipsis" sublabel v-if="device.ident"><q-icon name="label_outline" /> {{device.ident}}</q-item-tile>
-        <q-item-tile sublabel v-if="device.phone"><q-icon name="phone" /> {{device.phone}}</q-item-tile>
+        <q-item-tile class="ellipsis" sublabel><q-icon name="label_outline" /> {{device.ident || '&lt;no ident&gt;'}}</q-item-tile>
+        <q-item-tile sublabel><q-icon name="phone" /> {{device.phone || '&lt;no phone&gt;'}}</q-item-tile>
       </small>
     </q-item-main>
     <q-item-side class="text-center">

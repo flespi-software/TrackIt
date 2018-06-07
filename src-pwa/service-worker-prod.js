@@ -14,8 +14,7 @@
   );
 
   window.addEventListener('load', function () {
-    if ('serviceWorker' in navigator &&
-        (window.location.protocol === 'https:' || isLocalhost)) {
+    if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('service-worker.js')
       .then(function (registration) {
         // updatefound is fired if service-worker.js changes.
@@ -35,15 +34,46 @@
                   // fresh content will have been added to the cache.
                   // It's the perfect time to display a "New content is
                   // available; please refresh." message in the page's interface.
-                  if (confirm('The new version of TrackIt! is available. Refresh the page to update?')) {
-                    if (window.caches) {
-                      window.caches.keys().then(function (cacheNames) {
-                        cacheNames.filter(function (cacheName) { return cacheName.indexOf('trackit-cache') === -1 })
-                          .map(function (cacheName) { return caches.delete(cacheName) })
-                      })
-                    }
-                    window.location.reload()
-                  }
+                  let notification = document.createElement('div')
+                  notification.id = 'sw-notification'
+                  notification.innerHTML = `<div class="q-notification-list q-notification-list-bottom fixed column items-end absolute">
+                                              <div class="q-notification">
+                                                <div class="q-alert row no-wrap shadow-2 bg-amber-9 text-white">
+                                                  <div class="q-alert-side col-auto row flex-center">
+                                                    <i aria-hidden="true" class="q-icon material-icons">warning</i>
+                                                  </div>
+                                                  <div class="q-alert-content col self-center">
+                                                    <div>The new version of TrackIt! is available. Refresh the page to update?</div>
+                                                  </div>
+                                                  <div class="q-alert-actions col-auto gutter-xs column flex-center">
+                                                    <div class="full-width">
+                                                      <button tabindex="0" class="q-btn inline relative-position q-btn-item non-selectable full-width q-btn-rectangle q-btn-flat q-focusable q-hoverable q-btn-dense">
+                                                        <div class="q-focus-helper"></div>
+                                                        <div class="q-btn-inner row col items-center justify-start">
+                                                          <div>Agree</div>
+                                                        </div>
+                                                      </button>
+                                                    </div>
+                                                    <div class="full-width">
+                                                      <button tabindex="0" class="q-btn inline relative-position q-btn-item non-selectable full-width q-btn-rectangle q-btn-flat q-focusable q-hoverable q-btn-dense">
+                                                        <div class="q-focus-helper"></div>
+                                                        <div class="q-btn-inner row col items-center justify-start">
+                                                          <div>Abort</div>
+                                                        </div>
+                                                      </button>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            </div>`
+                  let buttons = notification.getElementsByTagName('button'),
+                    body = document.getElementsByTagName('body')[0]
+                  buttons[0].addEventListener('click', (ev) => { window.location.reload() })
+                  buttons[1].addEventListener('click', (ev) => { notification.remove() })
+                  body.appendChild(notification)
+                  // if (confirm('The new version of TrackIt! is available. Refresh the page to update?')) {
+                  //   window.location.reload()
+                  // }
                   break;
 
                 case 'redundant':

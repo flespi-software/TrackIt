@@ -78,10 +78,13 @@ export default {
           if (vals[name]) {
             if (!vals[name].value) {
               vals[name].value = {}
+            } else if (typeof vals[name].value !== 'object') {
+              let value = vals[name].value
+              vals[name].value = { [index - 1]: value }
             }
-            vals[name].value[index] = this.item[propName]
+            vals[name].value[index] = JSON.stringify(this.item[propName])
           } else {
-            vals.etc.value += `${propName}: ${this.item[propName]}; `
+            vals.etc.value += `${propName}: ${JSON.stringify(this.item[propName])}; `
           }
         } else if (vals[propName]) {
           let value = this.item[propName]
@@ -91,13 +94,13 @@ export default {
           if (propName.indexOf('image.bin.') !== -1) {
             value = '<binary image>'
           }
-          vals[propName].value = value
+          vals[propName].value = JSON.stringify(value)
         } else {
           if (propName === 'delimiter' || propName === '__status') { return false }
           if (propName.indexOf('image.bin.') !== -1) {
             vals.etc.value += `${propName}: <binary image>`
           } else {
-            vals.etc.value += `${propName}: ${this.item[propName]}; `
+            vals.etc.value += `${propName}: ${JSON.stringify(this.item[propName])}; `
           }
         }
       })

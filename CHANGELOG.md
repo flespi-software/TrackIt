@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.11] - 2018-06-06
+[feature] device list to virtual scroll list
+[fix] object values in fields
 ### [0.4.10] - 2018-06-01
 [feature] accuracy
 [feature] route for devices with login
