@@ -24,9 +24,23 @@
             @change:needShowMessages="(flag) => {$emit('change:needShowMessages', flag)}"
           />
         </q-tab-pane>
-        <q-tab :key="`tab-${deviceID}`" :label="getNameById(deviceID)" slot="title" :name="deviceID.toString()" />
+        <q-tab :key="`tab-${deviceID}`" slot="title" :name="deviceID.toString()">
+          <div>
+            <div v-if="messages[deviceID].length" :style="{backgroundColor: markers[deviceID].color}" class="color-view q-mr-xs" @click.stop="changeColorHandler(deviceID)"></div>
+            {{getNameById(deviceID)}}
+          </div>
+        </q-tab>
       </template>
     </q-tabs>
+    <q-modal minimized ref="colorModal" class="color-modal" :content-css="{minWidth: '240px', minHeight: '201px'}">
+      <q-modal-layout>
+        <div slot="header" style="background-color: #444; height: 20px">
+          <q-icon color="white" name="close" class="absolute-top-right cursor-pointer" size="1rem" flat
+                  @click.native="modalButtonCloseHandler"></q-icon>
+        </div>
+        <q-color-picker dark :value="currentColorModel" @change="modalSubmit" format-model="hex"/>
+      </q-modal-layout>
+    </q-modal>
   </div>
 </template>
 
@@ -43,7 +57,8 @@ export default {
     'mode',
     'date',
     'needShowMessages',
-    'needShowPlayer'
+    'needShowPlayer',
+    'markers'
   ],
   data () {
     return {
@@ -52,12 +67,14 @@ export default {
         res[device.id] = device.telemetry ? device.telemetry : null
         return res
       }, {}),
-      playerValue: 0
+      playerValue: 0,
+      currentColorModel: '#fff',
+      currentColorId: 0
     }
   },
   methods: {
     getNameById (id) {
-      return this.devices.filter(device => device.id === id)[0].name || `&lt;#${id}&gt;`
+      return this.devices.filter(device => device.id === id)[0].name || `<#${id}>`
     },
     sendInitMessages (id) {
       this.$emit('send', id)
@@ -67,6 +84,22 @@ export default {
     },
     stopHandler (data) {
       this.$emit('stop', data)
+    },
+    changeColorHandler (id) {
+      this.currentColorId = id
+      this.currentColorModel = this.markers[id].color
+      this.$refs.colorModal.show()
+    },
+    modalSubmit (color) {
+      this.$emit('update:color', {id: this.currentColorId, color})
+      this.currentColorId = 0
+      this.currentColorModel = '#fff'
+      this.$refs.colorModal.hide()
+    },
+    modalButtonCloseHandler () {
+      this.currentColorId = 0
+      this.currentColorModel = '#fff'
+      this.$refs.colorModal.hide()
     }
   },
   created () {
@@ -112,6 +145,12 @@ export default {
 <style lang="stylus">
   #queue
     z-index 1000
+    .color-view
+      display inline-block
+      width 12px
+      height 12px
+      border solid white 2px
+      border-radius 50%
     .table__wrapper
       overflow auto
       font-size 80%
@@ -127,4 +166,7 @@ export default {
         text-overflow ellipsis
       .q-tab-pane
         background-color rgba(0,0,0,.5)
+  .color-modal
+    .q-color-inputs
+      display none
 </style>

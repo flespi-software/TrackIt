@@ -92,7 +92,9 @@ module.exports = function (ctx) {
         'QSearch',
         'QSlider',
         'QField',
-        'QRange'
+        'QRange',
+        'QChip',
+        'QColorPicker'
       ],
       // Quasar plugins
       plugins: [

@@ -285,7 +285,7 @@ export default {
           &--mobile
             width 16px
             height 16px
-            top 53%
+            top 50%
       .q-slider
         height 0
         .q-slider-handle-container

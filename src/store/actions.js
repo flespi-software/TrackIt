@@ -15,6 +15,11 @@ async function postMessage ({ state, commit }, { data, id }) {
   try {
     let postMessageResp = await Vue.connector.gw.postDevicesMessages(id, data)
     let postMessage = postMessageResp.data
+    if (postMessage.errors) {
+      postMessage.errors.forEach((error) => {
+        commit('addError', error.reason)
+      })
+    }
     commit('reqSuccessful', {
       type: 'postMessage',
       payload: postMessage
@@ -38,17 +43,23 @@ async function checkConnection ({ state, commit }) {
   }
 }
 
-async function getLastUpdatePosition ({ state }, selector) {
+async function getLastUpdatePosition ({ commit, state }, selector) {
   let items = selector || state.activeDevicesID.join(',')
   if (items) {
     let telemetryResp = await Vue.connector.gw.getDevices(items, {fields: 'id,telemetry'}),
-      now = Math.max(
-        ...telemetryResp.data.result.reduce((result, info) => {
-          result.push(info.telemetry && info.telemetry['position.latitude'] ? Math.floor(info.telemetry['position.latitude'].ts * 1000) : 0)
-          result.push(info.telemetry && info.telemetry['position.longitude'] ? Math.floor(info.telemetry['position.longitude'].ts * 1000) : 0)
-          return result
-        }, [])
-      )
+      telemetryRespData = telemetryResp.data
+    if (telemetryRespData.errors) {
+      postMessage.errors.forEach((error) => {
+        commit('addError', error.reason)
+      })
+    }
+    let now = Math.max(
+      ...telemetryRespData.result.reduce((result, info) => {
+        result.push(info.telemetry && info.telemetry['position.latitude'] ? Math.floor(info.telemetry['position.latitude'].ts * 1000) : 0)
+        result.push(info.telemetry && info.telemetry['position.longitude'] ? Math.floor(info.telemetry['position.longitude'].ts * 1000) : 0)
+        return result
+      }, [])
+    )
     return now - (now % 86400000)
   } else {
     return Date.now()

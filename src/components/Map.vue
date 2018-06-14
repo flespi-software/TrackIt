@@ -14,6 +14,7 @@
       :telemetryDeviceId="telemetryDeviceId"
       :mode="mode"
       :date="date"
+      :markers="markers"
       @send="prepareForSendMessage"
       v-if="Object.keys(messages).length && ((mode === 0 && (params.needShowMessages || params.needShowPlayer)) || (mode === 1 && params.needShowMessages))"
       @play="playHandler"
@@ -21,6 +22,7 @@
       @change:needShowTail="changeShowTail"
       @change:needShowMessages="(flag) => {$emit('change:needShowMessages', flag)}"
       @change:selected="(active) => { selected = active }"
+      @update:color="updateColorHandler"
     />
     <post-message-modal
       ref="postMessageModal"
@@ -41,6 +43,7 @@ import Queue from './Queue.vue'
 import PostMessageModal from './PostMessageModal.vue'
 import { mapState } from 'vuex'
 import { devicesMessagesModule } from 'qvirtualscroll'
+import { colors } from 'quasar'
 
 export default {
   name: 'Map',
@@ -297,7 +300,6 @@ export default {
     updateMarkerHandler ({ id, lastPos }) {
       if (this.markers[id] && this.markers[id] instanceof L.Marker) {
         this.markers[id].setLatLng(lastPos).update()
-        // this.markers[id].accuracy.setRadius(this.getAccuracyParams(this.messages[id][this.messages[id].length - 1]).accuracy)
         this.markers[id].accuracy.setLatLng(lastPos)
       } else {
         this.initDeviceOnMap(id)
@@ -338,7 +340,7 @@ export default {
       return L.divIcon({
         className: `my-flag-icon flag-${status}-${id}`,
         iconSize: new L.Point(45, 45),
-        html: `<i aria-hidden="true" style="color: ${status === 'start' ? 'green' : 'red'};" class="my-flag-icon__inner mdi mdi-flag-variant-outline"></i>`
+        html: `<i aria-hidden="true" style="color: ${status === 'start' ? colors.getBrand('positive') : colors.getBrand('negative')};" class="my-flag-icon__inner mdi mdi-flag-variant-outline"></i>`
       })
     },
     addFlags (id) {
@@ -457,6 +459,11 @@ export default {
           flag ? this.tracks[trackId].tail.addTo(this.map) : this.tracks[trackId].tail.remove()
         }
       })
+    },
+    updateColorHandler ({ id, color }) {
+      this.tracks[id].setStyle({ color })
+      this.markers[id].color = color
+      document.querySelector(`.my-div-icon.icon-${id} .my-div-icon__inner`).style.borderColor = color
     }
   },
   watch: {
@@ -502,7 +509,7 @@ export default {
         modifyType = currentDevicesID.length > activeDevicesID.length ? 'remove' : 'add'
       activeDevicesID.forEach((id) => {
         if (!this.$store.state.messages[id]) {
-          this.$store.registerModule(['messages', id], devicesMessagesModule(this.$store, Vue, this.$q.localStorage, `messages/${id}`))
+          this.$store.registerModule(['messages', id], devicesMessagesModule({ Vue, LocalStorage: this.$q.localStorage, name: `messages/${id}`, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
           this.$store.commit(`messages/${id}/setSortBy`, 'timestamp')
         }
       })
@@ -592,7 +599,7 @@ export default {
       })
     },
     date (date, prev) {
-      if (this.mode === 0 && prev !== 0) {
+      if (this.mode === 0 && prev) {
         this.activeDevicesID.forEach(async (id) => {
           await this.modeChangeById(id)
         })
@@ -608,10 +615,20 @@ export default {
   created () {
     this.activeDevicesID = this.activeDevices.map((device) => device.id)
     this.activeDevicesID.forEach((id) => {
-      this.$store.registerModule(['messages', id], devicesMessagesModule(this.$store, Vue, this.$q.localStorage, `messages/${id}`))
+      this.$store.registerModule(['messages', id], devicesMessagesModule({Vue, LocalStorage: this.$q.localStorage, name: `messages/${id}`, errorHandler: (err) => { this.$store.commit('reqFailed', err) }}))
       this.$store.commit(`messages/${id}/setSortBy`, 'timestamp')
       this.initDevice(id)
     })
+    Vue.connector.socket.on('offline', () => {
+      this.$store.commit('setSocketOffline', true)
+    })
+    Vue.connector.socket.on('connect', () => {
+      this.$store.commit('setSocketOffline', false)
+    })
+  },
+  destroyed () {
+    Vue.connector.socket.off('offline')
+    Vue.connector.socket.off('connect')
   },
   mounted () {
     this.initMap()

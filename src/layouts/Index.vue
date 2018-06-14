@@ -40,6 +40,22 @@
             </div>
           </div>
         </div>
+        <q-btn v-if="errors.length" @click="clearNotificationCounter" small flat round color="dark" size="md" icon="notifications" class="floated notifications">
+          <q-chip v-if="newNotificationCounter" floating color="red">{{newNotificationCounter}}</q-chip>
+          <q-popover fit ref="popoverError">
+            <q-list no-border style="max-height: 200px" link separator class="scroll">
+              <q-item
+                v-for="(error, index) in errors"
+                :key="index"
+                style="cursor: default"
+              >
+                <q-item-main>
+                  <q-item-tile label>{{error}}</q-item-tile>
+                </q-item-main>
+              </q-item>
+            </q-list>
+          </q-popover>
+        </q-btn>
         <div v-if="devices.length && mode === 0" class="floated date">
           <q-datetime
             format="DD-MM-YYYY"
@@ -47,6 +63,7 @@
             v-model="date"
             color="grey-8"
             modal
+            :default-value="Date.now()"
           />
         </div>
         <div v-if="!activeDevicesID.length" class="floated no-devices">
@@ -115,6 +132,7 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import { mapState, mapMutations, mapActions } from 'vuex'
 import QTelemetry from 'qtelemetry'
 import MapComponent from '../components/Map.vue'
@@ -143,7 +161,7 @@ export default {
         propHistoryFlag: true
       },
       version: dist.version,
-      date: 0
+      date: undefined
     }
   },
   computed: {
@@ -158,7 +176,7 @@ export default {
         if (this.mode === 0) {
           this.getLastUpdatePosition()
             .then((date) => {
-              this.date = date
+              this.date = date || undefined
             })
         }
         return state.activeDevicesID
@@ -177,7 +195,9 @@ export default {
           }
           return result
         }, {})
-      }
+      },
+      errors: state => state.errors,
+      newNotificationCounter: state => state.newNotificationCounter
     }),
     deviceForTelemetry () {
       return this.deviceIdForTelemetry ? this.devices.filter(device => device.id === this.deviceIdForTelemetry)[0] : {}
@@ -194,10 +214,14 @@ export default {
       'clearToken',
       'setDevicesInit',
       'unsetDevicesInit',
-      'setActiveDevice'
+      'setActiveDevice',
+      'reqFailed',
+      'addError',
+      'clearNotificationCounter'
     ]),
     ...mapActions(['getLastUpdatePosition']),
     exitHandler (e) {
+      Vue.connector.socket.off('error')
       this.unsetDevicesInit()
       this.clearToken()
       this.$router.push('/login')
@@ -228,12 +252,12 @@ export default {
         /* history mode change logic */
         this.getLastUpdatePosition()
           .then((date) => {
-            this.date = date
+            this.date = date || undefined
             this.mode = 0
           })
       } else {
         /* rt mode change logic */
-        this.date = 0
+        this.date = undefined
         this.mode = 1
       }
     }
@@ -294,50 +318,47 @@ export default {
     if (telemetrySettings) {
       this.telemetrySettings = Object.assign(this.telemetrySettings, telemetrySettings)
     }
+    Vue.connector.socket.on('error', (error) => {
+      this.reqFailed(error)
+    })
+  },
+  beforeDestroy () {
+    Vue.connector.socket.off('error')
   }
 }
 </script>
 
 <style lang="stylus">
   .floated
+    z-index 2000
+    position absolute
     &.label
       color: #333
-      position: absolute
       top: 5px
       left: 70px
-      z-index: 2000
       border-radius: 5px
       opacity: .9
       pointer-events none
       user-select none
     &.menu
-      z-index 2000
-      position absolute
       top 5px
       left 10px
     &.github
-      z-index 2000
-      position absolute
       top 5px
       right 50px
+    &.notifications
+      top 5px
+      right 100px
     &.options
-      z-index 2000
-      position absolute
       top 5px
       right 10px
     &.mode
-      z-index 2000
-      position absolute
       top 50px
       right 10px
     &.date
-      z-index 2000
-      position absolute
       top 60px
       right 50px
     &.no-devices
-      z-index 2000
-      position absolute
       bottom 150px
       text-align center
       width 100%

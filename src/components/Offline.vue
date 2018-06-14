@@ -1,5 +1,5 @@
 <template>
-  <div v-if="$store.state.offline" class="offline-page window-height window-width bg-light column items-center no-wrap">
+  <div v-if="$store.state.offline || $store.state.socketOffline" class="offline-page window-height window-width bg-light column items-center no-wrap">
     <div class="offline-back">
       <div class="offline-code"></div>
       <div class="offline-line">

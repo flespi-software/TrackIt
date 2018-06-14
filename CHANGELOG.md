@@ -1,5 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.12] - 2018-06-14
+[feature] error handling
+[feature] color picker for tracks and markers
+[fix] init date
+[fix] styles
 ### [0.4.11] - 2018-06-06
 [feature] device list to virtual scroll list
 [fix] object values in fields

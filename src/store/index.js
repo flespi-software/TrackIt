@@ -14,7 +14,10 @@ let state = {
   activeDevicesID: [],
   hasDevicesInit: false,
   offline: false,
-  isLoading: false
+  socketOffline: false,
+  isLoading: false,
+  newNotificationCounter: 0,
+  errors: []
 }
 
 const store = new Vuex.Store(

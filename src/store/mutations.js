@@ -106,8 +106,13 @@ function reqFailed (state, payload) {
         if (DEV) {
           console.log(`${payload.status} - ${payload.statusText}`)
         }
+        if (payload.response.data && payload.response.data.errors && payload.response.data.errors.length) {
+          payload.response.data.errors.forEach((e) => { addError(state, e.reason) })
+        }
       }
     }
+  } else {
+    addError(state, payload.message)
   }
 }
 function setOfflineFlag (state, flag) {
@@ -163,6 +168,22 @@ function unsetDevicesInit (state) {
   Vue.set(state, 'devices', [])
   Vue.set(state, 'activeDevicesID', [])
 }
+function addError (state, message) {
+  Notify.create({
+    type: 'negative',
+    icon: 'warning',
+    message: `${message}`,
+    timeout: 1000
+  })
+  state.newNotificationCounter++
+  state.errors.push(message)
+}
+
+function setSocketOffline (state, flag) {
+  Vue.set(state, 'socketOffline', flag)
+}
+
+function clearNotificationCounter (state) { state.newNotificationCounter = 0 }
 export default {
   reqStart,
   reqSuccessful,
@@ -175,5 +196,8 @@ export default {
   unsetDevicesInit,
   setOfflineFlag,
   updateDevices,
-  setDevices
+  setDevices,
+  setSocketOffline,
+  clearNotificationCounter,
+  addError
 }
