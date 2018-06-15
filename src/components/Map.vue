@@ -629,6 +629,9 @@ export default {
   destroyed () {
     Vue.connector.socket.off('offline')
     Vue.connector.socket.off('connect')
+    this.activeDevicesID.forEach(async (id) => {
+      this.$store.unregisterModule(['messages', id])
+    })
   },
   mounted () {
     this.initMap()

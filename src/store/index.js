@@ -9,6 +9,7 @@ import modules from './modules'
 Vue.use(Vuex)
 
 let state = {
+  providers: {},
   token: '',
   devices: [],
   activeDevicesID: [],

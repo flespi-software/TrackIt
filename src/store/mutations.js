@@ -183,6 +183,10 @@ function setSocketOffline (state, flag) {
   Vue.set(state, 'socketOffline', flag)
 }
 
+function setLoginProviders (state, providers) {
+  Vue.set(state, 'providers', providers)
+}
+
 function clearNotificationCounter (state) { state.newNotificationCounter = 0 }
 export default {
   reqStart,
@@ -199,5 +203,6 @@ export default {
   setDevices,
   setSocketOffline,
   clearNotificationCounter,
-  addError
+  addError,
+  setLoginProviders
 }

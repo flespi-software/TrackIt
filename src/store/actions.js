@@ -66,9 +66,24 @@ async function getLastUpdatePosition ({ commit, state }, selector) {
   }
 }
 
+async function getLoginProviders ({ commit, state }) {
+  try {
+    let resp = await Vue.connector.http.auth.oauth.providers.get(),
+      providers = resp.data.result[0]
+    providers.email = `${Vue.connector.httpConfig.server}${Vue.connector.httpConfig.port ? `:${Vue.connector.httpConfig.port}` : ''}/#/login/`
+    commit('setLoginProviders', providers)
+  } catch (e) {
+    if (DEV) {
+      console.log(e)
+    }
+    commit('reqFailed', e)
+  }
+}
+
 export default {
   poolDevices,
   postMessage,
   checkConnection,
-  getLastUpdatePosition
+  getLastUpdatePosition,
+  getLoginProviders
 }

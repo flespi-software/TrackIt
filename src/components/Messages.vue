@@ -215,7 +215,7 @@ export default {
     this.currentLimit = this.limit
     this.highlightSelected(this.activeMessagesIds)
   },
-  beforeDestroy () {
+  destroyed () {
     this.$store.commit(`messages/${this.moduleName}/clearSelected`)
   },
   components: { VirtualScrollList, MessagesListItem, MessageViewer }

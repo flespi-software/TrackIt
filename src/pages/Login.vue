@@ -10,30 +10,8 @@
       <div class="login-card shadow-4 bg-white column items-center justify-center no-wrap">
         <p class="text-center">Track your devices on the map.</p>
         <div class="row full-width">
-          <div class="col-md-7 col-sm-12 text-center modify">
-            <div class="row__wrapper">
-              <q-input class="text-left" v-model="model" float-label="Enter Token" placeholder="FlespiToken XXXXXXXXXXXXXXXXXXXXXX" />
-            </div>
-            <q-btn
-              :class="[$q.platform.is.mobile ? 'full-width' : '']"
-              color="dark"
-              @click="logIn"
-              icon-right="arrow_forward"
-            >
-              LogIn
-            </q-btn>
-          </div>
-          <div class="col-md-5 col-sm-12 text-dark text-center" style="padding-top: 15px;">
-            <div class="row__wrapper">
-              <img src="../statics/flespi_logo_black.svg" alt="flespi" style="height: 30px; margin-bottom: 10px"><br>
-              Don`t have a token?
-            </div>
-            <a href="https://flespi.io" target="_blank">
-              <q-btn
-                :class="[$q.platform.is.mobile ? 'full-width' : '']"
-                color="dark"
-              >Register</q-btn>
-            </a>
+          <div class="col-12 text-center">
+            <q-icon class="cursor-pointer" size="3.5rem" v-for="(value, name) in providers" :key="name" :name="icons[name]" @click.native="openUrl(value, name)"/>
           </div>
         </div>
       </div>
@@ -47,14 +25,24 @@
 </template>
 
 <script>
+import { mapActions, mapState, mapMutations } from 'vuex'
+
 export default {
   data () {
     return {
       token: '',
-      offlineIntervalId: 0
+      offlineIntervalId: 0,
+      icons: {
+        facebook: 'mdi-facebook-box',
+        google: 'mdi-google-plus-box',
+        live: 'mdi-windows',
+        github: 'mdi-github-box',
+        email: 'mdi-at'
+      }
     }
   },
   computed: {
+    ...mapState(['providers']),
     model: {
       get () {
         return this.token
@@ -65,12 +53,14 @@ export default {
     }
   },
   methods: {
+    ...mapActions(['getLoginProviders']),
+    ...mapMutations(['setToken']),
     logIn () {
-      this.$store.commit('setToken', this.token)
+      this.setToken(this.token)
       this.$nextTick(() => { this.$router.push('/') })
     },
     autoLogin () {
-      this.$store.commit('setToken', this.$route.params.token)
+      this.setToken(this.$route.params.token)
       setTimeout(() => {
         this.$router.push('/')
       }, 1000)
@@ -95,6 +85,20 @@ export default {
         })
           .catch(() => {})
       }
+    },
+    openUrl (url, title) {
+      title = title || 'auth'
+      let w = 500, h = 600,
+        screenLeft = window.screenLeft !== undefined ? window.screenLeft : screen.left,
+        screenTop = window.screenTop !== undefined ? window.screenTop : screen.top,
+        width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width,
+        height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height,
+        left = ((width / 2) - (w / 2)) + screenLeft,
+        top = ((height / 2) - (h / 2)) + screenTop,
+        newWindow = window.open(url, title, 'toolbar=no,location=no,status=yes,resizable=yes,scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left)
+      if (window.focus) {
+        newWindow.focus()
+      }
     }
   },
   watch: {
@@ -104,8 +108,15 @@ export default {
       }
     }
   },
-  created () {
+  async created () {
+    window.addEventListener('message', (event) => {
+      if (typeof event.data === 'string' && ~event.data.indexOf('FlespiToken')) {
+        this.token = event.data
+        this.logIn()
+      }
+    })
     this.checkHasToken()
+    await this.getLoginProviders()
   }
 }
 </script>
@@ -135,6 +146,7 @@ export default {
         background-repeat no-repeat
         opacity .8
         padding-top 20vh
+        font-size 80%
     .login-card
       border-radius 2px
       margin-top -50px
@@ -143,10 +155,4 @@ export default {
       padding 25px
       > i
         font-size 5rem
-  @media (min-width 767px) {
-    .modify {
-      border-right: 1px solid #ccc;
-      padding-right: 30px;
-    }
-  }
 </style>
