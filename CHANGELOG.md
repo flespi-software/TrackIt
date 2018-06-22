@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.14] - 2018-06-22
+[fix] clear message event
+[feature] rebase telemetry getting
 ### [0.4.13] - 2018-06-15
 [feature] login by providers
 ### [0.4.12] - 2018-06-14

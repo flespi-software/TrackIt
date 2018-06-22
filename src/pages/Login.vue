@@ -87,6 +87,14 @@ export default {
       }
     },
     openUrl (url, title) {
+      let tokenHandler = (event) => {
+        if (typeof event.data === 'string' && ~event.data.indexOf('FlespiToken')) {
+          this.token = event.data
+          this.logIn()
+          window.removeEventListener('message', tokenHandler)
+        }
+      }
+      window.addEventListener('message', tokenHandler)
       title = title || 'auth'
       let w = 500, h = 600,
         screenLeft = window.screenLeft !== undefined ? window.screenLeft : screen.left,
@@ -109,14 +117,10 @@ export default {
     }
   },
   async created () {
-    window.addEventListener('message', (event) => {
-      if (typeof event.data === 'string' && ~event.data.indexOf('FlespiToken')) {
-        this.token = event.data
-        this.logIn()
-      }
-    })
     this.checkHasToken()
-    await this.getLoginProviders()
+    if (!Object.keys(this.providers).length) {
+      await this.getLoginProviders()
+    }
   }
 }
 </script>

@@ -46,7 +46,7 @@ async function checkConnection ({ state, commit }) {
 async function getLastUpdatePosition ({ commit, state }, selector) {
   let items = selector || state.activeDevicesID.join(',')
   if (items) {
-    let telemetryResp = await Vue.connector.gw.getDevices(items, {fields: 'id,telemetry'}),
+    let telemetryResp = await Vue.connector.gw.getDevicesTelemetry(items),
       telemetryRespData = telemetryResp.data
     if (telemetryRespData.errors) {
       postMessage.errors.forEach((error) => {
