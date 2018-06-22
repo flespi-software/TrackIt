@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.15] - 2018-06-22
+[fix] empty telemetry check
 ### [0.4.14] - 2018-06-22
 [fix] clear message event
 [feature] rebase telemetry getting
