@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.17] - 2018-07-11
+[feature] version in client_id
 ### [0.4.16] - 2018-07-11
 [fix] remove subscriptions
 [fix] clearing socket connection
