@@ -56,7 +56,7 @@ export default {
     this.unsubscribeDevices = await this.poolDevices()
   },
   beforeDestroy () {
-    this.unsubscribeDevices()
+    this.unsubscribeDevices && this.unsubscribeDevices()
   }
 }
 </script>

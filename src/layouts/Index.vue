@@ -1,6 +1,6 @@
 <template>
   <q-layout ref="layout" view="hHh LpR lFf">
-    <q-layout-drawer no-hide-on-route-change side="left" :no-swipe-open="$q.platform.is.desktop" :no-swipe-close="$q.platform.is.desktop" v-model="side_left" :breakpoint="576" behavior="mobile">
+    <q-layout-drawer v-if="isInit" no-hide-on-route-change side="left" :no-swipe-open="$q.platform.is.desktop" :no-swipe-close="$q.platform.is.desktop" v-model="side_left" :breakpoint="576" behavior="mobile">
       <device-list v-show="devices.length" @update:watch-by-id="setWatchToDeviceID" :deviceIdForWatch="deviceIdForWatch" :activeDevicesID="activeDevicesID" :devices="devices" @click:hide="side_left = false"/>
     </q-layout-drawer>
     <q-layout-drawer side="right" no-swipe-open no-swipe-close :content-class="{'bg-dark':telemetrySettings.inverted}" v-model="side_right">
@@ -107,7 +107,6 @@
           :deviceIdForWatch="deviceIdForWatch"
           :params="params"
           :mode="mode"
-          v-if="devices.length"
           :date="date"
           @change:needShowMessages="(value) => { params.needShowMessages = value }"
         />
@@ -161,7 +160,8 @@ export default {
         propHistoryFlag: true
       },
       version: dist.version,
-      date: undefined
+      date: undefined,
+      isInit: false
     }
   },
   computed: {
@@ -294,6 +294,7 @@ export default {
     }
   },
   created () {
+    this.$q.loading.show()
     if (this.activeDevicesID.length) {
       this.$router.push(`devices/${this.activeDevicesID.join(',')}`)
     }
@@ -318,12 +319,17 @@ export default {
     if (telemetrySettings) {
       this.telemetrySettings = Object.assign(this.telemetrySettings, telemetrySettings)
     }
+    Vue.connector.socket.on('connect', () => {
+      this.isInit = true
+      this.$q.loading.hide()
+    })
     Vue.connector.socket.on('error', (error) => {
       this.reqFailed(error)
     })
   },
   beforeDestroy () {
     Vue.connector.socket.off('error')
+    Vue.connector.socket.off('connect')
   }
 }
 </script>
