@@ -26,7 +26,7 @@ export default ({Vue}) => {
   Vue.use(VueConnection, connectionConfig)
   if (window) {
     window.addEventListener('beforeunload', () => {
-      Vue.connector.socket.end(true)
+      Vue.connector.socket.close(true)
     })
   }
 }

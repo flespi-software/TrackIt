@@ -161,7 +161,7 @@ export default {
       },
       version: dist.version,
       date: undefined,
-      isInit: false
+      isInit: Vue.connector.socket.connected()
     }
   },
   computed: {
@@ -294,11 +294,18 @@ export default {
     }
   },
   created () {
-    this.$q.loading.show()
+    if (!this.isInit) {
+      Vue.connector.socket.on('connect', () => {
+        this.isInit = true
+        this.$q.loading.hide()
+      })
+      this.$q.loading.show()
+    }
     if (this.activeDevicesID.length) {
       this.$router.push(`devices/${this.activeDevicesID.join(',')}`)
     }
     if (!this.token) {
+      this.$q.loading.hide()
       if (this.$route.params.devices) {
         let active = this.$route.params.devices.split(',').map(id => +id)
         active.forEach((id) => {
@@ -319,15 +326,11 @@ export default {
     if (telemetrySettings) {
       this.telemetrySettings = Object.assign(this.telemetrySettings, telemetrySettings)
     }
-    Vue.connector.socket.on('connect', () => {
-      this.isInit = true
-      this.$q.loading.hide()
-    })
     Vue.connector.socket.on('error', (error) => {
       this.reqFailed(error)
     })
   },
-  beforeDestroy () {
+  destroyed () {
     Vue.connector.socket.off('error')
     Vue.connector.socket.off('connect')
   }

@@ -36,7 +36,7 @@
                   // available; please refresh." message in the page's interface.
                   let notification = document.createElement('div')
                   notification.id = 'sw-notification'
-                  notification.innerHTML = `<div class="q-notification-list q-notification-list-bottom fixed column items-end absolute">
+                  notification.innerHTML = `<div style="z-index: 10000" class="q-notification-list q-notification-list-bottom fixed column items-end absolute">
                                               <div class="q-notification">
                                                 <div class="q-alert row no-wrap shadow-2 bg-amber-9 text-white">
                                                   <div class="q-alert-side col-auto row flex-center">
