@@ -217,7 +217,8 @@ export default {
       'setActiveDevice',
       'reqFailed',
       'addError',
-      'clearNotificationCounter'
+      'clearNotificationCounter',
+      'clearErrors'
     ]),
     ...mapActions(['getLastUpdatePosition']),
     exitHandler (e) {
@@ -294,6 +295,8 @@ export default {
     }
   },
   created () {
+    this.clearNotificationCounter()
+    this.clearErrors()
     if (!this.isInit) {
       Vue.connector.socket.on('connect', () => {
         this.isInit = true

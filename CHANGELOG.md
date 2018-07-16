@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.19] - 2018-07-16
+[fix] offline mode
+[fix] disconnect socket view
 ### [0.4.18] - 2018-07-12
 [fix] clear session
 ### [0.4.17] - 2018-07-11

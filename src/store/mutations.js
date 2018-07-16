@@ -90,7 +90,8 @@ function reqFailed (state, payload) {
     console.log('Failed Request')
     console.log(payload)
   }
-  if (payload.response && payload.response.status) {
+  /* http errors */
+  if ((payload.response && payload.response.status)) {
     switch (payload.response.status) {
       case 0: {
         setOfflineFlag(state, true)
@@ -109,6 +110,15 @@ function reqFailed (state, payload) {
         if (payload.response.data && payload.response.data.errors && payload.response.data.errors.length) {
           payload.response.data.errors.forEach((e) => { addError(state, e.reason) })
         }
+      }
+    }
+    /* mqtt errors */
+  } else if (payload.code && payload.message) {
+    switch (payload.code) {
+      case 2: {
+        clearToken(state)
+        addError(state, payload.message)
+        break
       }
     }
   } else {
@@ -138,6 +148,7 @@ function clearToken (state) {
   }
   LocalStorage.remove('X-Flespi-Token')
   Vue.connector.token = ''
+  if (state.socketOffline) { setSocketOffline(state, false) }
   Vue.set(state, 'token', '')
 }
 function setActiveDevice (state, id) {
@@ -187,6 +198,10 @@ function setLoginProviders (state, providers) {
   Vue.set(state, 'providers', providers)
 }
 
+function clearErrors (state) {
+  Vue.set(state, 'errors', [])
+}
+
 function clearNotificationCounter (state) { state.newNotificationCounter = 0 }
 export default {
   reqStart,
@@ -204,5 +219,6 @@ export default {
   setSocketOffline,
   clearNotificationCounter,
   addError,
-  setLoginProviders
+  setLoginProviders,
+  clearErrors
 }

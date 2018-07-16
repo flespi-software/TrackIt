@@ -117,6 +117,7 @@ export default {
     }
   },
   async created () {
+    this.$q.loading.hide()
     this.checkHasToken()
     if (!Object.keys(this.providers).length) {
       await this.getLoginProviders()
