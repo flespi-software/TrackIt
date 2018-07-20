@@ -329,12 +329,8 @@ export default {
     if (telemetrySettings) {
       this.telemetrySettings = Object.assign(this.telemetrySettings, telemetrySettings)
     }
-    Vue.connector.socket.on('error', (error) => {
-      this.reqFailed(error)
-    })
   },
   destroyed () {
-    Vue.connector.socket.off('error')
     Vue.connector.socket.off('connect')
   }
 }

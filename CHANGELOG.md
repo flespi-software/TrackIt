@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.20] - 2018-07-20
+[fix] handling errors by MQTT
 ### [0.4.19] - 2018-07-16
 [fix] offline mode
 [fix] disconnect socket view

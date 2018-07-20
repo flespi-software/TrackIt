@@ -21,9 +21,12 @@ if (PROD && SERVER) {
   }
 }
 
-export default ({Vue}) => {
+export default ({Vue, store}) => {
   Vue.config.productionTip = false
   Vue.use(VueConnection, connectionConfig)
+  Vue.connector.socket.on('error', (error) => {
+    store.commit('reqFailed', error)
+  })
   if (window) {
     window.addEventListener('beforeunload', () => {
       Vue.connector.socket.close(true)
