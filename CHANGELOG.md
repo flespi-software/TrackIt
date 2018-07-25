@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.21] - 2018-07-25
+[updated] packages
+[fix] deploy command
 ### [0.4.20] - 2018-07-20
 [fix] handling errors by MQTT
 ### [0.4.19] - 2018-07-16
