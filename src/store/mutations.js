@@ -116,7 +116,9 @@ function reqFailed (state, payload) {
   } else if (payload.code && payload.message) {
     switch (payload.code) {
       case 2: {
-        clearToken(state)
+        if (state.token) {
+          clearToken(state)
+        }
         addError(state, payload.message)
         break
       }

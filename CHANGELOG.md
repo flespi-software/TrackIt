@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.22] - 2018-07-27
+[update] packages
+[feature] migrate to new version of quasar
+[fix] init few devices on start
 ### [0.4.21] - 2018-07-25
 [updated] packages
 [fix] deploy command

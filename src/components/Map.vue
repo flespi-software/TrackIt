@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import L from 'leaflet'
+import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import Vue from 'vue'
 import Queue from './Queue.vue'
@@ -125,7 +125,8 @@ export default {
           this.admin.counter += 1
           this.admin.timerId = setTimeout(() => {
             if (this.admin.timerId && this.admin.counter >= 10) {
-              this.admin.flag = !this.admin.flag
+              /* uncomment after returning POST messages devices */
+              // this.admin.flag = !this.admin.flag
             }
             this.admin.timerId = 0
             this.admin.counter = 0
@@ -503,7 +504,7 @@ export default {
     activeDevices (newVal) {
       let activeDevicesID = newVal.map((device) => device.id)
       if (!this.activeDeviceID) {
-        this.initActiveDeviceID(activeDevicesID[0])
+        activeDevicesID.forEach((id) => { this.initActiveDeviceID(id) })
       }
       let currentDevicesID = Object.keys(this.messages).map(id => parseInt(id)),
         modifyType = currentDevicesID.length > activeDevicesID.length ? 'remove' : 'add'
@@ -527,9 +528,9 @@ export default {
           break
         }
         case 'add': {
-          let addedDeviceID = activeDevicesID.filter(id => !currentDevicesID.includes(id))[0]
+          let addedDeviceID = activeDevicesID.filter(id => !currentDevicesID.includes(id))
           if (addedDeviceID) {
-            this.initDevice(addedDeviceID)
+            addedDeviceID.forEach((id) => { this.initDevice(id) })
           }
           break
         }

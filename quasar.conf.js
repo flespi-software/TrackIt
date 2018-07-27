@@ -106,6 +106,14 @@ module.exports = function (ctx) {
     animations: [
     ],
     pwa: {
+      workboxOptions: {
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/((localhost:9005)|(flespi\.io))\/(gw|auth|platform|storage|mqtt)\/.*/,
+            handler: 'networkOnly'
+          }
+        ]
+      },
       manifest: {
         name: 'Track it!',
         short_name: 'Track it!',
