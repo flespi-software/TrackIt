@@ -32,6 +32,7 @@
       @update:marker="updateMarkerHandler"
       @update:dragged="updateFlagHandler"
     />
+    <color-modal ref="colorModal" v-model="color"/>
   </div>
 </template>
 
@@ -41,6 +42,7 @@ import 'leaflet/dist/leaflet.css'
 import Vue from 'vue'
 import Queue from './Queue.vue'
 import PostMessageModal from './PostMessageModal.vue'
+import ColorModal from './ColorModal'
 import { mapState } from 'vuex'
 import { devicesMessagesModule } from 'qvirtualscroll'
 import { colors } from 'quasar'
@@ -77,7 +79,9 @@ export default {
         timerId: 0
       },
       needShowTail: false,
-      selected: null
+      selected: null,
+      currentColorModel: '#fff',
+      currentColorId: 0
     }
   },
   computed: {
@@ -96,7 +100,14 @@ export default {
           return result
         }, {})
       }
-    })
+    }),
+    color: {
+      get () { return this.currentColorModel },
+      set (color) {
+        this.updateColorHandler({id: this.currentColorId, color})
+        this.currentColorModel = color
+      }
+    }
   },
   methods: {
     initMap () {
@@ -210,6 +221,11 @@ export default {
         if (this.mode === 1) {
           document.querySelector(`.icon-${id} .my-div-icon__inner`).style.transform = `rotate(${(this.messages[id][this.messages[id].length - 1]['position.direction'] ? this.messages[id][this.messages[id].length - 1]['position.direction'] : 0) - 45}deg)`
         }
+      })
+      this.markers[id].addEventListener('contextmenu', e => {
+        this.currentColorId = id
+        this.currentColorModel = this.markers[id].color
+        this.$refs.colorModal.show()
       })
       this.markers[id].addTo(this.map)
     },
@@ -637,7 +653,7 @@ export default {
   mounted () {
     this.initMap()
   },
-  components: { Queue, PostMessageModal }
+  components: { Queue, PostMessageModal, ColorModal }
 }
 </script>
 

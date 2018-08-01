@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.23] - 2018-07-30
+[fix] config for modules
+[fix] color picking rebased
 ### [0.4.22] - 2018-07-27
 [update] packages
 [feature] migrate to new version of quasar

@@ -24,7 +24,7 @@
             @change:needShowMessages="(flag) => {$emit('change:needShowMessages', flag)}"
           />
         </q-tab-pane>
-        <q-tab :key="`tab-${deviceID}`" slot="title" :name="deviceID.toString()">
+        <q-tab :key="`tab-${deviceID}`" slot="title" :name="deviceID.toString()" @click="changeTabColorHandler(deviceID)">
           <div>
             <div v-if="messages[deviceID].length" :style="{backgroundColor: markers[deviceID].color}" class="color-view q-mr-xs" @click.stop="changeColorHandler(deviceID)"></div>
             {{getNameById(deviceID)}}
@@ -32,20 +32,13 @@
         </q-tab>
       </template>
     </q-tabs>
-    <q-modal minimized ref="colorModal" class="color-modal" :content-css="{minWidth: '240px', minHeight: '201px'}">
-      <q-modal-layout>
-        <div slot="header" style="background-color: #444; height: 20px">
-          <q-icon color="white" name="close" class="absolute-top-right cursor-pointer" size="1rem" flat
-                  @click.native="modalButtonCloseHandler"></q-icon>
-        </div>
-        <q-color-picker dark :value="currentColorModel" @change="modalSubmit" format-model="hex"/>
-      </q-modal-layout>
-    </q-modal>
+    <color-modal ref="colorModal" v-model="color"/>
   </div>
 </template>
 
 <script>
 import QueueItem from './QueueItem'
+import ColorModal from './ColorModal'
 export default {
   name: 'Queue',
   props: [
@@ -72,6 +65,15 @@ export default {
       currentColorId: 0
     }
   },
+  computed: {
+    color: {
+      get () { return this.currentColorModel },
+      set (color) {
+        this.$emit('update:color', {id: this.currentColorId, color})
+        this.currentColorModel = color
+      }
+    }
+  },
   methods: {
     getNameById (id) {
       return this.devices.filter(device => device.id === id)[0].name || `<#${id}>`
@@ -90,16 +92,10 @@ export default {
       this.currentColorModel = this.markers[id].color
       this.$refs.colorModal.show()
     },
-    modalSubmit (color) {
-      this.$emit('update:color', {id: this.currentColorId, color})
-      this.currentColorId = 0
-      this.currentColorModel = '#fff'
-      this.$refs.colorModal.hide()
-    },
-    modalButtonCloseHandler () {
-      this.currentColorId = 0
-      this.currentColorModel = '#fff'
-      this.$refs.colorModal.hide()
+    changeTabColorHandler (id) {
+      if (id.toString() === this.selected) {
+        this.changeColorHandler(id)
+      }
     }
   },
   created () {
@@ -138,7 +134,7 @@ export default {
       this.$emit('change:selected', parseInt(selected))
     }
   },
-  components: { QueueItem }
+  components: { QueueItem, ColorModal }
 }
 </script>
 
