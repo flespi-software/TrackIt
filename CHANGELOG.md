@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.24] - 2018-08-01
+[feature] login rebased to iframe
 ### [0.4.23] - 2018-07-30
 [fix] config for modules
 [fix] color picking rebased

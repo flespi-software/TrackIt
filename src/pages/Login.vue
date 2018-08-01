@@ -11,7 +11,7 @@
         <p class="text-center">Track your devices on the map.</p>
         <div class="row full-width">
           <div class="col-12 text-center">
-            <q-icon class="cursor-pointer" size="3.5rem" v-for="(value, name) in providers" :key="name" :name="icons[name]" @click.native="openUrl(value, name)"/>
+            <iframe style="width: 100%; height: 96px" :src="`${$flespiServer}/frame/index.html#fff;666;40`" frameborder="0"></iframe>
           </div>
         </div>
       </div>
@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { mapActions, mapState, mapMutations } from 'vuex'
+import { mapMutations } from 'vuex'
 
 export default {
   data () {
@@ -42,7 +42,6 @@ export default {
     }
   },
   computed: {
-    ...mapState(['providers']),
     model: {
       get () {
         return this.token
@@ -53,7 +52,6 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['getLoginProviders']),
     ...mapMutations(['setToken']),
     logIn () {
       this.setToken(this.token)
@@ -85,28 +83,6 @@ export default {
         })
           .catch(() => {})
       }
-    },
-    openUrl (url, title) {
-      let tokenHandler = (event) => {
-        if (typeof event.data === 'string' && ~event.data.indexOf('FlespiToken')) {
-          this.token = event.data
-          this.logIn()
-          window.removeEventListener('message', tokenHandler)
-        }
-      }
-      window.addEventListener('message', tokenHandler)
-      title = title || 'auth'
-      let w = 500, h = 600,
-        screenLeft = window.screenLeft !== undefined ? window.screenLeft : screen.left,
-        screenTop = window.screenTop !== undefined ? window.screenTop : screen.top,
-        width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width,
-        height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height,
-        left = ((width / 2) - (w / 2)) + screenLeft,
-        top = ((height / 2) - (h / 2)) + screenTop,
-        newWindow = window.open(url, title, 'toolbar=no,location=no,status=yes,resizable=yes,scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left)
-      if (window.focus) {
-        newWindow.focus()
-      }
     }
   },
   watch: {
@@ -116,12 +92,17 @@ export default {
       }
     }
   },
-  async created () {
+  created () {
+    let tokenHandler = (event) => {
+      if (typeof event.data === 'string' && ~event.data.indexOf('FlespiToken')) {
+        this.token = event.data
+        this.logIn()
+        window.removeEventListener('message', tokenHandler)
+      }
+    }
+    window.addEventListener('message', tokenHandler)
     this.$q.loading.hide()
     this.checkHasToken()
-    if (!Object.keys(this.providers).length) {
-      await this.getLoginProviders()
-    }
   }
 }
 </script>

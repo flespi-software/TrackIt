@@ -196,10 +196,6 @@ function setSocketOffline (state, flag) {
   Vue.set(state, 'socketOffline', flag)
 }
 
-function setLoginProviders (state, providers) {
-  Vue.set(state, 'providers', providers)
-}
-
 function clearErrors (state) {
   Vue.set(state, 'errors', [])
 }
@@ -221,6 +217,5 @@ export default {
   setSocketOffline,
   clearNotificationCounter,
   addError,
-  setLoginProviders,
   clearErrors
 }

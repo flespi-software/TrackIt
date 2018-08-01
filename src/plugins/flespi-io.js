@@ -22,7 +22,7 @@ if (PROD && SERVER) {
 }
 
 export default ({Vue, store}) => {
-  Vue.config.productionTip = false
+  Vue.prototype.$flespiServer = connectionConfig.httpConfig && connectionConfig.httpConfig.server ? `${connectionConfig.httpConfig.server}:${connectionConfig.httpConfig.port}` : 'https://flespi.io'
   Vue.use(VueConnection, connectionConfig)
   Vue.connector.socket.on('error', (error) => {
     store.commit('reqFailed', error)
