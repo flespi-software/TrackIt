@@ -1,13 +1,13 @@
 import VueConnection from 'flespi-io-js/dist/vue-plugin'
 import { version } from '../../package.json'
 
-let connectionConfig = {socketConfig: { clientId: `trackit-${version}-${Math.random().toString(16).substr(2, 8)}` }}
+let connectionConfig = {socketConfig: { clientId: `trackit-${version}-${Math.random().toString(16).substr(2, 8)}`, mqttSettings: { protocolVersion: 5 } }}
 
 /* if local dev build */
 if (DEV && !SERVER) {
   connectionConfig = {
     httpConfig: { server: 'https://localhost', port: 9005 },
-    socketConfig: { server: `wss://localhost:9017`, clientId: `trackit-${version}-dev-${Math.random().toString(16).substr(2, 8)}` }
+    socketConfig: { server: `wss://localhost:9017`, clientId: `trackit-${version}-dev-${Math.random().toString(16).substr(2, 8)}`, mqttSettings: { protocolVersion: 5 } }
   }
 }
 
@@ -16,7 +16,7 @@ if (PROD && SERVER) {
   if (window.location.host.indexOf('localhost:9004') !== -1 || window.location.host.indexOf('localhost:9005') !== -1 || window.location.host.indexOf('localhost:7004') !== -1) {
     connectionConfig = {
       httpConfig: { server: 'https://localhost', port: 9005 },
-      socketConfig: { server: `wss://localhost:9017`, clientId: `trackit-${version}-dev-${Math.random().toString(16).substr(2, 8)}` }
+      socketConfig: { server: `wss://localhost:9017`, clientId: `trackit-${version}-dev-${Math.random().toString(16).substr(2, 8)}`, mqttSettings: { protocolVersion: 5 } }
     }
   }
 }
