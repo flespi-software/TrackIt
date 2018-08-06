@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "fonts/mdi.098aafd.woff2"
   },
   {
-    "revision": "99b0969818ac195946dcf35904addab3",
+    "revision": "1e43ff0cfa06b3c4f925f1c0439b8269",
     "url": "index.html"
   },
   {
@@ -16,12 +16,12 @@ self.__precacheManifest = [
     "url": "js/1.c74f552.js"
   },
   {
-    "revision": "47fc2bc80d4dc7e7835423c0505302e7",
-    "url": "statics/icons/icon-192x192.png"
+    "revision": "4ca6116897b45c5c22d8e3d3f21576f5",
+    "url": "statics/icons/ms-icon-144x144.png"
   },
   {
-    "revision": "9f7741e1d30d1a2b12ee",
-    "url": "js/app.334b1ef.js"
+    "revision": "e2a7cb92ca791b8c3d68",
+    "url": "js/app.b01ccdd.js"
   },
   {
     "revision": "bfa014e126b09f7040fe",
@@ -32,28 +32,28 @@ self.__precacheManifest = [
     "url": "js/vendor.a8a6ec2.js"
   },
   {
-    "revision": "4ca6116897b45c5c22d8e3d3f21576f5",
-    "url": "statics/icons/ms-icon-144x144.png"
+    "revision": "47fc2bc80d4dc7e7835423c0505302e7",
+    "url": "statics/icons/icon-192x192.png"
   },
   {
     "revision": "906c193b6d193a65add774107b3923db",
     "url": "statics/icons/apple-icon-152x152.png"
   },
   {
-    "revision": "c81a3f3a982ad3175edf7a78d797ced3",
-    "url": "statics/icons/favicon-16x16.png"
+    "revision": "a9de7e81de000ac57c2855c29a98e796",
+    "url": "statics/police.png"
   },
   {
     "revision": "e70b8108d642f3e1eda25442d0a2a629",
     "url": "statics/manifest.json"
   },
   {
-    "revision": "a9de7e81de000ac57c2855c29a98e796",
-    "url": "statics/police.png"
-  },
-  {
     "revision": "c2f336f76202bb73019843c7ad316def",
     "url": "statics/icons/favicon-32x32.png"
+  },
+  {
+    "revision": "c81a3f3a982ad3175edf7a78d797ced3",
+    "url": "statics/icons/favicon-16x16.png"
   },
   {
     "revision": "d56df49a807a9fd06eb1667a84d3810e",
@@ -144,7 +144,7 @@ self.__precacheManifest = [
     "url": "fonts/KFOlCnqEu92Fr1MmEU9fBBc-.de8b743.woff"
   },
   {
-    "revision": "9f7741e1d30d1a2b12ee",
+    "revision": "e2a7cb92ca791b8c3d68",
     "url": "css/app.e65b0c40.css"
   },
   {
