@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.25] - 2018-08-06
+[update] packages
+[feature] migrate to MQTT 5
 ### [0.4.24] - 2018-08-01
 [feature] login rebased to iframe
 ### [0.4.23] - 2018-07-30
