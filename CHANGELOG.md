@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.26] - 2018-08-27
+[update] packages
 ### [0.4.25] - 2018-08-06
 [update] packages
 [feature] migrate to MQTT 5
