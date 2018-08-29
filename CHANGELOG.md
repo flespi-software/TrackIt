@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.27] - 2018-08-28
+[feature] view on map feature
+[feature] repaint controls
 ### [0.4.26] - 2018-08-27
 [update] packages
 ### [0.4.25] - 2018-08-06

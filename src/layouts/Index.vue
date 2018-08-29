@@ -63,6 +63,7 @@
             v-model="date"
             color="grey-8"
             modal
+            hide-underline
             :default-value="Date.now()"
           />
         </div>
@@ -74,7 +75,7 @@
             </q-btn>
           </div>
         </div>
-        <q-btn small round flat size="md" v-if="devices.length" class="floated mode" :icon="mode === 1 ? 'playlist_play' : 'history'" @click="changeMode"/>
+        <q-btn small flat size="md" v-if="devices.length" class="floated mode" :icon="mode === 1 ? 'playlist_play' : 'history'" @click="changeMode"/>
         <a v-if="$q.platform.is.desktop" href="https://github.com/flespi-software/TrackIt/" class="floated github" target="_blank"><q-btn flat round color="dark"><img style="height: 30px;" src="../statics/GitHub-Mark-32px.png" alt="GitHub"><q-tooltip>Show on GitHub</q-tooltip></q-btn></a>
         <q-btn small round flat size="md" v-if="devices.length" class="floated options">
           <q-icon color="dark" name="more_vert" />
@@ -361,11 +362,17 @@ export default {
       top 5px
       right 10px
     &.mode
-      top 50px
+      top 60px
       right 10px
+      background-color white
+      box-shadow 0 0 15px rgba(0,0,0,0.5)
     &.date
       top 60px
-      right 50px
+      right 70px
+      background-color white
+      padding: 6px 8px;
+      border-radius: 3px;
+      box-shadow 0 0 15px rgba(0,0,0,0.5)
     &.no-devices
       bottom 150px
       text-align center

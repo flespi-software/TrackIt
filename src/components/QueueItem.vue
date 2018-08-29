@@ -17,6 +17,7 @@
         :date="date"
         :activeMessagesIds="activeMessagesIndexes"
         @view="viewMessageHandler"
+        @view-on-map="viewOnMapHandler"
       ></messages>
     </div>
     <div
@@ -193,6 +194,9 @@ export default {
       if (this.$refs.player) {
         this.$refs.player.stop()
       }
+    },
+    viewOnMapHandler (content) {
+      this.$emit('view-on-map', content)
     }
   },
   watch: {

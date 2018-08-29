@@ -22,6 +22,7 @@
             @stop="stopHandler"
             @change:needShowTail="(flag) => {$emit('change:needShowTail', flag)}"
             @change:needShowMessages="(flag) => {$emit('change:needShowMessages', flag)}"
+            @view-on-map="(content)=>{ $emit('view-on-map', content) }"
           />
         </q-tab-pane>
         <q-tab :key="`tab-${deviceID}`" slot="title" :name="deviceID.toString()" @click="changeTabColorHandler(deviceID)">

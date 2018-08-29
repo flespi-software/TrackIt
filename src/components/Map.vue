@@ -23,6 +23,7 @@
       @change:needShowMessages="(flag) => {$emit('change:needShowMessages', flag)}"
       @change:selected="(active) => { selected = active }"
       @update:color="updateColorHandler"
+      @view-on-map="viewOnMapHandler"
     />
     <post-message-modal
       ref="postMessageModal"
@@ -45,7 +46,7 @@ import PostMessageModal from './PostMessageModal.vue'
 import ColorModal from './ColorModal'
 import { mapState } from 'vuex'
 import { devicesMessagesModule } from 'qvirtualscroll'
-import { colors } from 'quasar'
+import { colors, animate } from 'quasar'
 
 export default {
   name: 'Map',
@@ -431,6 +432,44 @@ export default {
     initActiveDeviceID (id) {
       this.activeDeviceID = id || 0
     },
+    viewOnMapHandler (content) {
+      if (content['position.latitude'] && content['position.longitude']) {
+        let position = [content['position.latitude'], content['position.longitude']],
+          icon = L.divIcon({
+            className: `my-highlight-icon`,
+            iconSize: new L.Point(40, 40),
+            html: `<div class="my-highlight-icon__innner"></div>`
+          }),
+          marker = L.marker(position, {
+            icon: icon
+          }),
+          currentZoom = this.map.getZoom()
+        this.map.flyTo(position, currentZoom > 12 ? currentZoom : 12)
+        this.map.once('moveend', () => {
+          marker.addTo(this.map)
+          let markerElement = document.querySelector('.my-highlight-icon__innner')
+          animate.start({
+            from: 20,
+            to: 40,
+            duration: 500,
+            apply (pos) {
+              markerElement.style.height = `${pos}px`
+              markerElement.style.width = `${pos}px`
+              markerElement.style.transform = `translate(${(40 - pos) / 2}px, ${(40 - pos) / 2}px)`
+            },
+            done () {
+              marker.remove()
+            }
+          })
+        })
+      } else {
+        this.$q.notify({
+          message: 'Have no position',
+          type: 'warning',
+          position: 'bottom-left'
+        })
+      }
+    },
     playHandler ({id, messagesIndexes}) {
       if (!this.messages[id]) { return false }
       messagesIndexes.forEach((messageIndex) => {
@@ -667,11 +706,16 @@ export default {
     left 6px
     border none
     .leaflet-control-zoom-in, .leaflet-control-zoom-out
-      background-color rgba(0,0,0,.25)
+      background-color #fff
       color #333
       border-color #666
-      border-radius 50%!important
-      margin-bottom 5px
+      box-shadow 0 0 15px rgba(0,0,0,0.5)
+    .leaflet-control-zoom-in
+      border-top-left-radius 3px
+      border-top-right-radius 3px
+    .leaflet-control-zoom-out
+      border-bottom-left-radius 3px
+      border-bottom-right-radius 3px
   .my-div-icon__inner
     border 3px solid
     border-radius 50% 0 50% 50%
@@ -705,4 +749,11 @@ export default {
     opacity .5
     height 20px
     width 20px
+  .my-highlight-icon__innner
+    height 20px
+    width 20px
+    background-color blue
+    opacity .5
+    transform translate(10px, 10px)
+    border-radius 50%
 </style>

@@ -30,7 +30,8 @@
                           :etcVisible="etcVisible"
                           :actionsVisible="actionsVisible"
                           :selected="index === selected"
-                          @item-click="viewMessagesHandler"
+                          @item-click="viewMessageOnMap"
+                          @action='actionHandler'
       />
     </virtual-scroll-list>
     <message-viewer ref="messageViewer" :message="typeof selectedMessage !== 'undefined' ? selectedMessage : {}" inverted @close="closeHandler"></message-viewer>
@@ -44,7 +45,14 @@ import { date } from 'quasar'
 import MessagesListItem from './MessagesListItem.vue'
 
 const config = {
-  'actions': [],
+  'actions': [
+    {
+      icon: 'mdi-eye',
+      label: 'view',
+      classes: '',
+      type: 'view'
+    }
+  ],
   'viewConfig': {
     'needShowFilter': false,
     'needShowMode': false,
@@ -166,6 +174,9 @@ export default {
       this.$refs.messageViewer.show()
       this.$emit('view')
     },
+    viewMessageOnMap ({index, content}) {
+      this.$emit('view-on-map', content)
+    },
     closeHandler () {
       this.selected = null
       this.selectedMessage = undefined
@@ -189,6 +200,14 @@ export default {
           timeout: 1000
         })
       })
+    },
+    actionHandler ({index, type, content}) {
+      switch (type) {
+        case 'view': {
+          this.viewMessagesHandler({index, content})
+          break
+        }
+      }
     },
     unselect () {
       if (this.selected) {
