@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "fonts/mdi.09922f9.woff2"
   },
   {
-    "revision": "c085479048e3d979c0074dbdc28261a7",
+    "revision": "09fccf4cb9d9dfc6cf5619bd8406b996",
     "url": "index.html"
   },
   {
@@ -20,8 +20,8 @@ self.__precacheManifest = [
     "url": "statics/icons/ms-icon-144x144.png"
   },
   {
-    "revision": "5cbf88260a8d353b460a",
-    "url": "js/app.29a34b8.js"
+    "revision": "83ec80c94370d8cf397b",
+    "url": "js/app.68ef1b7.js"
   },
   {
     "revision": "bfa014e126b09f7040fe",
@@ -76,8 +76,8 @@ self.__precacheManifest = [
     "url": "statics/right-graphite@2x.png"
   },
   {
-    "revision": "829350a3541f119784f9",
-    "url": "js/0.829350a.js"
+    "revision": "5bf52da01183da9ff2ea",
+    "url": "js/0.5bf52da.js"
   },
   {
     "revision": "105ab0c48f5ba92a1310652050a4c1e2",
@@ -144,7 +144,7 @@ self.__precacheManifest = [
     "url": "fonts/KFOlCnqEu92Fr1MmEU9fBBc-.de8b743.woff"
   },
   {
-    "revision": "5cbf88260a8d353b460a",
+    "revision": "83ec80c94370d8cf397b",
     "url": "css/app.d24f31bd.css"
   },
   {
@@ -152,7 +152,7 @@ self.__precacheManifest = [
     "url": "css/1.324bade9.css"
   },
   {
-    "revision": "829350a3541f119784f9",
+    "revision": "5bf52da01183da9ff2ea",
     "url": "css/0.cdae1df4.css"
   }
 ];
