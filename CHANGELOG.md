@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.30] - 2018-08-30
+[fix] style mode button
+[fix] watch mode in mobile
 ### [0.4.29] - 2018-08-29
 [update] packages
 ### [0.4.28] - 2018-08-29

@@ -242,7 +242,12 @@ export default {
       if (devicesById.length) {
         this.deviceIdForTelemetry = id
         if (this.params.needShowTelemetry && this.deviceIdForTelemetry && this.activeDevicesID.includes(this.deviceIdForTelemetry)) {
-          setTimeout(() => { this.side_right = true }, 0)
+          setTimeout(() => {
+            if (id === this.deviceIdForWatch && this.$q.platform.is.mobile) {
+              return false
+            }
+            this.side_right = true
+          }, 0)
         }
       } else {
         this.deviceIdForTelemetry = null
@@ -366,9 +371,10 @@ export default {
       right 10px
       background-color white
       box-shadow 0 0 15px rgba(0,0,0,0.5)
+      padding 2px 10px
     &.date
       top 60px
-      right 70px
+      right 60px
       background-color white
       padding: 6px 8px;
       border-radius: 3px;
