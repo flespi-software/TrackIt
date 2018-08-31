@@ -27,7 +27,7 @@
         </q-tab-pane>
         <q-tab :key="`tab-${deviceID}`" slot="title" :name="deviceID.toString()" @click="changeTabColorHandler(deviceID)">
           <div>
-            <div v-if="messages[deviceID].length" :style="{backgroundColor: markers[deviceID].color}" class="color-view q-mr-xs" @click.stop="changeColorHandler(deviceID)"></div>
+            <div v-if="messages[deviceID].length && markers[deviceID] && markers[deviceID].color" :style="{backgroundColor: markers[deviceID].color}" class="color-view q-mr-xs" @click.stop="changeColorHandler(deviceID)"></div>
             {{getNameById(deviceID)}}
           </div>
         </q-tab>

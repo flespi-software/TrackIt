@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.31] - 2018-08-31
+[feature] hide tracks by flyTo
+[fix] color tooltip
 ### [0.4.30] - 2018-08-30
 [fix] style mode button
 [fix] watch mode in mobile

@@ -147,6 +147,28 @@ export default {
         L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {minZoom: 3, noWrap: true}).addTo(this.map)
       }
     },
+    flyToWithHideTracks (position, zoom) {
+      this.map.once('zoomstart', e => {
+        Object.keys(this.tracks).forEach((trackId) => {
+          let track = this.tracks[trackId]
+          if (track.tail) {
+            this.map.removeLayer(track.tail)
+          }
+          this.map.removeLayer(track)
+        })
+      })
+      this.map.once('zoomend', e => {
+        Object.keys(this.tracks).forEach((trackId) => {
+          let track = this.tracks[trackId]
+          this.map.addLayer(track)
+          if (track.tail) {
+            this.map.addLayer(track.tail)
+          }
+        })
+      })
+
+      this.map.flyTo(position, zoom)
+    },
     generateIcon (id, name, color) {
       return L.divIcon({
         className: `my-div-icon icon-${id}`,
@@ -259,7 +281,7 @@ export default {
           markerWatchedPos.lng && markerWatchedPos.lng !== this.messages[this.deviceIdForWatch][this.messages[this.deviceIdForWatch].length - 1]['position.longitude']
       if (isWatchedPosChanged) {
         let position = currentArrPos[currentArrPos.length - 1]
-        this.map.flyTo(position, this.flyToZoom)
+        this.flyToWithHideTracks(position, this.flyToZoom)
       }
       /* if messages is empty clear marker and line */
       if (!currentArrPos.length) {
@@ -349,7 +371,7 @@ export default {
         currentPos = [this.messages[id][this.messages[id].length - 1]['position.latitude'], this.messages[id][this.messages[id].length - 1]['position.longitude']]
       }
       if (currentPos.length) {
-        this.map.flyTo(currentPos, this.flyToZoom)
+        this.flyToWithHideTracks(currentPos, this.flyToZoom)
       } else {
         this.$q.notify({message: 'No Position!'})
       }
@@ -444,7 +466,7 @@ export default {
             icon: icon
           }),
           currentZoom = this.map.getZoom()
-        this.map.flyTo(position, currentZoom > 12 ? currentZoom : 12)
+        this.flyToWithHideTracks(position, currentZoom > 12 ? currentZoom : 12)
         this.map.once('moveend', () => {
           marker.addTo(this.map)
           let markerElement = document.querySelector('.my-highlight-icon__innner')
