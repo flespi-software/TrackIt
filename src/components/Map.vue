@@ -151,18 +151,22 @@ export default {
       this.map.once('zoomstart', e => {
         Object.keys(this.tracks).forEach((trackId) => {
           let track = this.tracks[trackId]
-          if (track.tail) {
-            this.map.removeLayer(track.tail)
+          if (track instanceof L.Polyline) {
+            if (track.tail && track.tail instanceof L.Polyline) {
+              this.map.removeLayer(track.tail)
+            }
+            this.map.removeLayer(track)
           }
-          this.map.removeLayer(track)
         })
       })
       this.map.once('zoomend', e => {
         Object.keys(this.tracks).forEach((trackId) => {
           let track = this.tracks[trackId]
-          this.map.addLayer(track)
-          if (track.tail) {
-            this.map.addLayer(track.tail)
+          if (track instanceof L.Polyline) {
+            this.map.addLayer(track)
+            if (track.tail && track.tail instanceof L.Polyline) {
+              this.map.addLayer(track.tail)
+            }
           }
         })
       })
