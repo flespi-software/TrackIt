@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "fonts/mdi.09922f9.woff2"
   },
   {
-    "revision": "fb60a32ae9374b31ee48e35ca27b08a3",
+    "revision": "c39e16d0dddf7e769867607449ac8717",
     "url": "index.html"
   },
   {
@@ -20,8 +20,8 @@ self.__precacheManifest = [
     "url": "statics/icons/ms-icon-144x144.png"
   },
   {
-    "revision": "c80e2f82540716ac3c08",
-    "url": "js/app.e5c22ff.js"
+    "revision": "b82dbe7a70c80fcf72eb",
+    "url": "js/app.03e1030.js"
   },
   {
     "revision": "bfa014e126b09f7040fe",
@@ -32,14 +32,6 @@ self.__precacheManifest = [
     "url": "js/vendor.29a323c.js"
   },
   {
-    "revision": "e70b8108d642f3e1eda25442d0a2a629",
-    "url": "statics/manifest.json"
-  },
-  {
-    "revision": "a9de7e81de000ac57c2855c29a98e796",
-    "url": "statics/police.png"
-  },
-  {
     "revision": "47fc2bc80d4dc7e7835423c0505302e7",
     "url": "statics/icons/icon-192x192.png"
   },
@@ -48,16 +40,24 @@ self.__precacheManifest = [
     "url": "statics/icons/apple-icon-152x152.png"
   },
   {
+    "revision": "a9de7e81de000ac57c2855c29a98e796",
+    "url": "statics/police.png"
+  },
+  {
+    "revision": "e70b8108d642f3e1eda25442d0a2a629",
+    "url": "statics/manifest.json"
+  },
+  {
     "revision": "c2f336f76202bb73019843c7ad316def",
     "url": "statics/icons/favicon-32x32.png"
   },
   {
-    "revision": "82f983ec2277961e9878f2bf014b13fc",
-    "url": "statics/flespi_logo_black.svg"
-  },
-  {
     "revision": "c81a3f3a982ad3175edf7a78d797ced3",
     "url": "statics/icons/favicon-16x16.png"
+  },
+  {
+    "revision": "82f983ec2277961e9878f2bf014b13fc",
+    "url": "statics/flespi_logo_black.svg"
   },
   {
     "revision": "d56df49a807a9fd06eb1667a84d3810e",
@@ -76,8 +76,8 @@ self.__precacheManifest = [
     "url": "statics/right-graphite@2x.png"
   },
   {
-    "revision": "59802b54566e229f4881",
-    "url": "js/0.59802b5.js"
+    "revision": "c8f3a1b45999ca9f5d60",
+    "url": "js/0.c8f3a1b.js"
   },
   {
     "revision": "105ab0c48f5ba92a1310652050a4c1e2",
@@ -144,7 +144,7 @@ self.__precacheManifest = [
     "url": "fonts/KFOlCnqEu92Fr1MmEU9fBBc-.de8b743.woff"
   },
   {
-    "revision": "c80e2f82540716ac3c08",
+    "revision": "b82dbe7a70c80fcf72eb",
     "url": "css/app.d24f31bd.css"
   },
   {
@@ -152,7 +152,7 @@ self.__precacheManifest = [
     "url": "css/1.324bade9.css"
   },
   {
-    "revision": "59802b54566e229f4881",
+    "revision": "c8f3a1b45999ca9f5d60",
     "url": "css/0.8363f0a3.css"
   }
 ];
