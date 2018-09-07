@@ -29,7 +29,7 @@
                           :rowWidth="rowWidth"
                           :etcVisible="etcVisible"
                           :actionsVisible="actionsVisible"
-                          :selected="index === selected"
+                          :selected="selected.includes(index)"
                           @item-click="viewMessageOnMap"
                           @action='actionHandler'
       />
@@ -169,7 +169,7 @@ export default {
       this.$store.dispatch(`messages/${this.moduleName}/get`, {name: 'paginationNext', payload: timestamp})
     },
     viewMessagesHandler ({index, content}) {
-      this.selected = index
+      this.selected = [index]
       this.selectedMessage = content
       this.$refs.messageViewer.show()
       this.$emit('view')
@@ -178,10 +178,10 @@ export default {
       this.$emit('view-on-map', content)
     },
     closeHandler () {
-      this.selected = null
+      this.selected = []
       this.selectedMessage = undefined
       if (this.activeMessagesIds.length) {
-        this.selected = this.activeMessagesIds[this.activeMessagesIds.length - 1]
+        this.selected = [this.activeMessagesIds[this.activeMessagesIds.length - 1]]
       }
     },
     copyMessageHandler ({index, content}) {
@@ -210,14 +210,14 @@ export default {
       }
     },
     unselect () {
-      if (this.selected) {
-        this.selected = null
+      if (this.selected.length) {
+        this.selected = []
       }
     },
     highlightSelected (indexes) {
       if (indexes.length) {
         indexes.forEach((index) => {
-          this.selected = index
+          this.selected = [index]
         })
       }
     }
