@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.34] - 2018-10-18
+[fix] service worker update message
 ### [0.4.33] - 2018-09-07
 [update] packages
 ### [0.4.32] - 2018-09-03
