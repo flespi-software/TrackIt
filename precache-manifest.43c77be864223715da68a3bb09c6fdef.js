@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "fonts/mdi.09922f9.woff2"
   },
   {
-    "revision": "e420895da150a1cd6c2ce51af7665ab6",
+    "revision": "3f5fed70ea86f33353722b1b0829d9c4",
     "url": "index.html"
   },
   {
@@ -20,8 +20,8 @@ self.__precacheManifest = [
     "url": "statics/icons/ms-icon-144x144.png"
   },
   {
-    "revision": "4cf7046fe6864e32a25e",
-    "url": "js/app.7f79dad.js"
+    "revision": "6ceb360a0e261997956c",
+    "url": "js/app.532e382.js"
   },
   {
     "revision": "a2b2b16dbd06fc350113",
@@ -40,24 +40,24 @@ self.__precacheManifest = [
     "url": "statics/manifest.json"
   },
   {
-    "revision": "47fc2bc80d4dc7e7835423c0505302e7",
-    "url": "statics/icons/icon-192x192.png"
-  },
-  {
     "revision": "906c193b6d193a65add774107b3923db",
     "url": "statics/icons/apple-icon-152x152.png"
   },
   {
-    "revision": "c2f336f76202bb73019843c7ad316def",
-    "url": "statics/icons/favicon-32x32.png"
+    "revision": "47fc2bc80d4dc7e7835423c0505302e7",
+    "url": "statics/icons/icon-192x192.png"
+  },
+  {
+    "revision": "d56df49a807a9fd06eb1667a84d3810e",
+    "url": "statics/GitHub-Mark-Light-32px.png"
   },
   {
     "revision": "c81a3f3a982ad3175edf7a78d797ced3",
     "url": "statics/icons/favicon-16x16.png"
   },
   {
-    "revision": "d56df49a807a9fd06eb1667a84d3810e",
-    "url": "statics/GitHub-Mark-Light-32px.png"
+    "revision": "c2f336f76202bb73019843c7ad316def",
+    "url": "statics/icons/favicon-32x32.png"
   },
   {
     "revision": "82f983ec2277961e9878f2bf014b13fc",
@@ -144,7 +144,7 @@ self.__precacheManifest = [
     "url": "fonts/KFOlCnqEu92Fr1MmEU9fBBc-.de8b743.woff"
   },
   {
-    "revision": "4cf7046fe6864e32a25e",
+    "revision": "6ceb360a0e261997956c",
     "url": "css/app.648164b2.css"
   },
   {

@@ -14,10 +14,13 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.4.1/workbox-sw.js");
 
 importScripts(
-  "precache-manifest.561cd9a546f00d166327c239c923c444.js"
+  "precache-manifest.43c77be864223715da68a3bb09c6fdef.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "track-it"});
+
+workbox.skipWaiting();
+workbox.clientsClaim();
 
 /**
  * The workboxSW.precacheAndRoute() method efficiently caches and responds to
