@@ -1,6 +1,6 @@
 # Track It!
 
-> A simple application based on [flespi.io](https://flespi.io) and built with [Quasar](http://quasar-framework.org) and [Leaflet.js](http://leafletjs.com). Allows tracking different devices on the map, viewing telemetry messages for these devices.
+> A GPS tracking application based on [flespi.io](https://flespi.io) and built with [Quasar](http://quasar-framework.org) and [Leaflet.js](http://leafletjs.com). Shows devices on the map and their telemetry messages; includes a track player.
 
 ![Screenshot](/misc/screenshot.jpg?raw=true "Track it!")
 
