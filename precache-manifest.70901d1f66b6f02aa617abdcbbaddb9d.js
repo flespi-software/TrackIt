@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "fonts/mdi.09922f9.woff2"
   },
   {
-    "revision": "3f5fed70ea86f33353722b1b0829d9c4",
+    "revision": "0caabc6e11ceae14a2be4eef2abd0e41",
     "url": "index.html"
   },
   {
@@ -12,24 +12,32 @@ self.__precacheManifest = [
     "url": "statics/icons/icon-512x512.png"
   },
   {
-    "revision": "a86c4bcd1a603e64f401",
-    "url": "js/1.a86c4bc.js"
+    "revision": "434c757ea95537cb425e",
+    "url": "js/1.434c757.js"
   },
   {
     "revision": "4ca6116897b45c5c22d8e3d3f21576f5",
     "url": "statics/icons/ms-icon-144x144.png"
   },
   {
-    "revision": "6ceb360a0e261997956c",
-    "url": "js/app.532e382.js"
+    "revision": "e0f3098e408cec1c0594",
+    "url": "js/app.ddcd7fc.js"
   },
   {
     "revision": "a2b2b16dbd06fc350113",
     "url": "js/3.a2b2b16.js"
   },
   {
-    "revision": "c9ea1c1b58cff85ed0e8",
-    "url": "js/vendor.c9ea1c1.js"
+    "revision": "0468dfb7695da05c4cf0",
+    "url": "js/vendor.0468dfb.js"
+  },
+  {
+    "revision": "47fc2bc80d4dc7e7835423c0505302e7",
+    "url": "statics/icons/icon-192x192.png"
+  },
+  {
+    "revision": "906c193b6d193a65add774107b3923db",
+    "url": "statics/icons/apple-icon-152x152.png"
   },
   {
     "revision": "a9de7e81de000ac57c2855c29a98e796",
@@ -40,24 +48,16 @@ self.__precacheManifest = [
     "url": "statics/manifest.json"
   },
   {
-    "revision": "906c193b6d193a65add774107b3923db",
-    "url": "statics/icons/apple-icon-152x152.png"
-  },
-  {
-    "revision": "47fc2bc80d4dc7e7835423c0505302e7",
-    "url": "statics/icons/icon-192x192.png"
-  },
-  {
     "revision": "d56df49a807a9fd06eb1667a84d3810e",
     "url": "statics/GitHub-Mark-Light-32px.png"
   },
   {
-    "revision": "c81a3f3a982ad3175edf7a78d797ced3",
-    "url": "statics/icons/favicon-16x16.png"
-  },
-  {
     "revision": "c2f336f76202bb73019843c7ad316def",
     "url": "statics/icons/favicon-32x32.png"
+  },
+  {
+    "revision": "c81a3f3a982ad3175edf7a78d797ced3",
+    "url": "statics/icons/favicon-16x16.png"
   },
   {
     "revision": "82f983ec2277961e9878f2bf014b13fc",
@@ -144,11 +144,11 @@ self.__precacheManifest = [
     "url": "fonts/KFOlCnqEu92Fr1MmEU9fBBc-.de8b743.woff"
   },
   {
-    "revision": "6ceb360a0e261997956c",
+    "revision": "e0f3098e408cec1c0594",
     "url": "css/app.648164b2.css"
   },
   {
-    "revision": "a86c4bcd1a603e64f401",
+    "revision": "434c757ea95537cb425e",
     "url": "css/1.324bade9.css"
   },
   {

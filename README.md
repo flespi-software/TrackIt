@@ -1,7 +1,7 @@
 # Track It!
 
-> A simple application based on [flespi.io](https://flespi.io) and built with [Quasar](http://quasar-framework.org) and [Leaflet.js](http://leafletjs.com). Allows tracking different devices on the map, viewing telemetry messages for these devices.
-  
+> A GPS tracking application based on [flespi.io](https://flespi.io) and built with [Quasar](http://quasar-framework.org) and [Leaflet.js](http://leafletjs.com). Shows devices on the map and their telemetry messages; includes a track player.
+
 ![Screenshot](/misc/screenshot.jpg?raw=true "Track it!")
 
 ## Features
@@ -21,6 +21,18 @@
 
 - [Node.js](https://nodejs.org/en/) (>=6.x)
 - npm version 3+ and [Git](https://git-scm.com/).
+
+## Requirements:
+You need to have a separate token with at least the following ACLs:
+REST
+https://flespi.io/gw/devices/{selector}
+https://flespi.io/gw/devices/{selector}/telemetry
+https://flespi.io/gw/devices/{selector}/messages
+MQTT
+flespi/log/gw/devices/{selector}/created
+flespi/log/gw/devices/{selector}/updated
+flespi/log/gw/devices/{selector}/deleted
+flespi/message/gw/devices/{selector}/#
 
 ## Build Setup
 
