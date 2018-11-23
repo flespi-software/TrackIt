@@ -1,4 +1,4 @@
-import { Cookies, Notify, LocalStorage } from 'quasar'
+import { Notify, LocalStorage, SessionStorage } from 'quasar'
 import Vue from 'vue'
 import Router from '../router'
 
@@ -134,7 +134,7 @@ function setToken (state, val) {
   let token = val.replace('FlespiToken ', '')
   if (val && token.match(/^[a-z0-9]+$/i)) {
     Vue.connector.token = `FlespiToken ${token}`
-    LocalStorage.set('X-Flespi-Token', token)
+    SessionStorage.set('currentToken', token)
   } else {
     token = ''
     Vue.connector.token = ''
@@ -143,12 +143,7 @@ function setToken (state, val) {
   Vue.set(state, 'token', token)
 }
 function clearToken (state) {
-  let cookieToken = Cookies.get('X-Flespi-Token'),
-    localStorageToken = LocalStorage.get.item('X-Flespi-Token')
-  if (cookieToken && localStorageToken && cookieToken === localStorageToken) {
-    Cookies.remove('X-Flespi-Token')
-  }
-  LocalStorage.remove('X-Flespi-Token')
+  SessionStorage.remove('currentToken')
   Vue.connector.token = ''
   if (state.socketOffline) { setSocketOffline(state, false) }
   Vue.set(state, 'token', '')

@@ -11,7 +11,7 @@
         <p class="text-center">Track your devices on the map.</p>
         <div class="row full-width">
           <div class="col-12 text-center">
-            <iframe style="width: 100%; height: 96px" :src="`${$flespiServer}/frame/index.html#fff;666;40`" frameborder="0"></iframe>
+            <q-btn @click="openWindow(`${$flespiServer}/login/#/providers`)" icon="mdi-account-circle" color="red-7" rounded label="login / register" size="lg"/>
           </div>
         </div>
       </div>
@@ -64,24 +64,30 @@ export default {
       }, 1000)
     },
     checkHasToken () {
-      let authCookie = this.$q.cookies.get('X-Flespi-Token'),
-        localStorageToken = this.$q.localStorage.get.item('X-Flespi-Token')
+      let sessionStorageToken = this.$q.localStorage.get.item('currentToken')
       if (this.$route.params && this.$route.params.token) {
         this.autoLogin()
-      } else if (localStorageToken) {
-        this.token = localStorageToken
+      } else if (sessionStorageToken) {
+        this.token = sessionStorageToken
         this.logIn()
-      } else if (authCookie) {
-        this.$q.dialog({
-          title: 'Confirm',
-          message: `Do you want log in by token ${authCookie}.`,
-          ok: true,
-          cancel: true
-        }).then(() => {
-          this.token = authCookie
-          this.logIn()
-        })
-          .catch(() => {})
+      }
+    },
+    openWindow (url, title) {
+      title = title || 'auth'
+      let w = 500, h = 600
+      let dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : screen.left
+      let dualScreenTop = window.screenTop !== undefined ? window.screenTop : screen.top
+
+      let width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width
+      let height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height
+
+      let left = ((width / 2) - (w / 2)) + dualScreenLeft
+      let top = ((height / 2) - (h / 2)) + dualScreenTop
+      let newWindow = window.open(url, title, 'toolbar=no,location=no,status=yes,resizable=yes,scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left)
+
+      // Puts focus on the newWindow
+      if (window.focus) {
+        newWindow.focus()
       }
     }
   },

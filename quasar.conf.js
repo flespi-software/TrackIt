@@ -97,7 +97,7 @@ module.exports = function (ctx) {
         'Notify',
         'Loading',
         'LocalStorage',
-        'Cookies',
+        'SessionStorage',
         'Dialog'
       ],
       directives: ['TouchPan', 'TouchHold']

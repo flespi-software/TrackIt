@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.4.35] - 2018-10-23
+[update] login logic
 ### [0.4.34] - 2018-10-18
 [fix] service worker update message
 [update] docs
