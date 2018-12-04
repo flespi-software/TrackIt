@@ -571,7 +571,6 @@ export default {
     messages: {
       deep: true,
       handler (messages) {
-        console.log(123)
         let keyArr = Object.keys(messages),
           oldKeyArr = Object.keys(this.markers)
         if (!keyArr.length) {

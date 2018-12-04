@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.5.1] - 2018-11-04
+[fix] remove debug info
 ### [0.5.0] - 2018-11-04
 [update] telemetry logic
 [fix] color picking

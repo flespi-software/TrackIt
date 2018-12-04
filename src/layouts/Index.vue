@@ -243,7 +243,6 @@ export default {
       this.$q.localStorage.set('TrackIt TelemetrySettings', this.telemetrySettings)
     },
     updateTelemetryDeviceId (id) {
-      console.log(id)
       if (this.deviceIdForTelemetry === id) {
         this.setWatchToDeviceID(null)
         return false
