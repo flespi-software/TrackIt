@@ -11,10 +11,10 @@
  * See https://goo.gl/2aRDsh
  */
 
-importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.4.1/workbox-sw.js");
+importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "precache-manifest.70901d1f66b6f02aa617abdcbbaddb9d.js"
+  "precache-manifest.41ee5883f9f0fa5e281f90f5fe4f597c.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "track-it"});
