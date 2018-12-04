@@ -298,8 +298,11 @@ export default {
         }
         this.map.removeLayer(this.tracks[id])
         this.map.removeLayer(this.markers[id])
-        this.tracks[id] = undefined
-        this.markers[id] = undefined
+        this.tracks[id] = {}
+        this.markers[id] = {
+          color: this.markers[id].color || undefined,
+          id: id
+        }
         return false
       }
       if (!(this.markers[id] instanceof L.Marker)) {
@@ -368,14 +371,25 @@ export default {
     flyToDevice (id) {
       let devicesById = this.activeDevices.filter(device => device.id === id),
         currentDevice = devicesById.length ? devicesById[0] : null,
-        currentPos = currentDevice && currentDevice.telemetry &&
-        currentDevice.telemetry['position.latitude'] && currentDevice.telemetry['position.longitude']
-          ? [currentDevice.telemetry['position.latitude'].value, currentDevice.telemetry['position.longitude'].value] : []
+        currentPos = currentDevice && []
       if (this.messages[id] && this.messages[id].length) {
         currentPos = [this.messages[id][this.messages[id].length - 1]['position.latitude'], this.messages[id][this.messages[id].length - 1]['position.longitude']]
       }
       if (currentPos.length) {
         this.flyToWithHideTracks(currentPos, this.flyToZoom)
+      } else {
+        this.$q.notify({message: 'No Position!'})
+      }
+    },
+    centerOnDevice (id) {
+      let devicesById = this.activeDevices.filter(device => device.id === id),
+        currentDevice = devicesById.length ? devicesById[0] : null,
+        currentPos = currentDevice && []
+      if (this.messages[id] && this.messages[id].length) {
+        currentPos = [this.messages[id][this.messages[id].length - 1]['position.latitude'], this.messages[id][this.messages[id].length - 1]['position.longitude']]
+      }
+      if (currentPos.length) {
+        this.map.setView(currentPos, 14, { animation: false })
       } else {
         this.$q.notify({message: 'No Position!'})
       }
@@ -453,6 +467,11 @@ export default {
           }
         }
       })
+      if (this.needInitWatchingDevice && id === this.deviceIdForWatch) {
+        this.telemetryDeviceId = parseInt(id)
+        this.$emit('update:telemetry-device-id', this.telemetryDeviceId)
+        this.centerOnDevice(id)
+      }
       this.$q.loading.hide()
     },
     initActiveDeviceID (id) {
@@ -552,6 +571,7 @@ export default {
     messages: {
       deep: true,
       handler (messages) {
+        console.log(123)
         let keyArr = Object.keys(messages),
           oldKeyArr = Object.keys(this.markers)
         if (!keyArr.length) {
@@ -630,8 +650,6 @@ export default {
           let icon = document.querySelector(`.my-div-icon.icon-${id} .my-div-icon__inner`)
           icon.style.backgroundColor = icon.style.borderColor
         }
-        this.telemetryDeviceId = parseInt(id)
-        this.$emit('update:telemetry-device-id', this.telemetryDeviceId)
       } else {
         document.querySelectorAll('.my-div-icon__inner').forEach(elem => {
           elem.style.backgroundColor = ''
@@ -695,6 +713,9 @@ export default {
     }
   },
   created () {
+    if (this.deviceIdForWatch) {
+      this.needInitWatchingDevice = true
+    }
     this.activeDevicesID = this.activeDevices.map((device) => device.id)
     this.activeDevicesID.forEach((id) => {
       this.$store.registerModule(['messages', id], devicesMessagesModule({Vue, LocalStorage: this.$q.localStorage, name: `messages/${id}`, errorHandler: (err) => { this.$store.commit('reqFailed', err) }}))

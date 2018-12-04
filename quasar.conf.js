@@ -100,7 +100,7 @@ module.exports = function (ctx) {
         'SessionStorage',
         'Dialog'
       ],
-      directives: ['TouchPan', 'TouchHold']
+      directives: ['TouchPan', 'TouchHold', 'CloseOverlay']
     },
     // animations: 'all' --- includes all animations
     animations: [

@@ -25,9 +25,9 @@
             @view-on-map="(content)=>{ $emit('view-on-map', content) }"
           />
         </q-tab-pane>
-        <q-tab :key="`tab-${deviceID}`" slot="title" :name="deviceID.toString()" @click="changeTabColorHandler(deviceID)">
+        <q-tab :key="`tab-${deviceID}`" slot="title" :name="deviceID.toString()" @click="messages[deviceID].length && markers[deviceID] && markers[deviceID]._icon ? changeTabColorHandler(deviceID) : ''">
           <div>
-            <div v-if="messages[deviceID].length && markers[deviceID] && markers[deviceID].color" :style="{backgroundColor: markers[deviceID].color}" class="color-view q-mr-xs" @click.stop="changeColorHandler(deviceID)"></div>
+            <div v-if="messages[deviceID].length && markers[deviceID] && markers[deviceID]._icon" :style="{backgroundColor: markers[deviceID].color}" class="color-view q-mr-xs" @click.stop="changeColorHandler(deviceID)"></div>
             {{getNameById(deviceID)}}
           </div>
         </q-tab>

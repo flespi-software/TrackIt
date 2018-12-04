@@ -64,13 +64,15 @@ export default {
       }, 1000)
     },
     checkHasToken () {
-      let sessionStorageToken = this.$q.localStorage.get.item('currentToken')
+      let sessionStorageToken = this.$q.sessionStorage.get.item('currentToken')
       if (this.$route.params && this.$route.params.token) {
         this.autoLogin()
+        return true
       } else if (sessionStorageToken) {
         this.token = sessionStorageToken
         this.logIn()
-      }
+        return true
+      } else { return false }
     },
     openWindow (url, title) {
       title = title || 'auth'
@@ -99,16 +101,16 @@ export default {
     }
   },
   created () {
-    let tokenHandler = (event) => {
-      if (typeof event.data === 'string' && ~event.data.indexOf('FlespiToken')) {
-        this.token = event.data
-        this.logIn()
-        window.removeEventListener('message', tokenHandler)
+    if (!this.checkHasToken()) {
+      let tokenHandler = (event) => {
+        if (typeof event.data === 'string' && ~event.data.indexOf('FlespiToken')) {
+          this.token = event.data
+          this.logIn()
+          window.removeEventListener('message', tokenHandler)
+        }
       }
+      window.addEventListener('message', tokenHandler)
     }
-    window.addEventListener('message', tokenHandler)
-    this.$q.loading.hide()
-    this.checkHasToken()
   }
 }
 </script>

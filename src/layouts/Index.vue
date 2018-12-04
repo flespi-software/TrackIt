@@ -4,7 +4,7 @@
       <device-list v-show="devices.length" @update:watch-by-id="setWatchToDeviceID" :deviceIdForWatch="deviceIdForWatch" :activeDevicesID="activeDevicesID" :devices="devices" @click:hide="side_left = false"/>
     </q-layout-drawer>
     <q-layout-drawer side="right" no-swipe-open no-swipe-close :content-class="{'bg-dark':telemetrySettings.inverted}" v-model="side_right">
-      <div v-if="params.needShowTelemetry && deviceIdForTelemetry && activeDevicesID.includes(deviceIdForTelemetry)">
+      <div>
         <q-item>
           <q-item-side left><q-icon :color="telemetrySettings.inverted ? 'white' : ''" size="1.8rem" name="developer_board"/></q-item-side>
           <q-item-main>
@@ -16,14 +16,14 @@
               <q-tooltip>Inverted</q-tooltip>
             </q-checkbox>
           </q-item-side>
-          <q-item-side right><q-icon :color="telemetrySettings.inverted ? 'white' : ''" class="pull-right cursor-pointer" name="arrow_forward" @click.native="side_right = false, deviceIdForTelemetry = 0" size="1.8rem"></q-icon></q-item-side>
         </q-item>
         <q-item>
           <q-item-main>
             <q-input type="text" float-label="Search" v-model="telemetrySearch" :inverted="telemetrySettings.inverted" :color="telemetrySettings.inverted ? 'none': ''" />
           </q-item-main>
         </q-item>
-        <q-telemetry :propHistoryFlag="telemetryConfig.propHistoryFlag" :device="deviceForTelemetry" :inverted="telemetrySettings.inverted" :search="telemetrySearch" />
+        <q-telemetry v-if="deviceIdForTelemetry" :propHistoryFlag="telemetryConfig.propHistoryFlag" :device="deviceForTelemetry" :inverted="telemetrySettings.inverted" :search="telemetrySearch" />
+        <div v-else class="text-bold text-center" :class="{'text-white': telemetrySettings.inverted}">Choose device</div>
       </div>
     </q-layout-drawer>
     <q-page-container>
@@ -75,7 +75,9 @@
             </q-btn>
           </div>
         </div>
-        <q-btn small flat size="md" v-if="devices.length" class="floated mode" :icon="mode === 1 ? 'playlist_play' : 'history'" @click="changeMode"/>
+        <q-btn small flat size="md" v-if="devices.length" class="floated mode" :icon="mode === 1 ? 'playlist_play' : 'history'" @click="changeMode">
+          <q-tooltip>Change mode (History/Real-time)</q-tooltip>
+        </q-btn>
         <a v-if="$q.platform.is.desktop" href="https://github.com/flespi-software/TrackIt/" class="floated github" target="_blank"><q-btn flat round color="dark"><img style="height: 30px;" src="../statics/GitHub-Mark-32px.png" alt="GitHub"><q-tooltip>Show on GitHub</q-tooltip></q-btn></a>
         <q-btn small round flat size="md" v-if="devices.length" class="floated options">
           <q-icon color="dark" name="more_vert" />
@@ -85,10 +87,11 @@
                 <q-toggle @input="menuChangeHandler" v-model="params.needShowMessages" icon="dvr" label="Messages" />
               </q-item>
               <q-item>
+                <q-tooltip v-if="mode === 1">Only in history mode</q-tooltip>
                 <q-toggle @input="menuChangeHandler" v-model="params.needShowPlayer" :disable="mode === 1" icon="mdi-play" label="Player" />
               </q-item>
               <q-item>
-                <q-toggle @input="menuChangeHandler" v-model="params.needShowTelemetry" icon="av_timer" label="Telemetry" />
+                <q-toggle v-close-overlay @input="menuChangeHandler" v-model="params.needShowTelemetry" icon="av_timer" label="Telemetry" />
               </q-item>
               <q-item>
                 <q-toggle @input="menuChangeHandler" v-model="params.needShowNamesOnMap" icon="pin_drop" label="Names" />
@@ -146,7 +149,7 @@ export default {
       deviceIdForTelemetry: null,
       params: {
         needShowMessages: false,
-        needShowTelemetry: true,
+        needShowTelemetry: false,
         needShowNamesOnMap: true,
         needShowPlayer: true
       },
@@ -162,7 +165,8 @@ export default {
       },
       version: dist.version,
       date: undefined,
-      isInit: Vue.connector.socket.connected()
+      isInit: Vue.connector.socket.connected(),
+      unsubscribeDevices: () => {}
     }
   },
   computed: {
@@ -198,11 +202,11 @@ export default {
         }, {})
       },
       errors: state => state.errors,
-      newNotificationCounter: state => state.newNotificationCounter
-    }),
-    deviceForTelemetry () {
-      return this.deviceIdForTelemetry ? this.devices.filter(device => device.id === this.deviceIdForTelemetry)[0] : {}
-    }
+      newNotificationCounter: state => state.newNotificationCounter,
+      deviceForTelemetry (state) {
+        return this.deviceIdForTelemetry ? state.devices.filter(device => device.id === this.deviceIdForTelemetry)[0] : {}
+      }
+    })
   },
   components: {
     DeviceList,
@@ -221,7 +225,7 @@ export default {
       'clearNotificationCounter',
       'clearErrors'
     ]),
-    ...mapActions(['getLastUpdatePosition']),
+    ...mapActions(['getLastUpdatePosition', 'poolDevices']),
     exitHandler (e) {
       Vue.connector.socket.off('error')
       this.unsetDevicesInit()
@@ -229,6 +233,7 @@ export default {
       this.$router.push('/login')
     },
     setWatchToDeviceID (id) {
+      this.updateTelemetryDeviceId(id)
       this.deviceIdForWatch = id
     },
     menuChangeHandler (val) {
@@ -238,20 +243,24 @@ export default {
       this.$q.localStorage.set('TrackIt TelemetrySettings', this.telemetrySettings)
     },
     updateTelemetryDeviceId (id) {
+      console.log(id)
+      if (this.deviceIdForTelemetry === id) {
+        this.setWatchToDeviceID(null)
+        return false
+      }
       let devicesById = this.devices.filter(device => device.id === id)
       if (devicesById.length) {
         this.deviceIdForTelemetry = id
+        this.deviceIdForWatch = id
         if (this.params.needShowTelemetry && this.deviceIdForTelemetry && this.activeDevicesID.includes(this.deviceIdForTelemetry)) {
           setTimeout(() => {
             if (id === this.deviceIdForWatch && this.$q.platform.is.mobile) {
               return false
             }
-            this.side_right = true
           }, 0)
         }
       } else {
         this.deviceIdForTelemetry = null
-        this.side_right = false
       }
     },
     changeMode () {
@@ -298,23 +307,15 @@ export default {
       // else if (devices.length && !prev.length) {
       //   this.side_left = true
       // }
+    },
+    'params.needShowTelemetry': function (value) {
+      this.side_right = value
     }
   },
   created () {
     this.clearNotificationCounter()
     this.clearErrors()
-    if (!this.isInit) {
-      Vue.connector.socket.on('connect', () => {
-        this.isInit = true
-        this.$q.loading.hide()
-      })
-      this.$q.loading.show()
-    }
-    if (this.activeDevicesID.length) {
-      this.$router.push(`devices/${this.activeDevicesID.join(',')}`)
-    }
     if (!this.token) {
-      this.$q.loading.hide()
       if (this.$route.params.devices) {
         let active = this.$route.params.devices.split(',').map(id => +id)
         active.forEach((id) => {
@@ -326,17 +327,35 @@ export default {
       } else {
         this.$router.push('/login')
       }
+      return false
+    }
+    if (!this.isInit) {
+      Vue.connector.socket.on('connect', () => {
+        this.isInit = true
+        this.$q.loading.hide()
+      })
+      this.$q.loading.show()
+    }
+    this.poolDevices().then(callback => { this.unsubscribeDevices = callback })
+    if (this.activeDevicesID.length) {
+      this.$router.push(`devices/${this.activeDevicesID.join(',')}`)
+      // watching current device if it one
+      if (this.activeDevicesID.length === 1) {
+        this.deviceIdForWatch = this.activeDevicesID[0]
+      }
     }
     let params = this.$q.localStorage.get.item('TrackIt Params')
     if (params) {
-      this.params = Object.assign(this.params, params)
+      Vue.set(this, 'params', Object.assign(this.params, params))
+      this.side_right = params.needShowTelemetry
     }
     let telemetrySettings = this.$q.localStorage.get.item('TrackIt TelemetrySettings')
     if (telemetrySettings) {
-      this.telemetrySettings = Object.assign(this.telemetrySettings, telemetrySettings)
+      Vue.set(this, 'telemetrySettings', Object.assign(this.telemetrySettings, telemetrySettings))
     }
   },
   destroyed () {
+    this.unsubscribeDevices && this.unsubscribeDevices()
     Vue.connector.socket.off('connect')
   }
 }

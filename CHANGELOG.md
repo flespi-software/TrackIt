@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.5.0] - 2018-11-04
+[update] telemetry logic
+[fix] color picking
+[fix] added tooltips
 ### [0.4.35] - 2018-10-23
 [update] login logic
 ### [0.4.34] - 2018-10-18

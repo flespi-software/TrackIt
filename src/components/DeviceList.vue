@@ -17,7 +17,6 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
 import Device from './Device.vue'
 import VirtualList from 'vue-virtual-scroll-list'
 
@@ -39,24 +38,12 @@ export default {
     VirtualList
   },
   methods: {
-    ...mapActions([
-      'poolDevices'
-    ]),
     setWatchByDeviceID (id) {
       this.$emit('update:watch-by-id', id)
     },
     onResize ({height}) {
       this.itemsCount = (height - 76) / 70
     }
-  },
-  async created () {
-    if (!this.$store.state.token) {
-      return false
-    }
-    this.unsubscribeDevices = await this.poolDevices()
-  },
-  beforeDestroy () {
-    this.unsubscribeDevices && this.unsubscribeDevices()
   }
 }
 </script>
