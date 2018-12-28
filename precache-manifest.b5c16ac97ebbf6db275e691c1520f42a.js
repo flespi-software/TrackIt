@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "fonts/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.8a9a261c.woff2"
   },
   {
-    "revision": "e48e398634f49cfbb88f987fabee825c",
+    "revision": "c41e42b2de5b89594d0379766c86ae3c",
     "url": "index.html"
   },
   {
@@ -16,20 +16,28 @@ self.__precacheManifest = [
     "url": "statics/icons/icon-512x512.png"
   },
   {
-    "revision": "8f6bc40966f051a42c5d",
-    "url": "js/8fdc6b54.c7b108ab.js"
+    "revision": "bf5a003b8d176c26cfbd",
+    "url": "js/62f2253e.40d9812b.js"
+  },
+  {
+    "revision": "a9de7e81de000ac57c2855c29a98e796",
+    "url": "statics/police.png"
+  },
+  {
+    "revision": "ed1155c90ae0b24ed621",
+    "url": "js/app.a5af1110.js"
+  },
+  {
+    "revision": "56c8c44eed44e782e2e8",
+    "url": "js/vendor.a0b8d5d4.js"
+  },
+  {
+    "revision": "e70b8108d642f3e1eda25442d0a2a629",
+    "url": "statics/manifest.json"
   },
   {
     "revision": "4ca6116897b45c5c22d8e3d3f21576f5",
     "url": "statics/icons/ms-icon-144x144.png"
-  },
-  {
-    "revision": "5ea541109a3a88e8081e",
-    "url": "js/app.61122bbb.js"
-  },
-  {
-    "revision": "716a5331ed4cbdd77247",
-    "url": "js/vendor.a0af9eeb.js"
   },
   {
     "revision": "906c193b6d193a65add774107b3923db",
@@ -40,16 +48,12 @@ self.__precacheManifest = [
     "url": "statics/icons/icon-192x192.png"
   },
   {
-    "revision": "e70b8108d642f3e1eda25442d0a2a629",
-    "url": "statics/manifest.json"
-  },
-  {
-    "revision": "a9de7e81de000ac57c2855c29a98e796",
-    "url": "statics/police.png"
-  },
-  {
     "revision": "82f983ec2277961e9878f2bf014b13fc",
     "url": "statics/flespi_logo_black.svg"
+  },
+  {
+    "revision": "d56df49a807a9fd06eb1667a84d3810e",
+    "url": "statics/GitHub-Mark-Light-32px.png"
   },
   {
     "revision": "c2f336f76202bb73019843c7ad316def",
@@ -58,10 +62,6 @@ self.__precacheManifest = [
   {
     "revision": "c81a3f3a982ad3175edf7a78d797ced3",
     "url": "statics/icons/favicon-16x16.png"
-  },
-  {
-    "revision": "d56df49a807a9fd06eb1667a84d3810e",
-    "url": "statics/GitHub-Mark-Light-32px.png"
   },
   {
     "revision": "4dbf2ed5128b084a0b6f9ce268c02558",
@@ -144,12 +144,12 @@ self.__precacheManifest = [
     "url": "fonts/KFOkCnqEu92Fr1MmgVxIIzQ.e9dbbe8a.woff"
   },
   {
-    "revision": "5ea541109a3a88e8081e",
+    "revision": "ed1155c90ae0b24ed621",
     "url": "css/app.f31cfe1d.css"
   },
   {
-    "revision": "8f6bc40966f051a42c5d",
-    "url": "css/8fdc6b54.49fc163d.css"
+    "revision": "bf5a003b8d176c26cfbd",
+    "url": "css/62f2253e.eb92a3ff.css"
   },
   {
     "revision": "a948e00c9a4338a0fdcd",
