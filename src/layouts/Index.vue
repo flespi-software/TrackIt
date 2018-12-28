@@ -4,12 +4,13 @@
       <device-list v-show="devices.length" @update:watch-by-id="setWatchToDeviceID" :deviceIdForWatch="deviceIdForWatch" :activeDevicesID="activeDevicesID" :devices="devices" @click:hide="side_left = false"/>
     </q-layout-drawer>
     <q-layout-drawer side="right" no-swipe-open no-swipe-close :content-class="{'bg-dark':telemetrySettings.inverted}" v-model="side_right">
-      <div>
+      <div style="position: relative; height: 100vh; overflow: hidden;">
         <q-item>
           <q-item-side left><q-icon :color="telemetrySettings.inverted ? 'white' : ''" size="1.8rem" name="developer_board"/></q-item-side>
           <q-item-main>
             <q-item-tile label class="ellipsis text-bold" :class="{'text-white': telemetrySettings.inverted}">Telemetry</q-item-tile>
-            <q-item-tile sublabel class="ellipsis" :class="{'text-white': telemetrySettings.inverted}"><small>{{deviceForTelemetry.name || `#${deviceForTelemetry.id}`}}</small></q-item-tile>
+            <q-item-tile v-if="deviceIdForTelemetry" sublabel class="ellipsis" :class="{'text-white': telemetrySettings.inverted}"><small>{{deviceForTelemetry.name || `#${deviceForTelemetry.id}`}}</small></q-item-tile>
+            <q-item-tile v-else sublabel class="ellipsis" :class="{'text-white': telemetrySettings.inverted}"><small>No selected device</small></q-item-tile>
           </q-item-main>
           <q-item-side right>
             <q-checkbox  @change="telemetrySettingsChangeHandler" v-model="telemetrySettings.inverted" checked-icon="filter_b_and_w" unchecked-icon="filter_b_and_w" :color="telemetrySettings.inverted ? 'white' : 'grey'" class="text-grey">
@@ -17,13 +18,15 @@
             </q-checkbox>
           </q-item-side>
         </q-item>
-        <q-item>
+        <q-item v-if="deviceIdForTelemetry">
           <q-item-main>
             <q-input type="text" float-label="Search" v-model="telemetrySearch" :inverted="telemetrySettings.inverted" :color="telemetrySettings.inverted ? 'none': ''" />
           </q-item-main>
         </q-item>
-        <q-telemetry v-if="deviceIdForTelemetry" :propHistoryFlag="telemetryConfig.propHistoryFlag" :device="deviceForTelemetry" :inverted="telemetrySettings.inverted" :search="telemetrySearch" />
-        <div v-else class="text-bold text-center" :class="{'text-white': telemetrySettings.inverted}">Choose device</div>
+        <q-telemetry class="scroll" style="height: calc(100% - 128px)" v-if="deviceIdForTelemetry" :propHistoryFlag="telemetryConfig.propHistoryFlag" :device="deviceForTelemetry" :inverted="telemetrySettings.inverted" :search="telemetrySearch" />
+        <div v-else class="text-bold text-center q-mt-sm" :class="{'text-white': telemetrySettings.inverted}">
+          Select one by click on his <q-icon name="mdi-map-marker"/> marker
+        </div>
       </div>
     </q-layout-drawer>
     <q-page-container>
@@ -67,34 +70,41 @@
             :default-value="Date.now()"
           />
         </div>
-        <div v-if="!activeDevicesID.length" class="floated no-devices">
+        <div v-if="!activeDevicesID.length && devices.length" class="floated no-devices">
           <span class="no-devices__message">You have no selected devices</span>
           <div style="margin-top: 15px;">
-            <q-btn style="pointer-events: auto" @click="side_left = !side_left" color="black" size="md" v-if="devices.length">
+            <q-btn icon="menu" style="pointer-events: auto" @click="side_left = !side_left" color="black" size="md">
               select devices
             </q-btn>
+          </div>
+        </div>
+        <div v-else-if="!devices.length && hasDevicesInit" class="floated no-devices">
+          <span class="no-devices__message">You have no devices</span>
+          <div class="q-mt-sm text-dark" style="font-size: 1.3rem;">
+            Create one on
+            <q-btn dense style="pointer-events: auto" @click="openURL('https://flespi.io')" color="red-5" label="flespi.io"/>
           </div>
         </div>
         <q-btn small flat size="md" v-if="devices.length" class="floated mode" :icon="mode === 1 ? 'playlist_play' : 'history'" @click="changeMode">
           <q-tooltip>Change mode (History/Real-time)</q-tooltip>
         </q-btn>
         <a v-if="$q.platform.is.desktop" href="https://github.com/flespi-software/TrackIt/" class="floated github" target="_blank"><q-btn flat round color="dark"><img style="height: 30px;" src="../statics/GitHub-Mark-32px.png" alt="GitHub"><q-tooltip>Show on GitHub</q-tooltip></q-btn></a>
-        <q-btn small round flat size="md" v-if="devices.length" class="floated options">
+        <q-btn small round flat size="md" class="floated options">
           <q-icon color="dark" name="more_vert" />
           <q-popover ref="popover-menu">
             <q-list link separator class="scroll" style="min-width: 200px">
               <q-item>
-                <q-toggle @input="menuChangeHandler" v-model="params.needShowMessages" icon="dvr" label="Messages" />
+                <q-toggle @input="menuChangeHandler" :disabled="!devices.length" v-model="params.needShowMessages" icon="dvr" label="Messages" />
               </q-item>
               <q-item>
                 <q-tooltip v-if="mode === 1">Only in history mode</q-tooltip>
-                <q-toggle @input="menuChangeHandler" v-model="params.needShowPlayer" :disable="mode === 1" icon="mdi-play" label="Player" />
+                <q-toggle @input="menuChangeHandler" v-model="params.needShowPlayer" :disable="mode === 1 || !devices.length" icon="mdi-play" label="Player" />
               </q-item>
               <q-item>
-                <q-toggle v-close-overlay @input="menuChangeHandler" v-model="params.needShowTelemetry" icon="av_timer" label="Telemetry" />
+                <q-toggle v-close-overlay @input="menuChangeHandler" :disabled="!devices.length" v-model="params.needShowTelemetry" icon="av_timer" label="Telemetry" />
               </q-item>
               <q-item>
-                <q-toggle @input="menuChangeHandler" v-model="params.needShowNamesOnMap" icon="pin_drop" label="Names" />
+                <q-toggle @input="menuChangeHandler" :disabled="!devices.length" v-model="params.needShowNamesOnMap" icon="pin_drop" label="Names" />
               </q-item>
               <q-item class="within-iframe-hide" @click.native="exitHandler">
                 <q-item-side icon="exit_to_app"/>
@@ -114,21 +124,6 @@
           :date="date"
           @change:needShowMessages="(value) => { params.needShowMessages = value }"
         />
-        <div class="error-page bg-light column items-center no-wrap" v-if="!devices.length && hasDevicesInit">
-          <a v-if="!$q.platform.is.mobile" href="https://github.com/flespi-software/TrackIt/" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0; width: 149px; height: 149px;" src="../statics/right-graphite@2x.png" alt="Fork me on GitHub"></a>
-          <div class="error-code flex items-center justify-center">
-            Track It!
-          </div>
-          <div>
-            <div class="error-card shadow-4 bg-white column items-center justify-center no-wrap">
-              <p class="text-center group">
-                <q-btn color="dark" @click="exitHandler" icon-right="exit_to_app">Logout</q-btn>
-              </p>
-              <q-icon name="error_outline" color="grey-5" />
-              <p class="caption text-center">Devices not found.</p>
-            </div>
-          </div>
-        </div>
       </q-page>
     </q-page-container>
   </q-layout>
@@ -141,6 +136,7 @@ import QTelemetry from 'qtelemetry'
 import MapComponent from '../components/Map.vue'
 import DeviceList from '../components/DeviceList.vue'
 import dist from '../../package.json'
+import { openURL } from 'quasar'
 
 export default {
   data () {
@@ -214,6 +210,7 @@ export default {
     QTelemetry
   },
   methods: {
+    openURL,
     ...mapMutations([
       'setToken',
       'clearToken',

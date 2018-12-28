@@ -177,6 +177,7 @@ function unsetDevicesInit (state) {
   Vue.set(state, 'activeDevicesID', [])
 }
 function addError (state, message) {
+  if (!state.token) { return false }
   Notify.create({
     type: 'negative',
     icon: 'warning',

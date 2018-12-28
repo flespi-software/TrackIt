@@ -767,6 +767,7 @@ export default {
     border-radius 50% 0 50% 50%
     background-color rgba(255, 255, 255, .5)
     height 100%
+    box-shadow white 0 0 5px
   .my-flag-icon__inner
     font-size 45px
     position relative

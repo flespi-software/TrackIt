@@ -1,5 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.5.2] - 2018-12-28
+[fix] empty state logged in page
+[fix] showing errors on login page
+[fix] telemetry empty drawer
+[update] packages
 ### [0.5.1] - 2018-11-04
 [fix] remove debug info
 ### [0.5.0] - 2018-11-04
