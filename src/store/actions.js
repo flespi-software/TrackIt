@@ -66,9 +66,28 @@ async function getLastUpdatePosition ({ commit, state }, selector) {
   }
 }
 
+async function getInitDataByDeviceId ({ commit, state }, id) {
+  let telemetryResp = await Vue.connector.gw.getDevicesTelemetry(id),
+    telemetryRespData = telemetryResp.data
+  if (telemetryRespData.errors) {
+    postMessage.errors.forEach((error) => {
+      commit('addError', error.reason)
+    })
+  }
+  let telemetry = telemetryRespData && telemetryRespData.result[0] && telemetryRespData.result[0].telemetry ? telemetryRespData.result[0].telemetry : {}
+  let initMessage = Object.keys(telemetry).reduce((message, paramName) => {
+    if (paramName === 'position') { return message }
+    message[paramName] = telemetry[paramName].value
+    return message
+  }, {})
+  initMessage['x-flespi-inited-by-telemetry'] = true
+  commit(`messages/${id}/setMessages`, [initMessage])
+}
+
 export default {
   poolDevices,
   postMessage,
   checkConnection,
-  getLastUpdatePosition
+  getLastUpdatePosition,
+  getInitDataByDeviceId
 }

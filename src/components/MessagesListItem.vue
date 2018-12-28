@@ -1,12 +1,12 @@
 <template>
   <div
     v-if="!item['__connectionStatus']"
-    @click="itemClickHandler(index, item)"
+    @click="itemClickHandler(index, clearItem)"
     class="cursor-pointer"
     :class="[item.__status ? 'missed-items' : '']"
-    :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, backgroundColor: selected ? 'rgba(255,255,255,0.7)': '', color: selected ? '#333' : '', borderBottom: item.delimiter ? 'solid 1px #f40' : ''}">
+    :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, backgroundColor: item['x-flespi-inited-by-telemetry'] ? 'rgba(111, 101, 19, 0.7)' : selected ? 'rgba(255,255,255,0.7)': '', color: selected ? '#333' : '', borderBottom: item.delimiter ? 'solid 1px #f40' : ''}">
     <span class="list__item item_actions" v-if="actionsVisible">
-      <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
+      <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, clearItem)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
         <q-tooltip>{{action.label}}</q-tooltip>
       </q-icon>
     </span>
@@ -96,7 +96,7 @@ export default {
           }
           vals[propName].value = JSON.stringify(value)
         } else {
-          if (propName === 'delimiter' || propName === '__status') { return false }
+          if (propName === 'delimiter' || propName === '__status' || propName === 'x-flespi-inited-by-telemetry') { return false }
           if (propName.indexOf('image.bin.') !== -1) {
             vals.etc.value += `${propName}: <binary image>`
           } else {
@@ -128,6 +128,23 @@ export default {
         }
       })
       return vals
+    },
+    clearItem () {
+      return Object.keys(this.item).reduce((result, key) => {
+        if (
+          key === 'delimiter' ||
+          key === '__status' ||
+          key === 'uuid' ||
+          key === 'x-flespi-filter-fields' ||
+          key === 'x-flespi-filter-next' ||
+          key === 'x-flespi-filter-prev' ||
+          key === 'x-flespi-inited-by-telemetry'
+        ) {
+          return result
+        }
+        result[key] = this.item[key]
+        return result
+      }, {})
     }
   },
   methods: {

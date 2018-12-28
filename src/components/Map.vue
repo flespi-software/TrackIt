@@ -439,6 +439,10 @@ export default {
       if (this.mode === 1 && isNullMode) {
         this.$store.commit(`messages/${id}/setTo`, Date.now())
         await this.$store.dispatch(`messages/${id}/getHistory`, 200)
+        if (!this.$store.state.messages[id].messages.length) {
+          /* try to init device by telemetry */
+          await this.$store.dispatch('getInitDataByDeviceId', id)
+        }
       }
       if (this.mode === 0) {
         await this.$store.dispatch(`messages/${id}/get`, {name: 'setDate', payload: this.date})
@@ -456,6 +460,10 @@ export default {
         await this.$store.dispatch(`messages/${id}/pollingGet`)
         if (this.mode === 1) {
           await this.$store.dispatch(`messages/${id}/getHistory`, 200)
+          if (!this.$store.state.messages[id].messages.length) {
+            /* try to init device by telemetry */
+            await this.$store.dispatch('getInitDataByDeviceId', id)
+          }
         }
       }
       Vue.connector.socket.on('offline', () => { this.$store.commit(`messages/${id}/setOffline`, this.mode === 1) })

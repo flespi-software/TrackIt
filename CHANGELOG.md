@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.5.3] - 2018-12-28
+[fix] init devices w/o messages by telemetry
 ### [0.5.2] - 2018-12-28
 [fix] empty state logged in page
 [fix] showing errors on login page
