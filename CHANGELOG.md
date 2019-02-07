@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.5.6] - 2018-02-07
+[update] felspi-io-js
 ### [0.5.5] - 2018-02-07
 [update] felspi-io-js
 [fix] sw reload
