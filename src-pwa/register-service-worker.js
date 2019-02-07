@@ -47,7 +47,21 @@ register(process.env.SERVICE_WORKER_FILE, {
                                             </div>`
     let buttons = notification.getElementsByTagName('button'),
       body = document.getElementsByTagName('body')[0]
-    buttons[0].addEventListener('click', (ev) => { window.location.reload() })
+    function reload () {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistration().then((reg) => {
+          if (reg) {
+            reg.unregister().then(() => { window.location.reload(true) })
+          } else {
+            window.location.reload(true)
+          }
+        })
+      } else {
+        window.location.reload(true)
+      }
+      setTimeout(() => { window.location.reload(true) }, 1000)
+    }
+    buttons[0].addEventListener('click', (ev) => { reload() })
     buttons[1].addEventListener('click', (ev) => { notification.remove() })
     body.appendChild(notification)
   },

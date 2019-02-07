@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.5.5] - 2018-02-07
+[update] felspi-io-js
+[fix] sw reload
 ### [0.5.4] - 2018-01-29
 [feature] deflate for ws
 ### [0.5.3] - 2018-12-28
