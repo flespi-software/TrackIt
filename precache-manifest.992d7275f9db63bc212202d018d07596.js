@@ -12,24 +12,24 @@ self.__precacheManifest = [
     "url": "js/4b4818b8.7631b99b.js"
   },
   {
-    "revision": "8db5b41aefc0f9cdb76f",
+    "revision": "da5baf15db73c3188249",
     "url": "css/app.b15f241d.css"
   },
   {
-    "revision": "8db5b41aefc0f9cdb76f",
-    "url": "js/app.3e324a91.js"
+    "revision": "da5baf15db73c3188249",
+    "url": "js/app.f49ceb14.js"
   },
   {
-    "revision": "77cc4e0030c7545bc5fd",
-    "url": "css/dcc09106.0ade1d8c.css"
+    "revision": "ce92b16a0eafa2b8c6a4",
+    "url": "css/dcc09106.d23fabf8.css"
   },
   {
-    "revision": "77cc4e0030c7545bc5fd",
-    "url": "js/dcc09106.6f40c457.js"
+    "revision": "ce92b16a0eafa2b8c6a4",
+    "url": "js/dcc09106.8870a2e5.js"
   },
   {
-    "revision": "ebd33896cb5f4c8bea30",
-    "url": "js/vendor.d6070103.js"
+    "revision": "fad787d31c3d1aeb36ee",
+    "url": "js/vendor.e52bdb43.js"
   },
   {
     "revision": "6536e4067e72c89cd3f1530d83e9888c",
@@ -56,20 +56,20 @@ self.__precacheManifest = [
     "url": "fonts/KFOkCnqEu92Fr1MmgVxIIzQ.e9dbbe8a.woff"
   },
   {
-    "revision": "bafb105baeb22d965c70fe52ba6b49d9",
-    "url": "fonts/KFOmCnqEu92Fr1Mu4mxM.bafb105b.woff"
-  },
-  {
     "revision": "a1471d1d6431c893582a5f6a250db3f9",
     "url": "fonts/KFOlCnqEu92Fr1MmSU5fBBc-.a1471d1d.woff"
   },
   {
-    "revision": "de8b7431b74642e830af4d4f4b513ec9",
-    "url": "fonts/KFOlCnqEu92Fr1MmEU9fBBc-.de8b7431.woff"
+    "revision": "bafb105baeb22d965c70fe52ba6b49d9",
+    "url": "fonts/KFOmCnqEu92Fr1Mu4mxM.bafb105b.woff"
   },
   {
     "revision": "cf6613d1adf490972c557a8e318e0868",
     "url": "fonts/KFOlCnqEu92Fr1MmWUlfBBc-.cf6613d1.woff"
+  },
+  {
+    "revision": "de8b7431b74642e830af4d4f4b513ec9",
+    "url": "fonts/KFOlCnqEu92Fr1MmEU9fBBc-.de8b7431.woff"
   },
   {
     "revision": "8c2ade503b34e31430d6c98aa29a52a3",
@@ -112,6 +112,14 @@ self.__precacheManifest = [
     "url": "statics/trackit.png"
   },
   {
+    "revision": "c81a3f3a982ad3175edf7a78d797ced3",
+    "url": "statics/icons/favicon-16x16.png"
+  },
+  {
+    "revision": "c2f336f76202bb73019843c7ad316def",
+    "url": "statics/icons/favicon-32x32.png"
+  },
+  {
     "revision": "82f983ec2277961e9878f2bf014b13fc",
     "url": "statics/flespi_logo_black.svg"
   },
@@ -120,12 +128,12 @@ self.__precacheManifest = [
     "url": "statics/GitHub-Mark-Light-32px.png"
   },
   {
-    "revision": "c2f336f76202bb73019843c7ad316def",
-    "url": "statics/icons/favicon-32x32.png"
+    "revision": "47fc2bc80d4dc7e7835423c0505302e7",
+    "url": "statics/icons/icon-192x192.png"
   },
   {
-    "revision": "c81a3f3a982ad3175edf7a78d797ced3",
-    "url": "statics/icons/favicon-16x16.png"
+    "revision": "906c193b6d193a65add774107b3923db",
+    "url": "statics/icons/apple-icon-152x152.png"
   },
   {
     "revision": "e70b8108d642f3e1eda25442d0a2a629",
@@ -136,14 +144,6 @@ self.__precacheManifest = [
     "url": "statics/police.png"
   },
   {
-    "revision": "906c193b6d193a65add774107b3923db",
-    "url": "statics/icons/apple-icon-152x152.png"
-  },
-  {
-    "revision": "47fc2bc80d4dc7e7835423c0505302e7",
-    "url": "statics/icons/icon-192x192.png"
-  },
-  {
     "revision": "4ca6116897b45c5c22d8e3d3f21576f5",
     "url": "statics/icons/ms-icon-144x144.png"
   },
@@ -152,7 +152,7 @@ self.__precacheManifest = [
     "url": "statics/icons/icon-512x512.png"
   },
   {
-    "revision": "db1e154a6fdd50e6ceb9ec4a9ac4edd6",
+    "revision": "b55a7e03c2e3bd3f8257b51a894ee150",
     "url": "index.html"
   }
 ];
