@@ -10,6 +10,7 @@
     <VirtualList
       :size="70"
       :remain="itemsCount"
+      :style="{height: `${height}px`}"
     >
       <device @update:watch-by-id="setWatchByDeviceID" v-for="device in devices" :key="device.id" :device="device" :activeDevicesID="activeDevicesID" :isDeviceWatched="deviceIdForWatch === device.id" />
     </VirtualList>
@@ -25,7 +26,8 @@ export default {
   data () {
     return {
       unsubscribeDevices: () => {},
-      itemsCount: 0
+      itemsCount: 0,
+      height: 0
     }
   },
   props: [
@@ -42,7 +44,8 @@ export default {
       this.$emit('update:watch-by-id', id)
     },
     onResize ({height}) {
-      this.itemsCount = (height - 76) / 70
+      this.height = height - 76
+      this.itemsCount = Math.floor((height - 76) / 70)
     }
   }
 }
