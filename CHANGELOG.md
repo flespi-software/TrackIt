@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.5.8] - 2018-03-19
+[fix] login
 ### [0.5.7] - 2018-03-11
 [fix] scroll devices panel
 ### [0.5.6] - 2018-02-07
