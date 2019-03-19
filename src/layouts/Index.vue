@@ -97,8 +97,7 @@
                 <q-toggle @input="menuChangeHandler" :disabled="!devices.length" v-model="params.needShowMessages" icon="dvr" label="Messages" />
               </q-item>
               <q-item>
-                <q-tooltip v-if="mode === 1">Only in history mode</q-tooltip>
-                <q-toggle @input="menuChangeHandler" v-model="params.needShowPlayer" :disable="mode === 1 || !devices.length" icon="mdi-play" label="Player" />
+                <q-toggle @input="menuChangeHandler" v-model="params.needShowPlayer" :disable="mode === 1 || !devices.length" icon="mdi-play" label="Player" :title="mode === 1 ? 'Only in history mode' : ''" />
               </q-item>
               <q-item>
                 <q-toggle v-close-overlay @input="menuChangeHandler" :disabled="!devices.length" v-model="params.needShowTelemetry" icon="av_timer" label="Telemetry" />

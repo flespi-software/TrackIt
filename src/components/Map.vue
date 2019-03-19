@@ -1,6 +1,6 @@
 <template>
   <div class="map-wrapper absolute-top-left absolute-bottom-right">
-    <div id="map">
+    <div id="map" :style="{height: mapHeight}">
       <q-resize-observable @resize="onResize" />
     </div>
     <queue
@@ -108,6 +108,23 @@ export default {
         this.updateColorHandler({id: this.currentColorId, color})
         this.currentColorModel = color
       }
+    },
+    mapHeight () {
+      let value = '100%'
+      if (this.mode === 1) {
+        if (this.params.needShowMessages) {
+          value = 'calc(100% - 48px)'
+        }
+      } else if (this.mode === 0) {
+        if (this.params.needShowMessages && this.params.needShowPlayer) {
+          value = 'calc(100% - 113px)'
+        } else if (this.params.needShowMessages && !this.params.needShowPlayer) {
+          value = 'calc(100% - 48px)'
+        } else if (!this.params.needShowMessages && this.params.needShowPlayer) {
+          value = 'calc(100% - 65px)'
+        }
+      }
+      return value
     }
   },
   methods: {
@@ -751,8 +768,6 @@ export default {
 </script>
 
 <style lang="stylus">
-  #map
-    height 100%
   .leaflet-container.crosshair-cursor-enabled
     cursor crosshair
   .leaflet-control-zoom.leaflet-bar
