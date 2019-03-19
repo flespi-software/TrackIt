@@ -23,16 +23,16 @@
 - npm version 3+ and [Git](https://git-scm.com/).
 
 ## Requirements:
-You need to have a separate token with at least the following ACLs:
-REST
-https://flespi.io/gw/devices/{selector}
-https://flespi.io/gw/devices/{selector}/telemetry
-https://flespi.io/gw/devices/{selector}/messages
-MQTT
-flespi/log/gw/devices/{selector}/created
-flespi/log/gw/devices/{selector}/updated
-flespi/log/gw/devices/{selector}/deleted
-flespi/message/gw/devices/{selector}/#
+You need to have a separate token with at least the following ACLs:<br />
+REST<br />
+https://flespi.io/gw/devices/{selector}<br />
+https://flespi.io/gw/devices/{selector}/telemetry<br />
+https://flespi.io/gw/devices/{selector}/messages<br />
+MQTT<br />
+flespi/log/gw/devices/{selector}/created<br />
+flespi/log/gw/devices/{selector}/updated<br />
+flespi/log/gw/devices/{selector}/deleted<br />
+flespi/message/gw/devices/{selector}/#<br />
 
 ## Build Setup
 
