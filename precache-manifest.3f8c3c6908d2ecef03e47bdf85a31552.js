@@ -12,20 +12,20 @@ self.__precacheManifest = [
     "url": "js/4b4818b8.7631b99b.js"
   },
   {
-    "revision": "406bdd9dbacc6dca3284",
+    "revision": "b109fe69d7f8c4eb3ec6",
     "url": "css/app.0a8fcc03.css"
   },
   {
-    "revision": "406bdd9dbacc6dca3284",
-    "url": "js/app.4ffdeb79.js"
+    "revision": "b109fe69d7f8c4eb3ec6",
+    "url": "js/app.21a0ad90.js"
   },
   {
-    "revision": "53fae15e47ff039a6a0c",
+    "revision": "ddc12ee7c44e8ef76ca4",
     "url": "css/d0583630.f9be1d57.css"
   },
   {
-    "revision": "53fae15e47ff039a6a0c",
-    "url": "js/d0583630.0bb86e5b.js"
+    "revision": "ddc12ee7c44e8ef76ca4",
+    "url": "js/d0583630.bcdb43d7.js"
   },
   {
     "revision": "9072e400ba0c9bdebca0",
@@ -56,12 +56,12 @@ self.__precacheManifest = [
     "url": "fonts/KFOkCnqEu92Fr1MmgVxIIzQ.e9dbbe8a.woff"
   },
   {
-    "revision": "a1471d1d6431c893582a5f6a250db3f9",
-    "url": "fonts/KFOlCnqEu92Fr1MmSU5fBBc-.a1471d1d.woff"
-  },
-  {
     "revision": "bafb105baeb22d965c70fe52ba6b49d9",
     "url": "fonts/KFOmCnqEu92Fr1Mu4mxM.bafb105b.woff"
+  },
+  {
+    "revision": "a1471d1d6431c893582a5f6a250db3f9",
+    "url": "fonts/KFOlCnqEu92Fr1MmSU5fBBc-.a1471d1d.woff"
   },
   {
     "revision": "de8b7431b74642e830af4d4f4b513ec9",
@@ -112,6 +112,10 @@ self.__precacheManifest = [
     "url": "statics/trackit.png"
   },
   {
+    "revision": "c81a3f3a982ad3175edf7a78d797ced3",
+    "url": "statics/icons/favicon-16x16.png"
+  },
+  {
     "revision": "82f983ec2277961e9878f2bf014b13fc",
     "url": "statics/flespi_logo_black.svg"
   },
@@ -122,10 +126,6 @@ self.__precacheManifest = [
   {
     "revision": "c2f336f76202bb73019843c7ad316def",
     "url": "statics/icons/favicon-32x32.png"
-  },
-  {
-    "revision": "c81a3f3a982ad3175edf7a78d797ced3",
-    "url": "statics/icons/favicon-16x16.png"
   },
   {
     "revision": "e70b8108d642f3e1eda25442d0a2a629",
@@ -152,7 +152,7 @@ self.__precacheManifest = [
     "url": "statics/icons/icon-512x512.png"
   },
   {
-    "revision": "dc6140684759cf9bf5bb98a9be780ab3",
+    "revision": "20ad24544b43c15693b72f9e34c37720",
     "url": "index.html"
   }
 ];
