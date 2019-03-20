@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.5.10] - 2018-03-20
+[fix] using local time
+[fix] map height
 ### [0.5.9] - 2018-03-19
 [fix] map view
 [fix] popover in menu

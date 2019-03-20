@@ -111,6 +111,7 @@ export default {
     },
     mapHeight () {
       let value = '100%'
+      if (!this.activeDevices.length) { return value }
       if (this.mode === 1) {
         if (this.params.needShowMessages) {
           value = 'calc(100% - 48px)'
@@ -462,7 +463,8 @@ export default {
         }
       }
       if (this.mode === 0) {
-        await this.$store.dispatch(`messages/${id}/get`, {name: 'setDate', payload: this.date})
+        let date = new Date(this.date).setHours(0, 0, 0, 0)
+        await this.$store.dispatch(`messages/${id}/get`, {name: 'setDate', payload: date})
         this.addFlags(id)
       }
     },

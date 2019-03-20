@@ -150,6 +150,7 @@ export default {
       this.cols = cols
     },
     dateChangeHandler (date) {
+      date = new Date(date).setHours(0, 0, 0, 0)
       this.$store.dispatch(`messages/${this.moduleName}/get`, {name: 'setDate', payload: date})
     },
     datePrevChangeHandler () {
