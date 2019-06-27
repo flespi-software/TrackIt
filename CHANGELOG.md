@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.6.0] - 2018-06-27
+[fix] limiting
+[feature] saving color for track
 ### [0.5.10] - 2018-03-20
 [fix] using local time
 [fix] map height

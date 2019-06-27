@@ -200,11 +200,20 @@ export default {
     },
     getColor () {
       let letters = '0123456789ABCDEF',
-        color = '#'
-      for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)]
+        color = `#${letters[Math.floor(Math.random() * 5)]}`
+      for (let i = 0; i < 5; i++) {
+        color += letters[Math.floor(Math.random() * 15)]
       }
       return color
+    },
+    getColorById (id) {
+      let savedColors = this.$q.localStorage.get.item('trackit-colors-settings')
+      if (!savedColors) { savedColors = {} }
+      if (!savedColors[id]) {
+        savedColors[id] = this.getColor()
+      }
+      this.$q.localStorage.set('trackit-colors-settings', savedColors)
+      return savedColors[id]
     },
     getAccuracyParams (message) {
       let position = [message['position.latitude'], message['position.longitude']],
@@ -222,7 +231,7 @@ export default {
     },
     initMarker (id, name, position) {
       let direction = this.messages[id][this.messages[id].length - 1]['position.direction'] ? this.messages[id][this.messages[id].length - 1]['position.direction'] : 0,
-        currentColor = this.tracks[id] && this.tracks[id].options ? this.tracks[id].options.color : this.markers[id] ? this.markers[id].color : this.getColor()
+        currentColor = this.tracks[id] && this.tracks[id].options ? this.tracks[id].options.color : this.markers[id] ? this.markers[id].color : this.getColorById(id)
       this.markers[id] = L.marker(position, {
         icon: this.generateIcon(id, name, currentColor),
         draggable: this.admin.flag,
@@ -279,7 +288,7 @@ export default {
       if (!this.markers[id]) {
         this.markers[id] = {}
         this.markers[id].id = id
-        this.markers[id].color = this.getColor()
+        this.markers[id].color = this.getColorById(id)
         this.tracks[id] = {}
       }
       let hasInitPosition = this.messages[id] && this.messages[id].length
@@ -329,7 +338,7 @@ export default {
         this.initMarker(id, name, position)
       }
       if (!(this.tracks[id] instanceof L.Polyline)) {
-        this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), {color: this.markers[id] ? this.markers[id].color : this.getColor()}).addTo(this.map)
+        this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), {color: this.markers[id] ? this.markers[id].color : this.getColorById(id)}).addTo(this.map)
       }
       if (!this.isDragged) {
         this.markers[id].setLatLng(currentArrPos[currentArrPos.length - 1]).update()
@@ -639,6 +648,7 @@ export default {
         if (!this.$store.state.messages[id]) {
           this.$store.registerModule(['messages', id], devicesMessagesModule({ Vue, LocalStorage: this.$q.localStorage, name: `messages/${id}`, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
           this.$store.commit(`messages/${id}/setSortBy`, 'timestamp')
+          this.$store.commit(`messages/${id}/setLimit`, 0)
         }
       })
       this.activeDevicesID = activeDevicesID
