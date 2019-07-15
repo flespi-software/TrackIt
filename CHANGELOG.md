@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.6.2] - 2018-07-15
+[fix] login init codes
 ### [0.6.1] - 2018-07-09
 [update] devices data to configuration field
 ### [0.6.0] - 2018-06-27

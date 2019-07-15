@@ -115,7 +115,9 @@ function reqFailed (state, payload) {
     /* mqtt errors */
   } else if (payload.code && payload.message) {
     switch (payload.code) {
-      case 2: {
+      case 2:
+      case 134:
+      case 135: {
         if (state.token) {
           clearToken(state)
         }
