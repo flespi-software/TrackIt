@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "fonts/flUhRq6tzZclQEJ-Vdg-IuiaDsNcIhQ8tQ.8a9a261c.woff2"
   },
   {
-    "revision": "c1ddbe6b6d883cb7b083f4fedf300fd2",
+    "revision": "6843bc6eb0227d236690704731630f8f",
     "url": "index.html"
   },
   {
@@ -20,48 +20,48 @@ self.__precacheManifest = [
     "url": "js/7db2bf38.d03ae181.js"
   },
   {
-    "revision": "4ca6116897b45c5c22d8e3d3f21576f5",
-    "url": "statics/icons/ms-icon-144x144.png"
+    "revision": "a9de7e81de000ac57c2855c29a98e796",
+    "url": "statics/police.png"
   },
   {
-    "revision": "fc7e8dbce483c58fd047",
-    "url": "js/app.50467c9c.js"
+    "revision": "85e0ade7fdc4428b4582",
+    "url": "js/app.bd6837e7.js"
   },
   {
     "revision": "d6dd861f1d895848d194",
     "url": "js/vendor.a66acae7.js"
   },
   {
-    "revision": "a9de7e81de000ac57c2855c29a98e796",
-    "url": "statics/police.png"
+    "revision": "4ca6116897b45c5c22d8e3d3f21576f5",
+    "url": "statics/icons/ms-icon-144x144.png"
   },
   {
     "revision": "e70b8108d642f3e1eda25442d0a2a629",
     "url": "statics/manifest.json"
   },
   {
-    "revision": "906c193b6d193a65add774107b3923db",
-    "url": "statics/icons/apple-icon-152x152.png"
-  },
-  {
     "revision": "47fc2bc80d4dc7e7835423c0505302e7",
     "url": "statics/icons/icon-192x192.png"
+  },
+  {
+    "revision": "906c193b6d193a65add774107b3923db",
+    "url": "statics/icons/apple-icon-152x152.png"
   },
   {
     "revision": "c2f336f76202bb73019843c7ad316def",
     "url": "statics/icons/favicon-32x32.png"
   },
   {
-    "revision": "d56df49a807a9fd06eb1667a84d3810e",
-    "url": "statics/GitHub-Mark-Light-32px.png"
+    "revision": "c81a3f3a982ad3175edf7a78d797ced3",
+    "url": "statics/icons/favicon-16x16.png"
   },
   {
     "revision": "82f983ec2277961e9878f2bf014b13fc",
     "url": "statics/flespi_logo_black.svg"
   },
   {
-    "revision": "c81a3f3a982ad3175edf7a78d797ced3",
-    "url": "statics/icons/favicon-16x16.png"
+    "revision": "d56df49a807a9fd06eb1667a84d3810e",
+    "url": "statics/GitHub-Mark-Light-32px.png"
   },
   {
     "revision": "4dbf2ed5128b084a0b6f9ce268c02558",
@@ -144,7 +144,7 @@ self.__precacheManifest = [
     "url": "fonts/KFOkCnqEu92Fr1MmgVxIIzQ.e9dbbe8a.woff"
   },
   {
-    "revision": "fc7e8dbce483c58fd047",
+    "revision": "85e0ade7fdc4428b4582",
     "url": "css/app.d1ff421f.css"
   },
   {
