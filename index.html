@@ -4,4 +4,9 @@
         gtag('js', new Date());
 
         gtag('config', 'UA-93342359-3');
-      }</script><link as=style href=css/app.d1ff421f.css rel=preload><link as=script href=js/app.ed7bbb1d.js rel=preload><link as=script href=js/runtime.a3e0d3a5.js rel=preload><link as=script href=js/vendor.8f0e3ec2.js rel=preload><link href=css/0a37bb42.aed6de18.css rel=prefetch><link href=css/7db2bf38.7ff8c26f.css rel=prefetch><link href=js/0a37bb42.f88019aa.js rel=prefetch><link href=js/4b4818b8.7631b99b.js rel=prefetch><link href=js/7db2bf38.d281b9ac.js rel=prefetch><link href=css/app.d1ff421f.css rel=stylesheet></head><body><noscript>This is your fallback content in case JavaScript fails to load.</noscript><div id=q-app></div><script type=text/javascript src=js/app.ed7bbb1d.js></script><script type=text/javascript src=js/runtime.a3e0d3a5.js></script><script type=text/javascript src=js/vendor.8f0e3ec2.js></script></body></html>
+      }
+      navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        for (let registration of registrations) {
+          registration.unregister()
+        }
+      })</script><link as=style href=css/app.d1ff421f.css rel=preload><link as=script href=js/app.ed7bbb1d.js rel=preload><link as=script href=js/runtime.d74f2f21.js rel=preload><link as=script href=js/vendor.8f0e3ec2.js rel=preload><link href=css/0a37bb42.aed6de18.css rel=prefetch><link href=css/7db2bf38.7ff8c26f.css rel=prefetch><link href=js/0a37bb42.f88019aa.js rel=prefetch><link href=js/4b4818b8.7631b99b.js rel=prefetch><link href=js/7db2bf38.d281b9ac.js rel=prefetch><link href=css/app.d1ff421f.css rel=stylesheet></head><body><noscript>This is your fallback content in case JavaScript fails to load.</noscript><div id=q-app></div><script type=text/javascript src=js/app.ed7bbb1d.js></script><script type=text/javascript src=js/runtime.d74f2f21.js></script><script type=text/javascript src=js/vendor.8f0e3ec2.js></script></body></html>
