@@ -28,6 +28,7 @@ REST<br />
 https://flespi.io/gw/devices/{selector}<br />
 https://flespi.io/gw/devices/{selector}/telemetry<br />
 https://flespi.io/gw/devices/{selector}/messages<br />
+https://flespi.io/gw/protocols<br />Е
 MQTT<br />
 flespi/log/gw/devices/{selector}/created<br />
 flespi/log/gw/devices/{selector}/updated<br />
