@@ -20,6 +20,11 @@
 
         gtag('config', 'UA-93342359-3');
       }
+      navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        for (let registration of registrations) {
+          registration.unregister()
+        }
+      })
     </script>
   </head>
   <body>
