@@ -1,6 +1,6 @@
 {
   "name": "track-it",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "A simple application based on flespi.io and built with Quasar and Leaflet.js. Allows tracking different devices on the map, viewing telemetry messages for these devices.",
   "productName": "Track it!",
   "cordovaId": "org.cordova.quasar.app",
@@ -8,10 +8,10 @@
   "private": true,
   "scripts": {
     "lint": "eslint --ext .js,.vue src",
-    "dev": "node ./build.js \"dev -m pwa\" \"flespi\"",
-    "build": "node ./build.js \"build -m pwa\" \"flespi\"",
-    "dev_local": "node ./build.js \"dev -m pwa\" \"local\"",
-    "deploy": "rm -rf dist && npm run build && rm -rf deploy && mkdir deploy && cp -R dist/pwa-mat/* misc LICENSE package.json deploy && cp README.md deploy/README.md && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rhttps://git.gurtam.net/flespi/frontend/TrackIt.git && rm -rf deploy && git push github gh-pages"
+    "dev": "node ./build.js \"dev -m spa\" \"flespi\"",
+    "build": "node ./build.js \"build -m spa\" \"flespi\"",
+    "dev_local": "node ./build.js \"dev -m spa\" \"local\"",
+    "deploy": "rm -rf dist && npm run build && rm -rf deploy && mkdir deploy && cp -R dist/spa-mat/* misc LICENSE package.json deploy && cp README.md deploy/README.md && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rhttps://git.gurtam.net/flespi/frontend/TrackIt.git && rm -rf deploy && git push github gh-pages"
   },
   "dependencies": {
     "flespi-io-js": "git+https://github.com/flespi-software/flespi-io-js.git",
