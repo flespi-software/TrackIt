@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.6.4] - 2018-09-18
+[update] packages
 ### [0.6.3] - 2018-07-26
 [update] packages
 [remove] service-worker
