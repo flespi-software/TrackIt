@@ -1,7 +1,7 @@
 <template>
   <div class="map-wrapper absolute-top-left absolute-bottom-right">
     <div id="map" :style="{height: mapHeight}">
-      <q-resize-observable @resize="onResize" />
+      <q-resize-observer @resize="onResize" />
     </div>
     <queue
       ref="queue"
@@ -46,7 +46,8 @@ import PostMessageModal from './PostMessageModal.vue'
 import ColorModal from './ColorModal'
 import { mapState } from 'vuex'
 import { devicesMessagesModule } from 'qvirtualscroll'
-import { colors, animate } from 'quasar'
+import { colors } from 'quasar'
+import animate from '../mixins/animate'
 
 export default {
   name: 'Map',
@@ -105,7 +106,7 @@ export default {
     color: {
       get () { return this.currentColorModel },
       set (color) {
-        this.updateColorHandler({id: this.currentColorId, color})
+        this.updateColorHandler({ id: this.currentColorId, color })
         this.currentColorModel = color
       }
     },
@@ -162,7 +163,7 @@ export default {
             this.admin.counter = 0
           }, 2000)
         })
-        L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {minZoom: 3, noWrap: true}).addTo(this.map)
+        L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { minZoom: 3, noWrap: true }).addTo(this.map)
       }
     },
     flyToWithHideTracks (position, zoom) {
@@ -207,7 +208,7 @@ export default {
       return color
     },
     getColorById (id) {
-      let savedColors = this.$q.localStorage.get.item('trackit-colors-settings')
+      let savedColors = this.$q.localStorage.getItem('trackit-colors-settings')
       if (!savedColors) { savedColors = {} }
       if (!savedColors[id]) {
         savedColors[id] = this.getColor()
@@ -227,7 +228,7 @@ export default {
           fillColor: '#444',
           clickable: false
         }
-      return {position, accuracy, circleStyle}
+      return { position, accuracy, circleStyle }
     },
     initMarker (id, name, position) {
       let direction = this.messages[id][this.messages[id].length - 1]['position.direction'] ? this.messages[id][this.messages[id].length - 1]['position.direction'] : 0,
@@ -239,7 +240,7 @@ export default {
       })
       this.markers[id].id = id
       this.markers[id].color = currentColor
-      let {position: pos, accuracy, circleStyle} = this.getAccuracyParams(this.messages[id][this.messages[id].length - 1])
+      let { position: pos, accuracy, circleStyle } = this.getAccuracyParams(this.messages[id][this.messages[id].length - 1])
       this.markers[id].accuracy = L.circle(pos, accuracy, circleStyle)
       this.markers[id].accuracy.addTo(this.map)
       this.markers[id].addEventListener('dragstart', (e) => {
@@ -247,7 +248,7 @@ export default {
       })
       this.markers[id].addEventListener('dragend', e => {
         if (this.mode === 0) {
-          this.$q.notify({message: 'Change mode to real-time'})
+          this.$q.notify({ message: 'Change mode to real-time', color: 'warning' })
           const position = [
             this.messages[e.target.id][this.messages[e.target.id].length - 1]['position.latitude'],
             this.messages[e.target.id][this.messages[e.target.id].length - 1]['position.longitude']
@@ -298,7 +299,7 @@ export default {
       let position = [this.messages[id][this.messages[id].length - 1]['position.latitude'], this.messages[id][this.messages[id].length - 1]['position.longitude']],
         name = currentDevice.name || `#${id}`
       this.initMarker(id, name, position)
-      this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), {color: this.markers[id].color}).addTo(this.map)
+      this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), { color: this.markers[id].color }).addTo(this.map)
       if (parseInt(id) === this.selected && this.mode === 0) {
         let bounding = this.tracks[id].getBounds()
         this.map.fitBounds(bounding)
@@ -338,7 +339,7 @@ export default {
         this.initMarker(id, name, position)
       }
       if (!(this.tracks[id] instanceof L.Polyline)) {
-        this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), {color: this.markers[id] ? this.markers[id].color : this.getColorById(id)}).addTo(this.map)
+        this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), { color: this.markers[id] ? this.markers[id].color : this.getColorById(id) }).addTo(this.map)
       }
       if (!this.isDragged) {
         this.markers[id].setLatLng(currentArrPos[currentArrPos.length - 1]).update()
@@ -405,7 +406,7 @@ export default {
       if (currentPos.length) {
         this.flyToWithHideTracks(currentPos, this.flyToZoom)
       } else {
-        this.$q.notify({message: 'No Position!'})
+        this.$q.notify({ message: 'No Position!', color: 'warning' })
       }
     },
     centerOnDevice (id) {
@@ -418,10 +419,10 @@ export default {
       if (currentPos.length) {
         this.map.setView(currentPos, 14, { animation: false })
       } else {
-        this.$q.notify({message: 'No Position!'})
+        this.$q.notify({ message: 'No Position!', color: 'warning' })
       }
     },
-    generateFlag ({id, status}) {
+    generateFlag ({ id, status }) {
       return L.divIcon({
         className: `my-flag-icon flag-${status}-${id}`,
         iconSize: new L.Point(45, 45),
@@ -442,11 +443,11 @@ export default {
         let startPosition = [this.messages[id][0]['position.latitude'], this.messages[id][0]['position.longitude']],
           stopPosition = [this.messages[id][this.messages[id].length - 1]['position.latitude'], this.messages[id][this.messages[id].length - 1]['position.longitude']]
         this.markers[id].flags.start = L.marker(startPosition, {
-          icon: this.generateFlag({id, status: 'start'})
+          icon: this.generateFlag({ id, status: 'start' })
         })
         this.markers[id].flags.start.addTo(this.map)
         this.markers[id].flags.stop = L.marker(stopPosition, {
-          icon: this.generateFlag({id, status: 'stop'})
+          icon: this.generateFlag({ id, status: 'stop' })
         })
         this.markers[id].flags.stop.addTo(this.map)
       }
@@ -473,7 +474,7 @@ export default {
       }
       if (this.mode === 0) {
         let date = new Date(this.date).setHours(0, 0, 0, 0)
-        await this.$store.dispatch(`messages/${id}/get`, {name: 'setDate', payload: date})
+        await this.$store.dispatch(`messages/${id}/get`, { name: 'setDate', payload: date })
         this.addFlags(id)
       }
     },
@@ -546,12 +547,13 @@ export default {
       } else {
         this.$q.notify({
           message: 'Have no position',
-          type: 'warning',
-          position: 'bottom-left'
+          color: 'warning',
+          position: 'bottom-left',
+          icon: 'mdi-alert-outline'
         })
       }
     },
-    playHandler ({id, messagesIndexes}) {
+    playHandler ({ id, messagesIndexes }) {
       if (!this.messages[id]) { return false }
       messagesIndexes.forEach((messageIndex) => {
         if (this.markers[id] && this.markers[id] instanceof L.Marker) {
@@ -578,7 +580,7 @@ export default {
         })
       if (this.tracks[id] && this.tracks[id] instanceof L.Polyline && tail.length) {
         if (!this.tracks[id].tail || !(this.tracks[id].tail instanceof L.Polyline)) {
-          this.tracks[id].tail = L.polyline(tail, {color: '#666666'})
+          this.tracks[id].tail = L.polyline(tail, { color: '#666666' })
           if (this.needShowTail) {
             this.tracks[id].tail.addTo(this.map)
           }
@@ -587,7 +589,7 @@ export default {
         this.tracks[id].tail.setLatLngs(tail)
       }
     },
-    stopHandler ({id}) {
+    stopHandler ({ id }) {
       // this.updateDeviceOnMap(id)
     },
     changeShowTail (flag) {
@@ -701,7 +703,7 @@ export default {
         })
         this.$q.notify({
           message: 'Send messages: enabled',
-          type: 'info',
+          color: 'info',
           position: 'bottom-left'
         })
       } else {
@@ -712,7 +714,7 @@ export default {
         })
         this.$q.notify({
           message: 'Send messages: disabled',
-          type: 'info',
+          color: 'info',
           position: 'bottom-left'
         })
       }
@@ -754,7 +756,7 @@ export default {
     }
     this.activeDevicesID = this.activeDevices.map((device) => device.id)
     this.activeDevicesID.forEach((id) => {
-      this.$store.registerModule(['messages', id], devicesMessagesModule({Vue, LocalStorage: this.$q.localStorage, name: `messages/${id}`, errorHandler: (err) => { this.$store.commit('reqFailed', err) }}))
+      this.$store.registerModule(['messages', id], devicesMessagesModule({ Vue, LocalStorage: this.$q.localStorage, name: `messages/${id}`, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
       this.$store.commit(`messages/${id}/setSortBy`, 'timestamp')
       this.initDevice(id)
     })

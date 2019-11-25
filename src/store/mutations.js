@@ -46,7 +46,7 @@ function setDevices (state, devices) {
       setDevicesInit(state)
     } else {
       setDevicesInit(state)
-      let activeDevicesFromLocalStorage = LocalStorage.get.item('TrackIt Active Devices')
+      let activeDevicesFromLocalStorage = LocalStorage.getItem('TrackIt Active Devices')
       if (activeDevicesFromLocalStorage && activeDevicesFromLocalStorage.length) {
         activeDevicesFromLocalStorage.forEach(id => {
           if (devices.data.result.filter(device => device.id === id).length) {
@@ -181,7 +181,7 @@ function unsetDevicesInit (state) {
 function addError (state, message) {
   if (!state.token) { return false }
   Notify.create({
-    type: 'negative',
+    color: 'negative',
     icon: 'warning',
     message: `${message}`,
     timeout: 1000

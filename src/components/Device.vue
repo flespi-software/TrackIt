@@ -1,21 +1,24 @@
 <template>
-  <q-item :highlight="$q.platform.is.desktop" :class="[model ? 'active': '', device.messages_ttl ? '' : 'disabled']" class="cursor-pointer" @click.native="deviceClickHandler">
+  <q-item :highlight="$q.platform.is.desktop" :class="[model ? 'device-item__active': '', device.messages_ttl ? '' : 'disabled']" clickable @click="deviceClickHandler">
     <q-tooltip v-if="!device.messages_ttl">You should set messages ttl more than 0</q-tooltip>
-    <q-item-side :class="[model ? 'text-primary': '']" class="text-center" icon="developer_board"><q-item-tile><small>#{{device.id}}</small></q-item-tile></q-item-side>
-    <q-item-main>
-      <q-item-tile class="ellipsis" label>{{device.name || '&lt;noname&gt;'}}</q-item-tile>
+    <q-item-section avatar :class="[model ? 'text-primary': '']" class="flex flex-center">
+      <q-icon name="developer_board" />
+      <small>#{{device.id}}</small>
+    </q-item-section>
+    <q-item-section>
+      <q-item-label class="ellipsis q-pa-none" header>{{device.name || '&lt;noname&gt;'}}</q-item-label>
       <small>
-        <q-item-tile class="ellipsis" sublabel><q-icon name="label_outline" /> {{device.configuration && device.configuration.ident ? device.configuration.ident : '&lt;no ident&gt;'}}</q-item-tile>
-        <q-item-tile sublabel><q-icon name="phone" /> {{device.configuration && device.configuration.phone ? device.configuration.phone : '&lt;no phone&gt;'}}</q-item-tile>
+        <q-item-label class="ellipsis" caption><q-icon name="label_outline" /> {{device.configuration && device.configuration.ident ? device.configuration.ident : '&lt;no ident&gt;'}}</q-item-label>
+        <q-item-label caption><q-icon name="phone" /> {{device.configuration && device.configuration.phone ? device.configuration.phone : '&lt;no phone&gt;'}}</q-item-label>
       </small>
-    </q-item-main>
-    <q-item-side class="text-center">
-      <q-item-tile>
+    </q-item-section>
+    <q-item-section side class="text-center">
+      <q-item-label>
         <q-icon :class="[isDeviceWatched && activeDevicesID.includes(device.id) ? 'icon__send-active' : '']" size="1.5rem" name="gps_fixed" @click.stop.native="watchDeviceHandler">
           <q-tooltip v-model="watchTooltip" v-if="device.messages_ttl">Show on map</q-tooltip>
         </q-icon>
-      </q-item-tile>
-    </q-item-side>
+      </q-item-label>
+    </q-item-section>
   </q-item>
 </template>
 
@@ -66,8 +69,9 @@ export default {
 }
 </script>
 
-<style>
-  .icon__send-active {
-    color: #333;
-  }
+<style lang="stylus">
+  .device-item__active
+    background-color $grey-4
+  .icon__send-active
+    color #333
 </style>

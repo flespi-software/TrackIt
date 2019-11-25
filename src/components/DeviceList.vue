@@ -1,12 +1,11 @@
 <template>
   <q-list separator>
-    <q-window-resize-observable @resize="onResize" />
-    <q-list-header ref="header">
+    <q-item-label ref="header" style="height: 58px; line-height: 58px!important;">
       <big>
         <q-icon name="mdi-arrow-left" size="1.8rem" class="cursor-pointer" style="margin-right: 15px" @click.native="$emit('click:hide')"/>
         Devices
       </big>
-    </q-list-header>
+    </q-item-label>
     <VirtualList
       :size="70"
       :remain="itemsCount"
@@ -43,9 +42,17 @@ export default {
     setWatchByDeviceID (id) {
       this.$emit('update:watch-by-id', id)
     },
-    onResize ({height}) {
+    onResize (height) {
       this.height = height - 76
       this.itemsCount = Math.floor((height - 76) / 70)
+    }
+  },
+  watch: {
+    '$q.screen.height': {
+      immediate: true,
+      handler (height) {
+        this.onResize(height)
+      }
     }
   }
 }

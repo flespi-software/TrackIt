@@ -1,13 +1,10 @@
 <template>
-  <q-modal minimized ref="colorModal" class="color-modal" :content-css="{minWidth: '240px', minHeight: '201px'}">
-    <q-modal-layout>
-      <div slot="header" style="background-color: #444; height: 20px">
-        <q-icon color="white" name="close" class="absolute-top-right cursor-pointer" size="1rem" flat
-                @click.native="modalButtonCloseHandler"></q-icon>
-      </div>
-      <q-color-picker dark :value="color" @change="modalSubmit" format-model="hex"/>
-    </q-modal-layout>
-  </q-modal>
+  <q-dialog minimized ref="colorModal" class="color-modal" :content-css="{minWidth: '240px', minHeight: '201px'}">
+    <div slot="header" style="background-color: #444; height: 20px">
+      <q-icon color="white" name="close" class="absolute-top-right cursor-pointer" size="1rem" flat @click.native="modalButtonCloseHandler" />
+    </div>
+    <q-color dark :value="color" @change="modalSubmit" format-model="hex"/>
+  </q-dialog>
 </template>
 
 <script>

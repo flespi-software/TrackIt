@@ -1,11 +1,11 @@
 <template>
   <div id="queue" class="absolute-bottom-left absolute-bottom-right">
-    <q-tabs v-model="selected" no-pane-border position="bottom" color="dark">
-      <template v-for="(deviceID) in activeDevicesID">
-        <q-tab-pane
+    <q-tab-panels v-model="selected" animated style="background: rgba(0, 0, 0, .5)">
+      <q-tab-panel
           class="no-padding"
           :name="deviceID.toString()"
-          :key="`tab-pane-${deviceID}`"
+          v-for="(deviceID) in activeDevicesID"
+          :key="`tab-panel-${deviceID}`"
         >
           <queue-item
             :key="`tab-pane-${deviceID}`"
@@ -24,14 +24,15 @@
             @change:needShowMessages="(flag) => {$emit('change:needShowMessages', flag)}"
             @view-on-map="(content)=>{ $emit('view-on-map', content) }"
           />
-        </q-tab-pane>
-        <q-tab :key="`tab-${deviceID}`" slot="title" :name="deviceID.toString()" @click="messages[deviceID].length && markers[deviceID] && markers[deviceID]._icon ? changeTabColorHandler(deviceID) : ''">
-          <div>
-            <div v-if="messages[deviceID].length && markers[deviceID] && markers[deviceID]._icon" :style="{backgroundColor: markers[deviceID].color}" class="color-view q-mr-xs" @click.stop="changeColorHandler(deviceID)"></div>
-            {{getNameById(deviceID)}}
-          </div>
-        </q-tab>
-      </template>
+        </q-tab-panel>
+    </q-tab-panels>
+    <q-tabs v-model="selected" align="left" class="bg-grey-9" indicator-color="white">
+      <q-tab v-for="(deviceID) in activeDevicesID" :key="`tab-${deviceID}`" :name="deviceID.toString()" @click="messages[deviceID].length && markers[deviceID] && markers[deviceID]._icon ? changeTabColorHandler(deviceID) : ''">
+        <div class="text-white">
+          <div v-if="messages[deviceID].length && markers[deviceID] && markers[deviceID]._icon" :style="{backgroundColor: markers[deviceID].color}" class="color-view q-mr-xs" @click.stop="changeColorHandler(deviceID)"></div>
+          {{getNameById(deviceID)}}
+        </div>
+      </q-tab>
     </q-tabs>
     <color-modal ref="colorModal" v-model="color"/>
   </div>
@@ -70,7 +71,7 @@ export default {
     color: {
       get () { return this.currentColorModel },
       set (color) {
-        this.$emit('update:color', {id: this.currentColorId, color})
+        this.$emit('update:color', { id: this.currentColorId, color })
         this.currentColorModel = color
       }
     }
@@ -155,14 +156,14 @@ export default {
     .no-messages
       min-height 140px
       opacity 0.7
-    .q-tabs
-      height 100%
-      .q-tab-label
-        max-width 100px
-        overflow hidden
-        text-overflow ellipsis
-      .q-tab-pane
-        background-color rgba(0,0,0,.5)
+    // .q-tabs
+    //   height 100%
+    //   .q-tab-label
+    //     max-width 100px
+    //     overflow hidden
+    //     text-overflow ellipsis
+    //   .q-tab-panel
+    //     background-color rgba(0,0,0,.5)
   .color-modal
     .q-color-inputs
       display none

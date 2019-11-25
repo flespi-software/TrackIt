@@ -5,7 +5,7 @@
         <div>No messages</div>
         <div style="font-size: 1.5rem;">or position is empty</div>
       </div>
-      <q-btn color="dark" v-if="isAdmin && mode === 1" @click="$emit('send', id)">Send message</q-btn>
+      <q-btn color="grey-9" v-if="isAdmin && mode === 1" @click="$emit('send', id)">Send message</q-btn>
     </div>
     <div :style="{height: messages.length > 1 && mode === 0 && needShowPlayer ? 'calc(100% - 65px)' : '100%'}" class="table__wrapper" v-if="messages.length && needShowMessages">
       <messages
@@ -33,7 +33,7 @@
         flat
         v-if="$q.platform.is.mobile"
       >
-        <q-popover ref="popoverExtra">
+        <q-menu ref="popoverExtra">
           <q-list link separator class="scroll" style="min-width: 200px">
             <q-item>
               <q-toggle @input="$emit('change:needShowMessages', messagesFlag)" v-model="messagesFlag" icon="dvr" label="Messages" />
@@ -42,7 +42,7 @@
               <q-toggle @input="$emit('change:needShowTail', needPolyline)" v-model="needPolyline" icon="mdi-ray-end" label="Tail" />
             </q-item>
           </q-list>
-        </q-popover>
+        </q-menu>
       </q-btn>
       <q-btn
         icon="mdi-ray-end"
@@ -161,7 +161,7 @@ export default {
       return currentTimestamp
     },
     update (timestamp) {
-      this.$emit('play', {id: this.id, messagesIndexes: this.indexesByTimestamp[timestamp]})
+      this.$emit('play', { id: this.id, messagesIndexes: this.indexesByTimestamp[timestamp] })
       this.activeMessagesIndexes = this.indexesByTimestamp[timestamp]
     },
     playerNextHandler () {
@@ -170,7 +170,7 @@ export default {
       if (index === timestamps.length - 1) {
         this.$q.notify({
           message: 'That`s last message',
-          type: 'info',
+          color: 'info',
           position: 'bottom-left'
         })
         return false
@@ -183,7 +183,7 @@ export default {
       if (index === 0) {
         this.$q.notify({
           message: 'That`s first message',
-          type: 'info',
+          color: 'info',
           position: 'bottom-left'
         })
         return false
@@ -233,7 +233,7 @@ export default {
       }
     }
   },
-  components: {Messages, Player},
+  components: { Messages, Player },
   beforeDestroy () {
     if (this.mode === 0 && this.messages.length) {
       let currentTimestamp = Math.floor(this.messages[this.messages.length - 1].timestamp)

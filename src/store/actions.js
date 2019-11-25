@@ -74,8 +74,12 @@ async function getInitDataByDeviceId ({ commit, state }, id) {
       commit('addError', error.reason)
     })
   }
-  let telemetry = telemetryRespData && telemetryRespData.result[0] && telemetryRespData.result[0].telemetry ? telemetryRespData.result[0].telemetry : {}
-  let initMessage = Object.keys(telemetry).reduce((message, paramName) => {
+  let telemetry = telemetryRespData && telemetryRespData.result[0] && telemetryRespData.result[0].telemetry ? telemetryRespData.result[0].telemetry : {},
+    telemetryFields = Object.keys(telemetry)
+  if (!telemetryFields.length) {
+    return false
+  }
+  let initMessage = telemetryFields.reduce((message, paramName) => {
     if (paramName === 'position') { return message }
     message[paramName] = telemetry[paramName].value
     return message

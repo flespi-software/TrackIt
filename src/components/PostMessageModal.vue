@@ -1,19 +1,18 @@
 <template>
-  <q-modal @show="modalOpenHandler" ref="postMessageModal" :content-css="{minWidth: '50vw', minHeight: '50vh'}">
-    <q-modal-layout>
-      <q-toolbar slot="footer" color="dark">
-        <q-btn class="full-width" flat @click="modalSubmit">Send</q-btn>
-      </q-toolbar>
-      <q-toolbar slot="header" color="dark">
-        <span class="header__label">Send message</span>
-        <q-icon name="close" class="absolute-top-right cursor-pointer" size="2.5rem" flat
-                @click.native="modalButtonCloseHandler"></q-icon>
-      </q-toolbar>
+  <q-dialog @show="modalOpenHandler" ref="postMessageModal" :content-css="{minWidth: '50vw', minHeight: '50vh'}">
+    <q-toolbar slot="footer" class="bg-grey-9">
+      <q-btn class="full-width" flat @click="modalSubmit">Send</q-btn>
+    </q-toolbar>
+    <q-toolbar slot="header" class="bg-grey-9">
+      <span class="header__label">Send message</span>
+      <q-icon name="close" class="absolute-top-right cursor-pointer" size="2.5rem" flat
+              @click.native="modalButtonCloseHandler"></q-icon>
+    </q-toolbar>
     <div class="modal__wrapper">
       <div class="row">
         <div class="col-md-6 col-sm-12">
-          <q-input v-model="currentPos.lat" float-label="Latitude" placeholder="Latitude"/>
-          <q-input v-model="currentPos.lng" float-label="Longitude" placeholder="Longitude"/>
+          <q-input v-model="currentPos.lat" label="Latitude" placeholder="Latitude"/>
+          <q-input v-model="currentPos.lng" label="Longitude" placeholder="Longitude"/>
         </div>
         <div class="text-center col-md-5 offset-md-1 col-sm-12">
           <q-knob v-model="direction" :min="0" :max="360">
@@ -21,14 +20,13 @@
           </q-knob>
         </div>
         <div class="col-4">
-          <q-input v-model="altitude" type="number" :min="-100" :max="10000" float-label="Altitude"
-                   placeholder="Altitude"/>
+          <q-input v-model="altitude" type="number" :min="-100" :max="10000" label="Altitude" placeholder="Altitude"/>
         </div>
         <div class="col-4">
-          <q-input v-model="satellites" type="number" :min="0" float-label="Satellites" placeholder="Satellites"/>
+          <q-input v-model="satellites" type="number" :min="0" label="Satellites" placeholder="Satellites"/>
         </div>
         <div class="col-4">
-          <q-input v-model="speed" type="number" :min="0" float-label="Speed" placeholder="Speed"/>
+          <q-input v-model="speed" type="number" :min="0" label="Speed" placeholder="Speed"/>
         </div>
         <div class="col-12">Custom properties</div>
         <div class="col-4">
@@ -42,10 +40,8 @@
           <q-input v-model="current_custom_field.key" type="text" placeholder="Key"/>
         </div>
         <div class="col-4 text-center vertical-middle" style="line-height: 3.5rem">
-          <q-input v-if="type_current_field == 'number'" v-model="current_custom_field.value" type="number"
-                   placeholder="Value"/>
-          <q-input v-if="type_current_field == 'string'" v-model="current_custom_field.value" type="text"
-                   placeholder="Value"/>
+          <q-input v-if="type_current_field == 'number'" v-model="current_custom_field.value" type="number" placeholder="Value"/>
+          <q-input v-if="type_current_field == 'string'" v-model="current_custom_field.value" type="text" placeholder="Value"/>
           <q-checkbox v-if="type_current_field == 'bool'" v-model="current_custom_field.value"/>
         </div>
         <div class="col-2">
@@ -73,8 +69,7 @@
         </div>
       </div>
     </div>
-    </q-modal-layout>
-  </q-modal>
+  </q-dialog>
 </template>
 
 <script>
@@ -121,7 +116,7 @@ export default {
     modalOpenHandler () {
       this.direction = this.lastMessage && this.lastMessage['position.direction'] ? this.lastMessage['position.direction'] : 0
       let latlonOfLastMessage = Object.keys(this.lastMessage).length ? [this.lastMessage['position.latitude'], this.lastMessage['position.longitude']] : [51.50853, -0.12574]
-      this.$emit('update:marker', {id: this.deviceID, lastPos: latlonOfLastMessage})
+      this.$emit('update:marker', { id: this.deviceID, lastPos: latlonOfLastMessage })
     },
     modalSubmit () {
       let data = Object.assign({
@@ -132,7 +127,7 @@ export default {
         'position.satellites': this.satellites,
         'position.speed': this.speed
       }, this.custom)
-      this.$store.dispatch('postMessage', {data, id: this.deviceID})
+      this.$store.dispatch('postMessage', { data, id: this.deviceID })
       this.$emit('update:dragged', false)
       this.altitude = 0
       this.satellites = 0

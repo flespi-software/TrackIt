@@ -2,7 +2,7 @@ import VueConnection from 'flespi-io-js/dist/vue-plugin'
 import { version } from '../../package.json'
 
 let mqttSettings = { protocolVersion: 5, wsOptions: { objectMode: false, perMessageDeflate: true } }
-let connectionConfig = {socketConfig: { clientId: `trackit-${version}-${Math.random().toString(16).substr(2, 8)}`, mqttSettings }}
+let connectionConfig = { socketConfig: { clientId: `trackit-${version}-${Math.random().toString(16).substr(2, 8)}`, mqttSettings } }
 
 /* if local dev build */
 if (DEV && !SERVER) {
@@ -23,10 +23,10 @@ if (PROD && SERVER) {
 }
 
 if (window.location.hash.split('/').slice(-1)[0] === 'flespi') {
-  connectionConfig = {socketConfig: { clientId: `toolbox-${version}-${Math.random().toString(16).substr(2, 8)}`, mqttSettings }}
+  connectionConfig = { socketConfig: { clientId: `toolbox-${version}-${Math.random().toString(16).substr(2, 8)}`, mqttSettings } }
 }
 
-export default ({Vue, store}) => {
+export default ({ Vue, store }) => {
   Vue.prototype.$flespiServer = connectionConfig.httpConfig && connectionConfig.httpConfig.server ? `${connectionConfig.httpConfig.server}:${connectionConfig.httpConfig.port}` : 'https://flespi.io'
   Vue.use(VueConnection, connectionConfig)
   Vue.connector.socket.on('error', (error) => {

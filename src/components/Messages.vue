@@ -62,7 +62,7 @@ const config = {
   },
   'theme': {
     'color': 'white',
-    'bgColor': 'dark',
+    'bgColor': 'grey-9',
     'contentInverted': true,
     'controlsInverted': true
   }
@@ -151,31 +151,31 @@ export default {
     },
     dateChangeHandler (date) {
       date = new Date(date).setHours(0, 0, 0, 0)
-      this.$store.dispatch(`messages/${this.moduleName}/get`, {name: 'setDate', payload: date})
+      this.$store.dispatch(`messages/${this.moduleName}/get`, { name: 'setDate', payload: date })
     },
     datePrevChangeHandler () {
-      this.$store.dispatch(`messages/${this.moduleName}/get`, {name: 'datePrev'})
+      this.$store.dispatch(`messages/${this.moduleName}/get`, { name: 'datePrev' })
     },
     dateNextChangeHandler () {
-      this.$store.dispatch(`messages/${this.moduleName}/get`, {name: 'dateNext'})
+      this.$store.dispatch(`messages/${this.moduleName}/get`, { name: 'dateNext' })
     },
     paginationPrevChangeHandler () {
       let timestamp = 0
       timestamp = this.messages.length ? this.messages[0].timestamp * 1000 : 0
-      this.$store.dispatch(`messages/${this.moduleName}/get`, {name: 'paginationPrev', payload: timestamp})
+      this.$store.dispatch(`messages/${this.moduleName}/get`, { name: 'paginationPrev', payload: timestamp })
     },
     paginationNextChangeHandler () {
       let timestamp = 0
       timestamp = this.messages.length ? this.messages[this.messages.length - 1].timestamp * 1000 : 0
-      this.$store.dispatch(`messages/${this.moduleName}/get`, {name: 'paginationNext', payload: timestamp})
+      this.$store.dispatch(`messages/${this.moduleName}/get`, { name: 'paginationNext', payload: timestamp })
     },
-    viewMessagesHandler ({index, content}) {
+    viewMessagesHandler ({ index, content }) {
       this.selected = [index]
       this.selectedMessage = content
       this.$refs.messageViewer.show()
       this.$emit('view')
     },
-    viewMessageOnMap ({index, content}) {
+    viewMessageOnMap ({ index, content }) {
       this.$emit('view-on-map', content)
     },
     closeHandler () {
@@ -185,27 +185,27 @@ export default {
         this.selected = [this.activeMessagesIds[this.activeMessagesIds.length - 1]]
       }
     },
-    copyMessageHandler ({index, content}) {
+    copyMessageHandler ({ index, content }) {
       this.$copyText(JSON.stringify(content)).then((e) => {
         this.$q.notify({
-          type: 'positive',
+          color: 'positive',
           icon: 'content_copy',
           message: `Message copied`,
           timeout: 1000
         })
       }, (e) => {
         this.$q.notify({
-          type: 'negative',
+          color: 'negative',
           icon: 'content_copy',
           message: `Error coping messages`,
           timeout: 1000
         })
       })
     },
-    actionHandler ({index, type, content}) {
+    actionHandler ({ index, type, content }) {
       switch (type) {
         case 'view': {
-          this.viewMessagesHandler({index, content})
+          this.viewMessagesHandler({ index, content })
           break
         }
       }
@@ -245,6 +245,6 @@ export default {
 .message-viewer
   .list-wrapper
     background-color inherit!important
-    .bg-dark
+    .bg-grey-9, .bg-dark
       background-color rgba(0,0,0,0.5)!important
 </style>

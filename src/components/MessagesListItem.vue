@@ -59,15 +59,15 @@ export default {
       let vals = {}
       if (this.cols.length) {
         vals = this.cols.reduce((res, col, index, arr) => {
-          res[col.name] = {value: null}
+          res[col.name] = { value: null }
           if (index === arr.length - 1) {
-            res.etc = {value: ''}
+            res.etc = { value: '' }
           }
           return res
         }, {})
       } else {
         vals = {
-          etc: {value: ''}
+          etc: { value: '' }
         }
       }
       Object.keys(this.item).forEach((propName) => {
@@ -149,10 +149,10 @@ export default {
   },
   methods: {
     clickHandler (index, type, content) {
-      this.$emit(`action`, {index, type, content})
+      this.$emit(`action`, { index, type, content })
     },
     itemClickHandler (index, content) {
-      this.$emit(`item-click`, {index, content})
+      this.$emit(`item-click`, { index, content })
     },
     getValue (value) {
       return typeof value === 'string' ? value : JSON.stringify(value)

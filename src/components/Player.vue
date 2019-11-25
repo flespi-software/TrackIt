@@ -2,16 +2,16 @@
   <div style="display: flex; background-color: #424242; width: 100%">
     <q-btn :disable="max <= min" class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat>
       x{{speed}}
-      <q-popover ref="speedPopover" anchor="top left" style="background-color: #424242">
+      <q-menu ref="speedPopover" anchor="top left" style="background-color: #424242">
         <div class="column">
-          <q-btn class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 100">x100</q-btn>
-          <q-btn class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 70">x70</q-btn>
-          <q-btn class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 50">x50</q-btn>
-          <q-btn class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 30">x30</q-btn>
-          <q-btn class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 10">x10</q-btn>
-          <q-btn class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 1">x1</q-btn>
+          <q-btn class="text-white bg-grey-9" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 100">x100</q-btn>
+          <q-btn class="text-white bg-grey-9" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 70">x70</q-btn>
+          <q-btn class="text-white bg-grey-9" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 50">x50</q-btn>
+          <q-btn class="text-white bg-grey-9" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 30">x30</q-btn>
+          <q-btn class="text-white bg-grey-9" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 10">x10</q-btn>
+          <q-btn class="text-white bg-grey-9" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 1">x1</q-btn>
         </div>
-      </q-popover>
+      </q-menu>
       <q-tooltip v-if="$q.platform.is.desktop">Speed</q-tooltip>
     </q-btn>
     <q-btn
@@ -34,13 +34,13 @@
     <div class="player">
       <div class="player__main">
         <div class="player__container" style="transform: translate3d(0,0,0)" ref="playerContainer">
-          <q-range v-if="max > min" color="white" square v-model="range" :min="min" :max="max" :step="1"/>
+          <q-range v-if="max > min" color="white" v-model="range" :min="min" :max="max" :step="1"/>
           <div class="player__line cursor-pointer" :class="{disabled: max <= min}" @click="clickLineHandler">
             <div class="line line__disabled line__disabled--left" :style="{width: `${(100 * (rangeMin - min)) / (max - min)}%`}"></div>
             <div class="line line__active" :style="{left: `${current}%`, width: `${100 - current - 100 / max * (max - rangeMax)}%`}"></div>
             <div class="line line__disabled line__disabled--right" :style="{width: `${100 / (max - min) * (max - rangeMax)}%`}"></div>
           </div>
-          <div :style="{left: `${current}%`}" v-touch-pan.horizontal="dragPlayerControl" class="player__control cursor-pointer" :class="{'player__control--mobile': $q.platform.is.mobile, disabled: max <= min}"></div>
+          <div :style="{left: `${current}%`}" v-touch-pan.horizontal.mouse="dragPlayerControl" class="player__control cursor-pointer" :class="{'player__control--mobile': $q.platform.is.mobile, disabled: max <= min}"></div>
         </div>
       </div>
     </div>
@@ -206,7 +206,7 @@ export default {
       if (this.max <= this.min) {
         return false
       }
-      let {left, step} = this.getPlayerParams(),
+      let { left, step } = this.getPlayerParams(),
         position = this.min + ((data.position.left - left) / step)
       if (position < this.rangeMin) {
         position = this.rangeMin
@@ -221,7 +221,7 @@ export default {
         return false
       }
       let x = ev.clientX,
-        {left, step} = this.getPlayerParams(),
+        { left, step } = this.getPlayerParams(),
         current = this.min + ((x - left) / step)
       if (this.currentValue !== current) {
         if (current < this.rangeMin || current > this.rangeMax) {
@@ -288,16 +288,16 @@ export default {
             top 50%
       .q-slider
         height 0
-        .q-slider-handle-container
-          position inherit
-          .q-slider-handle
-            top inherit
-            height 100%
-            width 4px
-            transform translate3d(0, 0, 0)
+        .q-slider__thumb-container
+          // position inherit
+          .q-slider__thumb
+            top 2px
+            // height 100%
+            // width 4px
+            // transform translate3d(0, 0, 0)
             z-index 1
             &.handle-at-minimum:after
               border none
-          .q-slider-track
-            display none
+        .q-slider__track-container
+          display none
 </style>

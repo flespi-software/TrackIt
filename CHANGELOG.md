@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.7.0] - 2018-11-25
+[update] new quasar migration
 ### [0.6.4] - 2018-09-18
 [update] packages
 ### [0.6.3] - 2018-07-26

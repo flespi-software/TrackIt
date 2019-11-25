@@ -1,37 +1,37 @@
 <template>
   <q-layout ref="layout" view="hHh LpR lFf">
-    <q-layout-drawer v-if="isInit" no-hide-on-route-change side="left" :no-swipe-open="$q.platform.is.desktop" :no-swipe-close="$q.platform.is.desktop" v-model="side_left" :breakpoint="576" behavior="mobile">
+    <q-drawer v-if="isInit" side="left" :no-swipe-open="$q.platform.is.desktop" :no-swipe-close="$q.platform.is.desktop" v-model="side_left" :breakpoint="576" behavior="mobile">
       <device-list v-show="devices.length" @update:watch-by-id="setWatchToDeviceID" :deviceIdForWatch="deviceIdForWatch" :activeDevicesID="activeDevicesID" :devices="devices" @click:hide="side_left = false"/>
-    </q-layout-drawer>
-    <q-layout-drawer side="right" no-swipe-open no-swipe-close :content-class="{'bg-dark':telemetrySettings.inverted}" v-model="side_right">
+    </q-drawer>
+    <q-drawer side="right" no-swipe-open no-swipe-close :content-class="{'bg-grey-9':telemetrySettings.inverted}" v-model="side_right">
       <div style="position: relative; height: 100vh; overflow: hidden;">
         <q-item>
-          <q-item-side left><q-icon :color="telemetrySettings.inverted ? 'white' : ''" size="1.8rem" name="developer_board"/></q-item-side>
-          <q-item-main>
-            <q-item-tile label class="ellipsis text-bold" :class="{'text-white': telemetrySettings.inverted}">Telemetry</q-item-tile>
-            <q-item-tile v-if="deviceIdForTelemetry" sublabel class="ellipsis" :class="{'text-white': telemetrySettings.inverted}"><small>{{deviceForTelemetry.name || `#${deviceForTelemetry.id}`}}</small></q-item-tile>
-            <q-item-tile v-else sublabel class="ellipsis" :class="{'text-white': telemetrySettings.inverted}"><small>No selected device</small></q-item-tile>
-          </q-item-main>
-          <q-item-side right>
-            <q-checkbox  @change="telemetrySettingsChangeHandler" v-model="telemetrySettings.inverted" checked-icon="filter_b_and_w" unchecked-icon="filter_b_and_w" :color="telemetrySettings.inverted ? 'white' : 'grey'" class="text-grey">
+          <q-item-section avatar><q-icon :color="telemetrySettings.inverted ? 'white' : ''" size="1.8rem" name="developer_board"/></q-item-section>
+          <q-item-section>
+            <q-item-label header class="ellipsis text-bold q-pa-none" :class="{'text-white': telemetrySettings.inverted}">Telemetry</q-item-label>
+            <q-item-label v-if="deviceIdForTelemetry" caption class="ellipsis" :class="{'text-white': telemetrySettings.inverted}"><small>{{deviceForTelemetry.name || `#${deviceForTelemetry.id}`}}</small></q-item-label>
+            <q-item-label v-else caption class="ellipsis" :class="{'text-white': telemetrySettings.inverted}"><small>No selected device</small></q-item-label>
+          </q-item-section>
+          <q-item-section side>
+            <q-btn :color="telemetrySettings.inverted ? 'white' : 'grey'" flat class="text-grey" icon="filter_b_and_w" @click="telemetrySettingsChangeHandler">
               <q-tooltip>Inverted</q-tooltip>
-            </q-checkbox>
-          </q-item-side>
+            </q-btn>
+          </q-item-section>
         </q-item>
         <q-item v-if="deviceIdForTelemetry">
-          <q-item-main>
-            <q-input type="text" float-label="Search" v-model="telemetrySearch" :inverted="telemetrySettings.inverted" :color="telemetrySettings.inverted ? 'none': ''" />
-          </q-item-main>
+          <q-item-section>
+            <q-input type="text" label="Search" v-model="telemetrySearch" :dark="telemetrySettings.inverted" :color="telemetrySettings.inverted ? 'white' : 'grey'" />
+          </q-item-section>
         </q-item>
         <q-telemetry class="scroll" style="height: calc(100% - 128px)" v-if="deviceIdForTelemetry" :propHistoryFlag="telemetryConfig.propHistoryFlag" :device="deviceForTelemetry" :inverted="telemetrySettings.inverted" :search="telemetrySearch" />
         <div v-else class="text-bold text-center q-mt-sm" :class="{'text-white': telemetrySettings.inverted}">
           Select one by click on his <q-icon name="mdi-map-marker"/> marker
         </div>
       </div>
-    </q-layout-drawer>
+    </q-drawer>
     <q-page-container>
       <q-page>
-        <q-btn @click="side_left = !side_left" small round flat color="dark" size="md" v-if="devices.length" class="floated menu">
+        <q-btn @click="side_left = !side_left" small round flat color="bg-grey-9" size="md" v-if="devices.length" class="floated menu">
           <q-icon name="menu" />
         </q-btn>
         <div class="floated label">
@@ -43,32 +43,52 @@
             </div>
           </div>
         </div>
-        <q-btn v-if="errors.length" @click="clearNotificationCounter" small flat round color="dark" size="md" icon="notifications" class="floated notifications">
-          <q-chip v-if="newNotificationCounter" floating color="red">{{newNotificationCounter}}</q-chip>
-          <q-popover fit ref="popoverError">
+        <q-btn v-if="errors.length" @click="clearNotificationCounter" small flat round color="bg-grey-9" size="md" icon="notifications" class="floated notifications">
+          <q-chip v-if="newNotificationCounter" color="red" class="absolute-top-right q-pa-xs text-white" style="font-size: .6rem;">{{newNotificationCounter}}</q-chip>
+          <q-menu fit ref="popoverError">
             <q-list no-border style="max-height: 200px" link separator class="scroll">
               <q-item
                 v-for="(error, index) in errors"
                 :key="index"
                 style="cursor: default"
               >
-                <q-item-main>
-                  <q-item-tile label>{{error}}</q-item-tile>
-                </q-item-main>
+                <q-item-section>
+                  <q-item-label>{{error}}</q-item-label>
+                </q-item-section>
               </q-item>
             </q-list>
-          </q-popover>
+          </q-menu>
         </q-btn>
         <div v-if="devices.length && mode === 0" class="floated date">
-          <q-datetime
-            format="DD-MM-YYYY"
-            style="display: inline-flex;"
-            v-model="date"
-            color="grey-8"
-            modal
-            hide-underline
-            :default-value="Date.now()"
-          />
+          <q-btn flat style="max-width: 120px; font-size: .8rem; line-height: .8rem;" class="q-pa-none" @click="$refs.datePickerModal.toggle()">
+            <div>{{formatDate(date)}}</div>
+          </q-btn>
+          <q-dialog ref="datePickerModal" :content-css="{maxWidth: '500px'}" class="modal-date" :maximized="$q.platform.is.mobile">
+            <q-card :style="{minWidth: $q.platform.is.mobile ? '100%' : '30vw'}">
+              <q-card-section class="q-pa-none">
+                <q-toolbar>
+                  <div class="q-toolbar-title text-h6">
+                    Date/Time
+                  </div>
+                </q-toolbar>
+              </q-card-section>
+              <q-separator />
+              <q-card-section :style="{height: $q.platform.is.mobile ? 'calc(100% - 104px)' : ''}" class="scroll">
+                <div class="flex flex-center">
+                  <vue-flat-pickr
+                    :value="dateValue"
+                    @input="dateInputHandler"
+                    :config="dateConfig"
+                  />
+                </div>
+              </q-card-section>
+              <q-separator />
+              <q-card-actions align="right">
+                <q-btn flat @click="datePickerModalClose">close</q-btn>
+                <q-btn flat @click="datePickerModalSave">save</q-btn>
+              </q-card-actions>
+            </q-card>
+          </q-dialog>
         </div>
         <div v-if="!activeDevicesID.length && devices.length" class="floated no-devices">
           <span class="no-devices__message">You have no selected devices</span>
@@ -80,7 +100,7 @@
         </div>
         <div v-else-if="!devices.length && hasDevicesInit" class="floated no-devices">
           <span class="no-devices__message">You have no devices</span>
-          <div class="q-mt-sm text-dark" style="font-size: 1.3rem;">
+          <div class="q-mt-sm text-bg-grey-9" style="font-size: 1.3rem;">
             Create one on
             <q-btn dense style="pointer-events: auto" @click="openURL('https://flespi.io')" color="red-5" label="flespi.io"/>
           </div>
@@ -88,10 +108,10 @@
         <q-btn small flat size="md" v-if="devices.length" class="floated mode" :icon="mode === 1 ? 'playlist_play' : 'history'" @click="changeMode">
           <q-tooltip>Change mode (History/Real-time)</q-tooltip>
         </q-btn>
-        <a v-if="$q.platform.is.desktop" href="https://github.com/flespi-software/TrackIt/" class="floated github" target="_blank"><q-btn flat round color="dark"><img style="height: 30px;" src="../statics/GitHub-Mark-32px.png" alt="GitHub"><q-tooltip>Show on GitHub</q-tooltip></q-btn></a>
+        <a v-if="$q.platform.is.desktop" href="https://github.com/flespi-software/TrackIt/" class="floated github" target="_blank"><q-btn flat round color="bg-grey-9"><img style="height: 30px;" src="../statics/GitHub-Mark-32px.png" alt="GitHub"><q-tooltip>Show on GitHub</q-tooltip></q-btn></a>
         <q-btn small round flat size="md" class="floated options">
-          <q-icon color="dark" name="more_vert" />
-          <q-popover ref="popover-menu">
+          <q-icon color="bg-grey-9" name="more_vert" />
+          <q-menu ref="popover-menu">
             <q-list link separator class="scroll" style="min-width: 200px">
               <q-item>
                 <q-toggle @input="menuChangeHandler" :disabled="!devices.length" v-model="params.needShowMessages" icon="dvr" label="Messages" />
@@ -100,19 +120,21 @@
                 <q-toggle @input="menuChangeHandler" v-model="params.needShowPlayer" :disable="mode === 1 || !devices.length" icon="mdi-play" label="Player" :title="mode === 1 ? 'Only in history mode' : ''" />
               </q-item>
               <q-item>
-                <q-toggle v-close-overlay @input="menuChangeHandler" :disabled="!devices.length" v-model="params.needShowTelemetry" icon="av_timer" label="Telemetry" />
+                <q-toggle v-close-popup @input="menuChangeHandler" :disabled="!devices.length" v-model="params.needShowTelemetry" icon="av_timer" label="Telemetry" />
               </q-item>
               <q-item>
                 <q-toggle @input="menuChangeHandler" :disabled="!devices.length" v-model="params.needShowNamesOnMap" icon="pin_drop" label="Names" />
               </q-item>
               <q-item class="within-iframe-hide" @click.native="exitHandler">
-                <q-item-side icon="exit_to_app"/>
-                <q-item-main>
-                  <q-item-tile label>Exit</q-item-tile>
-                </q-item-main>
+                <q-item-section avatar class="q-pl-md">
+                  <q-icon name="exit_to_app" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>Exit</q-item-label>
+                </q-item-section>
               </q-item>
             </q-list>
-          </q-popover>
+          </q-menu>
         </q-btn>
         <map-component
           @update:telemetry-device-id="updateTelemetryDeviceId"
@@ -131,11 +153,12 @@
 <script>
 import Vue from 'vue'
 import { mapState, mapMutations, mapActions } from 'vuex'
-import QTelemetry from 'qtelemetry'
+import { VueFlatPickr } from 'datetimerangepicker'
+import { QTelemetry, telemetryVuexModule } from 'qtelemetry'
 import MapComponent from '../components/Map.vue'
 import DeviceList from '../components/DeviceList.vue'
 import dist from '../../package.json'
-import { openURL } from 'quasar'
+import { openURL, date } from 'quasar'
 
 export default {
   data () {
@@ -160,6 +183,15 @@ export default {
       },
       version: dist.version,
       date: undefined,
+      dateValue: undefined,
+      dateConfig: {
+        enableTime: true,
+        time_24hr: true,
+        inline: true,
+        maxDate: (new Date()).setHours(23, 59, 59, 999),
+        mode: 'single',
+        locale: { firstDayOfWeek: 1 }
+      },
       isInit: Vue.connector.socket.connected(),
       unsubscribeDevices: () => {}
     }
@@ -177,6 +209,7 @@ export default {
           this.getLastUpdatePosition()
             .then((date) => {
               this.date = date || undefined
+              this.dateValue = date || undefined
             })
         }
         return state.activeDevicesID
@@ -206,7 +239,8 @@ export default {
   components: {
     DeviceList,
     MapComponent,
-    QTelemetry
+    QTelemetry,
+    VueFlatPickr
   },
   methods: {
     openURL,
@@ -217,7 +251,6 @@ export default {
       'unsetDevicesInit',
       'setActiveDevice',
       'reqFailed',
-      'addError',
       'clearNotificationCounter',
       'clearErrors'
     ]),
@@ -236,6 +269,7 @@ export default {
       this.$q.localStorage.set('TrackIt Params', this.params)
     },
     telemetrySettingsChangeHandler () {
+      this.$set(this.telemetrySettings, 'inverted', !this.telemetrySettings.inverted)
       this.$q.localStorage.set('TrackIt TelemetrySettings', this.telemetrySettings)
     },
     updateTelemetryDeviceId (id) {
@@ -264,13 +298,29 @@ export default {
         this.getLastUpdatePosition()
           .then((date) => {
             this.date = date || undefined
+            this.dateValue = date || undefined
             this.mode = 0
           })
       } else {
         /* rt mode change logic */
         this.date = undefined
+        this.dateValue = undefined
         this.mode = 1
       }
+    },
+    formatDate (timestamp) {
+      return date.formatDate(timestamp, 'DD/MM/YYYY HH:mm:ss')
+    },
+    datePickerModalClose () {
+      this.dateValue = this.date
+      this.$refs.datePickerModal.hide()
+    },
+    datePickerModalSave () {
+      this.date = this.dateValue
+      this.$refs.datePickerModal.hide()
+    },
+    dateInputHandler (date) {
+      this.dateValue = date ? date.setSeconds(0) : new Date()
     }
   },
   watch: {
@@ -308,6 +358,7 @@ export default {
     }
   },
   created () {
+    this.$store.registerModule('telemetry', telemetryVuexModule(this.$store, Vue))
     this.clearNotificationCounter()
     this.clearErrors()
     if (!this.token) {
@@ -339,12 +390,12 @@ export default {
         this.deviceIdForWatch = this.activeDevicesID[0]
       }
     }
-    let params = this.$q.localStorage.get.item('TrackIt Params')
+    let params = this.$q.localStorage.getItem('TrackIt Params')
     if (params) {
       Vue.set(this, 'params', Object.assign(this.params, params))
       this.side_right = params.needShowTelemetry
     }
-    let telemetrySettings = this.$q.localStorage.get.item('TrackIt TelemetrySettings')
+    let telemetrySettings = this.$q.localStorage.getItem('TrackIt TelemetrySettings')
     if (telemetrySettings) {
       Vue.set(this, 'telemetrySettings', Object.assign(this.telemetrySettings, telemetrySettings))
     }
@@ -390,8 +441,8 @@ export default {
       top 60px
       right 60px
       background-color white
-      padding: 6px 8px;
-      border-radius: 3px;
+      padding 1px
+      border-radius 3px
       box-shadow 0 0 15px rgba(0,0,0,0.5)
     &.no-devices
       bottom 150px

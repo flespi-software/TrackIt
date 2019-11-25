@@ -1,3 +1,5 @@
+// Configuration for your app
+// https://quasar.dev/quasar-cli/quasar-conf-js
 const webpack = require('webpack'),
   serverAliases = {
     'local': '',
@@ -5,36 +7,127 @@ const webpack = require('webpack'),
   }
 module.exports = function (ctx) {
   return {
-    // app plugins (/src/plugins)
-    plugins: [
+    // app boot file (/src/boot)
+    // --> boot files are part of "main.js"
+    // https://quasar.dev/quasar-cli/cli-documentation/boot-files
+    boot: [
       'i18n',
       'flespi-io',
       'clipboard'
     ],
+
+    // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
     css: [
       'app.styl'
     ],
+
+    // https://github.com/quasarframework/quasar/tree/dev/extras
     extras: [
-      ctx.theme.mat ? 'roboto-font' : null,
-      'material-icons',
-      // 'ionicons',
-      'mdi'
-      // 'fontawesome'
+      // 'ionicons-v4',
+      'mdi-v4',
+      // 'fontawesome-v5',
+      // 'eva-icons',
+      // 'themify',
+      // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
+
+      'roboto-font', // optional, you are not bound to it
+      'material-icons' // optional, you are not bound to it
     ],
+
+    // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
+    framework: {
+      // iconSet: 'ionicons-v4', // Quasar icon set
+      // lang: 'de', // Quasar language pack
+
+      // Possible values for "all":
+      // * 'auto' - Auto-import needed Quasar components & directives
+      //            (slightly higher compile time; next to minimum bundle size; most convenient)
+      // * false  - Manually specify what to import
+      //            (fastest compile time; minimum bundle size; most tedious)
+      // * true   - Import everything from Quasar
+      //            (not treeshaking Quasar; biggest bundle size; convenient)
+      all: false,
+
+      components: [
+        'QLayout',
+        'QHeader',
+        'QDrawer',
+        'QPageContainer',
+        'QPage',
+        'QToolbar',
+        'QToolbarTitle',
+        'QBtn',
+        'QIcon',
+        'QList',
+        'QItem',
+        'QItemSection',
+        'QItemLabel',
+        'QTooltip',
+        'QResizeObserver',
+        'QDialog',
+        'QSelect',
+        'QInput',
+        'QKnob',
+        'QCheckbox',
+        'QTabs',
+        'QTab',
+        'QTabPanels',
+        'QTabPanel',
+        'QToggle',
+        'QMenu',
+        'QCircularProgress',
+        'QSpinnerGears',
+        'QSlider',
+        'QField',
+        'QRange',
+        'QChip',
+        'QColor',
+        'QCard',
+        'QSeparator',
+        'QCardActions',
+        'QCardSection'
+      ],
+
+      directives: [
+        'Ripple',
+        'ClosePopup',
+        'TouchHold',
+        'TouchPan'
+      ],
+
+      // Quasar plugins
+      plugins: [
+        'Notify',
+        'Loading',
+        'LocalStorage',
+        'SessionStorage',
+        'Dialog'
+      ]
+    },
+
+    // https://quasar.dev/quasar-cli/cli-documentation/supporting-ie
     supportIE: true,
+
+    // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
     build: {
       scopeHoisting: true,
-      vueRouterMode: 'hash',
+      // vueRouterMode: 'history',
+      // showProgress: false,
       // gzip: true,
       // analyze: true,
+      // preloadChunks: false,
       // extractCSS: false,
-      // useNotifier: false,
+
+      // https://quasar.dev/quasar-cli/cli-documentation/handling-webpack
       extendWebpack (cfg) {
         cfg.module.rules.push({
           enforce: 'pre',
           test: /\.(js|vue)$/,
           loader: 'eslint-loader',
-          exclude: /(node_modules|quasar)/
+          exclude: /node_modules/,
+          options: {
+            formatter: require('eslint').CLIEngine.getFormatter('stylish')
+          }
         })
         cfg.plugins.push(
           new webpack.DefinePlugin({
@@ -45,77 +138,27 @@ module.exports = function (ctx) {
         )
       }
     },
+
+    // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
     devServer: {
       // https: true,
       port: 7006,
       open: true // opens browser window automatically
     },
-    // framework: 'all' --- includes everything; for dev only!
-    framework: {
-      components: [
-        'QLayout',
-        'QLayoutDrawer',
-        'QPageContainer',
-        'QPage',
-        'QToolbar',
-        'QToolbarTitle',
-        'QBtn',
-        'QIcon',
-        'QList',
-        'QListHeader',
-        'QItem',
-        'QItemMain',
-        'QItemSide',
-        'QItemTile',
-        'QTooltip',
-        'QResizeObservable',
-        'QModal',
-        'QSelect',
-        'QInput',
-        'QKnob',
-        'QCheckbox',
-        'QModalLayout',
-        'QAlert',
-        'QTabs',
-        'QTab',
-        'QTabPane',
-        'QToggle',
-        'QPopover',
-        'QProgress',
-        'QSpinnerGears',
-        'QWindowResizeObservable',
-        'QDatetime',
-        'QSearch',
-        'QSlider',
-        'QField',
-        'QRange',
-        'QChip',
-        'QColorPicker'
-      ],
-      // Quasar plugins
-      plugins: [
-        'Notify',
-        'Loading',
-        'LocalStorage',
-        'SessionStorage',
-        'Dialog'
-      ],
-      directives: ['TouchPan', 'TouchHold', 'CloseOverlay']
+
+    // animations: 'all', // --- includes all animations
+    // https://quasar.dev/options/animations
+    animations: [],
+
+    // https://quasar.dev/quasar-cli/developing-ssr/configuring-ssr
+    ssr: {
+      pwa: false
     },
-    // animations: 'all' --- includes all animations
-    animations: [
-    ],
+
+    // https://quasar.dev/quasar-cli/developing-pwa/configuring-pwa
     pwa: {
-      workboxOptions: {
-        skipWaiting: true,
-        clientsClaim: true,
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/((localhost:9005)|(flespi\.io))\/(gw|auth|platform|storage|mqtt)\/.*/,
-            handler: 'networkOnly'
-          }
-        ]
-      },
+      // workboxPluginMode: 'InjectManifest',
+      // workboxOptions: {}, // only for NON InjectManifest
       manifest: {
         name: 'Track it!',
         short_name: 'Track it!',
@@ -153,26 +196,40 @@ module.exports = function (ctx) {
         ]
       }
     },
+
+    // https://quasar.dev/quasar-cli/developing-cordova-apps/configuring-cordova
     cordova: {
-      // id: 'org.cordova.quasar.app'
+      // id: 'org.cordova.quasar.app',
+      // noIosLegacyBuildFlag: true, // uncomment only if you know what you are doing
     },
+
+    // https://quasar.dev/quasar-cli/developing-electron-apps/configuring-electron
     electron: {
+      // bundler: 'builder', // or 'packager'
+
       extendWebpack (cfg) {
-        // do something with cfg
+        // do something with Electron main process Webpack cfg
+        // chainWebpack also available besides this extendWebpack
       },
+
       packager: {
+        // https://github.com/electron-userland/electron-packager/blob/master/docs/api.md#options
+
         // OS X / Mac App Store
         // appBundleId: '',
         // appCategoryType: '',
         // osxSign: '',
         // protocol: 'myapp://path',
 
-        // Window only
+        // Windows only
         // win32metadata: { ... }
-      }
-    },
+      },
 
-    // leave this here for Quasar CLI
-    starterKit: '1.0.2'
+      builder: {
+        // https://www.electron.build/configuration/configuration
+
+        // appId: 'track-it'
+      }
+    }
   }
 }
