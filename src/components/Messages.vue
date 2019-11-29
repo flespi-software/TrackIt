@@ -41,7 +41,7 @@
 <script>
 import { VirtualScrollList } from 'qvirtualscroll'
 import MessageViewer from './MessageViewer'
-import { date } from 'quasar'
+import { date, copyToClipboard } from 'quasar'
 import MessagesListItem from './MessagesListItem.vue'
 
 const config = {
@@ -186,7 +186,7 @@ export default {
       }
     },
     copyMessageHandler ({ index, content }) {
-      this.$copyText(JSON.stringify(content)).then((e) => {
+      copyToClipboard(JSON.stringify(content)).then((e) => {
         this.$q.notify({
           color: 'positive',
           icon: 'content_copy',

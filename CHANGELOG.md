@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.7.2] - 2018-11-29
+[update] copy function
 ### [0.7.1] - 2018-11-25
 [fix] full message view
 ### [0.7.0] - 2018-11-25

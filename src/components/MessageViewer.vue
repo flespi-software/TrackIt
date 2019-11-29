@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { date } from 'quasar'
+import { date, copyToClipboard } from 'quasar'
 export default {
   name: 'MessageViewer',
   data () {
@@ -50,7 +50,7 @@ export default {
       return value
     },
     copy (value) {
-      this.$copyText(JSON.stringify(value)).then((e) => {
+      copyToClipboard(JSON.stringify(value)).then((e) => {
         this.$q.notify({
           color: 'positive',
           icon: 'content_copy',

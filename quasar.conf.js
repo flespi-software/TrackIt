@@ -12,8 +12,7 @@ module.exports = function (ctx) {
     // https://quasar.dev/quasar-cli/cli-documentation/boot-files
     boot: [
       'i18n',
-      'flespi-io',
-      'clipboard'
+      'flespi-io'
     ],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
