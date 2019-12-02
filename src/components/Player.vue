@@ -4,12 +4,12 @@
       x{{speed}}
       <q-menu ref="speedPopover" anchor="top left" style="background-color: #424242">
         <div class="column">
-          <q-btn class="text-white bg-grey-9" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 100">x100</q-btn>
-          <q-btn class="text-white bg-grey-9" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 70">x70</q-btn>
-          <q-btn class="text-white bg-grey-9" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 50">x50</q-btn>
-          <q-btn class="text-white bg-grey-9" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 30">x30</q-btn>
-          <q-btn class="text-white bg-grey-9" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 10">x10</q-btn>
-          <q-btn class="text-white bg-grey-9" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 1">x1</q-btn>
+          <q-btn class="text-white bg-grey-9 no-border-radius" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 100">x100</q-btn>
+          <q-btn class="text-white bg-grey-9 no-border-radius" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 70">x70</q-btn>
+          <q-btn class="text-white bg-grey-9 no-border-radius" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 50">x50</q-btn>
+          <q-btn class="text-white bg-grey-9 no-border-radius" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 30">x30</q-btn>
+          <q-btn class="text-white bg-grey-9 no-border-radius" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 10">x10</q-btn>
+          <q-btn class="text-white bg-grey-9 no-border-radius" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 1">x1</q-btn>
         </div>
       </q-menu>
       <q-tooltip v-if="$q.platform.is.desktop">Speed</q-tooltip>
@@ -240,6 +240,8 @@ export default {
 <style lang="stylus">
   .btn-less-padding
     padding 4px 5px
+  .no-border-radius
+    border-radius none
   .player
     width 100%
     padding 0 17px
@@ -289,12 +291,8 @@ export default {
       .q-slider
         height 0
         .q-slider__thumb-container
-          // position inherit
           .q-slider__thumb
             top 2px
-            // height 100%
-            // width 4px
-            // transform translate3d(0, 0, 0)
             z-index 1
             &.handle-at-minimum:after
               border none

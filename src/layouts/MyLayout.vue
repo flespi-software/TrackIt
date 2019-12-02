@@ -105,7 +105,7 @@
             <q-btn dense style="pointer-events: auto" @click="openURL('https://flespi.io')" color="red-5" label="flespi.io"/>
           </div>
         </div>
-        <q-btn small flat size="md" v-if="devices.length" class="floated mode" :icon="mode === 1 ? 'playlist_play' : 'history'" @click="changeMode">
+        <q-btn small dense flat size="md" v-if="devices.length" class="floated mode" :icon="mode === 1 ? 'playlist_play' : 'history'" @click="changeMode">
           <q-tooltip>Change mode (History/Real-time)</q-tooltip>
         </q-btn>
         <a v-if="$q.platform.is.desktop" href="https://github.com/flespi-software/TrackIt/" class="floated github" target="_blank"><q-btn flat round color="bg-grey-9"><img style="height: 30px;" src="../statics/GitHub-Mark-32px.png" alt="GitHub"><q-tooltip>Show on GitHub</q-tooltip></q-btn></a>
@@ -439,7 +439,7 @@ export default {
       padding 2px 10px
     &.date
       top 60px
-      right 60px
+      right 70px
       background-color white
       padding 1px
       border-radius 3px
