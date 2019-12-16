@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.7.4] - 2018-12-16
+[update] routes
 ### [0.7.3] - 2018-12-02
 [fix] styles
 ### [0.7.2] - 2018-11-29

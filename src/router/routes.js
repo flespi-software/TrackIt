@@ -10,6 +10,7 @@ export default [
       }
     ]
   },
+  { path: '/token/:token', component: () => import('pages/Login') },
   { path: '/login', component: () => import('pages/Login') },
   { path: '/login/:token', component: () => import('pages/Login') },
   { path: '/login/:token/flespi', component: () => import('pages/Login') },
