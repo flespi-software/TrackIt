@@ -9,6 +9,7 @@
     </div>
     <div :style="{height: messages.length > 1 && mode === 0 && needShowPlayer ? 'calc(100% - 65px)' : '100%'}" class="table__wrapper" v-if="messages.length && needShowMessages">
       <messages
+        style="height: 100%;"
         :messages="messages"
         :mode="mode"
         :item="device"
