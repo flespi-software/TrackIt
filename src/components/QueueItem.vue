@@ -1,26 +1,21 @@
 <template>
   <div :style="[{height: height, position: 'relative'}]">
-    <div class="no-messages text-center" v-if="!messages.length && needShowMessages">
-      <div class="text-white" style="font-size: 3rem;">
-        <div>No messages</div>
-        <div style="font-size: 1.5rem;">or position is empty</div>
+    <template v-if="needShowMessages">
+      <div :style="{height: mode === 0 && needShowPlayer ? 'calc(100% - 65px)' : '100%'}" class="table__wrapper">
+        <messages
+          style="height: 100%;"
+          :messages="messages"
+          :mode="mode"
+          :item="device"
+          :activeDeviceId="id"
+          :limit="0"
+          :date="date"
+          :activeMessagesIds="activeMessagesIndexes"
+          @view="viewMessageHandler"
+          @view-on-map="viewOnMapHandler"
+        ></messages>
       </div>
-      <q-btn color="grey-9" v-if="isAdmin && mode === 1" @click="$emit('send', id)">Send message</q-btn>
-    </div>
-    <div :style="{height: messages.length > 1 && mode === 0 && needShowPlayer ? 'calc(100% - 65px)' : '100%'}" class="table__wrapper" v-if="messages.length && needShowMessages">
-      <messages
-        style="height: 100%;"
-        :messages="messages"
-        :mode="mode"
-        :item="device"
-        :activeDeviceId="id"
-        :limit="0"
-        :date="date"
-        :activeMessagesIds="activeMessagesIndexes"
-        @view="viewMessageHandler"
-        @view-on-map="viewOnMapHandler"
-      ></messages>
-    </div>
+    </template>
     <div
       style="display: flex; background-color: #424242;"
       :style="{height: mode === 0 && needShowMessages ? '65px' : '100%'}"
@@ -29,7 +24,7 @@
       <q-btn
         icon="more_vert"
         color="white"
-        class="btn-less-padding"
+        :dense="$q.platform.is.mobile"
         size="md"
         flat
         v-if="$q.platform.is.mobile"
@@ -48,7 +43,7 @@
       <q-btn
         icon="mdi-ray-end"
         :color="needPolyline ? 'blue' : 'white'"
-        :class="{'btn-less-padding': !$q.platform.is.desktop }"
+        :dense="$q.platform.is.mobile"
         :size="$q.platform.is.desktop ? '1.4rem' : 'md'"
         flat
         @click="needPolyline = !needPolyline, $emit('change:needShowTail', needPolyline)"
@@ -59,7 +54,7 @@
       <q-btn
         icon="dvr"
         :color="needShowMessages ? 'blue' : 'white'"
-        :class="{'btn-less-padding': !$q.platform.is.desktop }"
+        :dense="$q.platform.is.mobile"
         :size="$q.platform.is.desktop ? '1.4rem' : 'md'"
         flat
         @click="messagesFlag = !messagesFlag, $emit('change:needShowMessages', messagesFlag)"
@@ -136,7 +131,7 @@ export default {
         }
       } else {
         if (this.needShowMessages && this.needShowPlayer) {
-          return '205px'
+          return '30vh'
         } else if (this.needShowMessages && !this.needShowPlayer) {
           return '20vh'
         } else if (!this.needShowMessages && this.needShowPlayer) {
@@ -250,8 +245,3 @@ export default {
   }
 }
 </script>
-
-<style lang="stylus">
-  .btn-less-padding
-    padding 4px 5px
-</style>

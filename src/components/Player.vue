@@ -1,15 +1,15 @@
 <template>
   <div style="display: flex; background-color: #424242; width: 100%">
-    <q-btn :disable="max <= min" class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat>
+    <q-btn :disable="max <= min" class="text-white" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat>
       x{{speed}}
       <q-menu ref="speedPopover" anchor="top left" style="background-color: #424242">
         <div class="column">
-          <q-btn class="text-white bg-grey-9 no-border-radius" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 100">x100</q-btn>
-          <q-btn class="text-white bg-grey-9 no-border-radius" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 70">x70</q-btn>
-          <q-btn class="text-white bg-grey-9 no-border-radius" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 50">x50</q-btn>
-          <q-btn class="text-white bg-grey-9 no-border-radius" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 30">x30</q-btn>
-          <q-btn class="text-white bg-grey-9 no-border-radius" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 10">x10</q-btn>
-          <q-btn class="text-white bg-grey-9 no-border-radius" :class="{'btn-less-padding': !$q.platform.is.desktop }" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="speed = 1">x1</q-btn>
+          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="speed = 100">x100</q-btn>
+          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="speed = 70">x70</q-btn>
+          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="speed = 50">x50</q-btn>
+          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="speed = 30">x30</q-btn>
+          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="speed = 10">x10</q-btn>
+          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="speed = 1">x1</q-btn>
         </div>
       </q-menu>
       <q-tooltip v-if="$q.platform.is.desktop">Speed</q-tooltip>
@@ -17,7 +17,7 @@
     <q-btn
       :color="status === 'play' ? 'blue' : 'white'"
       :disable="max <= min" class="text-white"
-      :class="{'btn-less-padding': !$q.platform.is.desktop }"
+      :dense="$q.platform.is.mobile"
       :size="$q.platform.is.desktop ? '1.4rem' : 'md'"
       :icon="status === 'play' ? repeatFlag ? 'mdi-repeat' : 'mdi-pause' : 'mdi-play'"
       flat
@@ -28,7 +28,7 @@
       <q-tooltip v-if="$q.platform.is.desktop">Play/Pause (Ctrl+Click to repeat)</q-tooltip>
       <q-tooltip v-if="$q.platform.is.mobile">Play/Pause (Touch hold to repeat)</q-tooltip>
     </q-btn>
-    <q-btn :disable="max <= min" class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" icon="mdi-skip-previous" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="$emit('prev')">
+    <q-btn :disable="max <= min" class="text-white" icon="mdi-skip-previous" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="$emit('prev')">
       <q-tooltip v-if="$q.platform.is.desktop">Prev message</q-tooltip>
     </q-btn>
     <div class="player">
@@ -44,7 +44,7 @@
         </div>
       </div>
     </div>
-    <q-btn :disable="max <= min" class="text-white" :class="{'btn-less-padding': !$q.platform.is.desktop }" icon="mdi-skip-next" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" flat @click="$emit('next')">
+    <q-btn :disable="max <= min" class="text-white" icon="mdi-skip-next" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="$emit('next')">
       <q-tooltip v-if="$q.platform.is.desktop">Next message</q-tooltip>
     </q-btn>
   </div>
@@ -238,8 +238,6 @@ export default {
 </script>
 
 <style lang="stylus">
-  .btn-less-padding
-    padding 4px 5px
   .no-border-radius
     border-radius none
   .player

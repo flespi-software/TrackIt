@@ -25,7 +25,7 @@
         </q-item>
         <q-telemetry class="scroll" style="height: calc(100% - 128px)" v-if="deviceIdForTelemetry" :propHistoryFlag="telemetryConfig.propHistoryFlag" :device="deviceForTelemetry" :inverted="telemetrySettings.inverted" :search="telemetrySearch" />
         <div v-else class="text-bold text-center q-mt-sm" :class="{'text-white': telemetrySettings.inverted}">
-          Select one by click on his <q-icon name="mdi-map-marker"/> marker
+          Select one by clicking on its <q-icon name="mdi-map-marker"/> marker
         </div>
       </div>
     </q-drawer>
@@ -60,20 +60,12 @@
           </q-menu>
         </q-btn>
         <div v-if="devices.length && mode === 0" class="floated date">
-          <q-btn flat style="max-width: 120px; font-size: .8rem; line-height: .8rem;" class="q-pa-none" @click="$refs.datePickerModal.toggle()">
+          <q-btn flat style="max-width: 120px; font-size: .85rem; line-height: .85rem;" class="q-pa-none" @click="$refs.datePickerModal.toggle()">
             <div>{{formatDate(date)}}</div>
           </q-btn>
-          <q-dialog ref="datePickerModal" :content-css="{maxWidth: '500px'}" class="modal-date" :maximized="$q.platform.is.mobile">
-            <q-card :style="{minWidth: $q.platform.is.mobile ? '100%' : '30vw'}">
+          <q-dialog ref="datePickerModal" content-class="modal-date">
+            <q-card>
               <q-card-section class="q-pa-none">
-                <q-toolbar>
-                  <div class="q-toolbar-title text-h6">
-                    Date/Time
-                  </div>
-                </q-toolbar>
-              </q-card-section>
-              <q-separator />
-              <q-card-section :style="{height: $q.platform.is.mobile ? 'calc(100% - 104px)' : ''}" class="scroll">
                 <div class="flex flex-center">
                   <vue-flat-pickr
                     :value="dateValue"
@@ -185,8 +177,6 @@ export default {
       date: undefined,
       dateValue: undefined,
       dateConfig: {
-        enableTime: true,
-        time_24hr: true,
         inline: true,
         maxDate: (new Date()).setHours(23, 59, 59, 999),
         mode: 'single',
@@ -309,7 +299,7 @@ export default {
       }
     },
     formatDate (timestamp) {
-      return date.formatDate(timestamp, 'DD/MM/YYYY HH:mm:ss')
+      return date.formatDate(timestamp, 'DD/MM/YYYY')
     },
     datePickerModalClose () {
       this.dateValue = this.date
@@ -320,6 +310,7 @@ export default {
       this.$refs.datePickerModal.hide()
     },
     dateInputHandler (date) {
+      console.log(date)
       this.dateValue = date ? date.setSeconds(0) : new Date()
     }
   },
@@ -477,4 +468,7 @@ export default {
       padding 25px
       > i
         font-size 5rem
+  .modal-date
+    .q-dialog__inner--minimized
+      padding 6px
 </style>

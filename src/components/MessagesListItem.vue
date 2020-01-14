@@ -168,6 +168,7 @@ export default {
     margin 0 10px 0 5px
     text-overflow ellipsis
     overflow hidden
+    line-height 19px
   .message-viewer .q-w-list>.missed-items
     background-color rgba(255,255,255,.05)
     &:nth-child(odd)

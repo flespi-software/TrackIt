@@ -1,45 +1,48 @@
 # Changelog
 All notable changes to this project will be documented in this file.
-### [0.7.5] - 2018-12-17
+### [0.7.6] - 2020-01-14
+[feature] autoscroll to active message in player
+[fix] style
+### [0.7.5] - 2019-12-17
 [update] depens
-### [0.7.4] - 2018-12-16
+### [0.7.4] - 2019-12-16
 [update] routes
-### [0.7.3] - 2018-12-02
+### [0.7.3] - 2019-12-02
 [fix] styles
-### [0.7.2] - 2018-11-29
+### [0.7.2] - 2019-11-29
 [update] copy function
-### [0.7.1] - 2018-11-25
+### [0.7.1] - 2019-11-25
 [fix] full message view
-### [0.7.0] - 2018-11-25
+### [0.7.0] - 2019-11-25
 [update] new quasar migration
-### [0.6.4] - 2018-09-18
+### [0.6.4] - 2019-09-18
 [update] packages
-### [0.6.3] - 2018-07-26
+### [0.6.3] - 2019-07-26
 [update] packages
 [remove] service-worker
-### [0.6.2] - 2018-07-15
+### [0.6.2] - 2019-07-15
 [fix] login init codes
-### [0.6.1] - 2018-07-09
+### [0.6.1] - 2019-07-09
 [update] devices data to configuration field
-### [0.6.0] - 2018-06-27
+### [0.6.0] - 2019-06-27
 [fix] limiting
 [feature] saving color for track
-### [0.5.10] - 2018-03-20
+### [0.5.10] - 2019-03-20
 [fix] using local time
 [fix] map height
-### [0.5.9] - 2018-03-19
+### [0.5.9] - 2019-03-19
 [fix] map view
 [fix] popover in menu
-### [0.5.8] - 2018-03-19
+### [0.5.8] - 2019-03-19
 [fix] login
-### [0.5.7] - 2018-03-11
+### [0.5.7] - 2019-03-11
 [fix] scroll devices panel
-### [0.5.6] - 2018-02-07
+### [0.5.6] - 2019-02-07
 [update] felspi-io-js
-### [0.5.5] - 2018-02-07
+### [0.5.5] - 2019-02-07
 [update] felspi-io-js
 [fix] sw reload
-### [0.5.4] - 2018-01-29
+### [0.5.4] - 2019-01-29
 [feature] deflate for ws
 ### [0.5.3] - 2018-12-28
 [fix] init devices w/o messages by telemetry

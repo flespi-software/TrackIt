@@ -5,34 +5,42 @@
       :cols="cols"
       :actions="actions"
       :items="messages"
-      :date="from"
+      :dateRange="dateRange"
       :mode="mode"
       :viewConfig="viewConfig"
       :colsConfigurator="'toolbar'"
       :i18n="i18n"
       :theme="theme"
       :title="'Messages'"
-      @change:pagination-prev="paginationPrevChangeHandler"
-      @change:pagination-next="paginationNextChangeHandler"
-      @change:date="dateChangeHandler"
-      @change:date-prev="datePrevChangeHandler"
-      @change:date-next="dateNextChangeHandler"
+      :loading="isLoading"
+      @change:date-range="dateRangeChangeHandler"
+      @change:date-range-prev="dateRangePrevHandler"
+      @change:date-range-next="dateRangeNextHandler"
       @update:cols="updateColsHandler"
     >
-      <messages-list-item slot="items" slot-scope="{item, index, actions, cols, etcVisible, actionsVisible, itemHeight, rowWidth}"
-                          :item="item"
-                          :key="`${JSON.stringify(item)}${index}`"
-                          :index="index"
-                          :actions="actions"
-                          :cols="cols"
-                          :itemHeight="itemHeight"
-                          :rowWidth="rowWidth"
-                          :etcVisible="etcVisible"
-                          :actionsVisible="actionsVisible"
-                          :selected="selected.includes(index)"
-                          @item-click="viewMessageOnMap"
-                          @action='actionHandler'
+      <messages-list-item
+        slot="items"
+        slot-scope="{item, index, actions, cols, etcVisible, actionsVisible, itemHeight, rowWidth}"
+        :item="item"
+        :key="`${JSON.stringify(item)}${index}`"
+        :index="index"
+        :actions="actions"
+        :cols="cols"
+        :itemHeight="itemHeight"
+        :rowWidth="rowWidth"
+        :etcVisible="etcVisible"
+        :actionsVisible="actionsVisible"
+        :selected="selected.includes(index)"
+        @item-click="viewMessageOnMap"
+        @action='actionHandler'
       />
+      <div class="no-messages text-center" slot="empty">
+        <div class="text-white" style="font-size: 3rem;">
+          <div>No messages</div>
+          <div style="font-size: 1.5rem;">or position is empty</div>
+        </div>
+        <q-btn color="grey-9" v-if="isAdmin && mode === 1" @click="$emit('send', id)">Send message</q-btn>
+      </div>
     </virtual-scroll-list>
     <message-viewer ref="messageViewer" :message="typeof selectedMessage !== 'undefined' ? selectedMessage : {}" inverted @close="closeHandler"></message-viewer>
   </div>
@@ -41,7 +49,7 @@
 <script>
 import { VirtualScrollList } from 'qvirtualscroll'
 import MessageViewer from './MessageViewer'
-import { date, copyToClipboard } from 'quasar'
+import { copyToClipboard } from 'quasar'
 import MessagesListItem from './MessagesListItem.vue'
 
 const config = {
@@ -113,6 +121,9 @@ export default {
         val ? this.$store.commit(`messages/${this.moduleName}/setTo`, val) : this.$store.commit(`messages/${this.moduleName}/setTo`, 0)
       }
     },
+    dateRange () {
+      return [this.$store.state.messages[this.moduleName].from, this.$store.state.messages[this.moduleName].to]
+    },
     reverse: {
       get () {
         return this.$store.state.messages[this.moduleName].reverse || false
@@ -136,38 +147,38 @@ export default {
       set (val) {
         this.$store.commit(`messages/${this.moduleName}/setSelected`, val)
       }
+    },
+    isLoading () {
+      return this.$store.state.messages[this.moduleName].isLoading
     }
   },
   methods: {
     resetParams () {
       this.$refs.scrollList.resetParams()
     },
-    setTranslate (messages) {
-      this.i18n.from = messages.length ? `Previous batch until ${date.formatDate(messages[0].timestamp * 1000, 'HH:mm:ss')}` : 'Prev'
-      this.i18n.to = messages.length ? `Next batch from ${date.formatDate(messages[messages.length - 1].timestamp * 1000, 'HH:mm:ss')}` : 'Next'
-    },
     updateColsHandler (cols) {
       this.cols = cols
     },
-    dateChangeHandler (date) {
-      date = new Date(date).setHours(0, 0, 0, 0)
-      this.$store.dispatch(`messages/${this.moduleName}/get`, { name: 'setDate', payload: date })
+    dateRangeChangeHandler (range) {
+      let from = range[0],
+        to = range[1]
+      if (this.from === from && this.to === to) { return false }
+      this.from = from
+      this.to = to
+      this.$store.commit(`${this.moduleName}/clearMessages`)
+      this.$store.dispatch(`${this.moduleName}/get`)
     },
-    datePrevChangeHandler () {
-      this.$store.dispatch(`messages/${this.moduleName}/get`, { name: 'datePrev' })
+    dateRangePrevHandler () {
+      let delta = this.to - this.from,
+        newTo = this.from - 1,
+        newFrom = newTo - delta
+      this.dateRangeChangeHandler([newFrom, newTo])
     },
-    dateNextChangeHandler () {
-      this.$store.dispatch(`messages/${this.moduleName}/get`, { name: 'dateNext' })
-    },
-    paginationPrevChangeHandler () {
-      let timestamp = 0
-      timestamp = this.messages.length ? this.messages[0].timestamp * 1000 : 0
-      this.$store.dispatch(`messages/${this.moduleName}/get`, { name: 'paginationPrev', payload: timestamp })
-    },
-    paginationNextChangeHandler () {
-      let timestamp = 0
-      timestamp = this.messages.length ? this.messages[this.messages.length - 1].timestamp * 1000 : 0
-      this.$store.dispatch(`messages/${this.moduleName}/get`, { name: 'paginationNext', payload: timestamp })
+    dateRangeNextHandler () {
+      let delta = this.to - this.from,
+        newFrom = this.to + 1,
+        newTo = newFrom + delta
+      this.dateRangeChangeHandler([newFrom, newTo])
     },
     viewMessagesHandler ({ index, content }) {
       this.selected = [index]
@@ -221,6 +232,14 @@ export default {
           this.selected = [index]
         })
       }
+    },
+    scrollToSelected (index) {
+      if (index) {
+        let itemsCount = this.$refs.scrollList.itemsCount
+        let scrollToIndex = index - Math.floor(itemsCount / 2)
+        if (scrollToIndex < 0) { return false }
+        this.$refs.scrollList.scrollTo(scrollToIndex)
+      }
     }
   },
   watch: {
@@ -229,6 +248,7 @@ export default {
     },
     activeMessagesIds (indexes) {
       this.highlightSelected(indexes)
+      this.scrollToSelected(indexes[0])
     }
   },
   async created () {

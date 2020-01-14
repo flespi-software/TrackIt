@@ -5,6 +5,7 @@
     </div>
     <queue
       ref="queue"
+      v-if="Object.keys(messages).length && ((mode === 0 && (params.needShowMessages || params.needShowPlayer)) || (mode === 1 && params.needShowMessages))"
       :devices="activeDevices"
       :activeDevicesID="activeDevicesID"
       :needShowMessages="params.needShowMessages"
@@ -16,7 +17,6 @@
       :date="date"
       :markers="markers"
       @send="prepareForSendMessage"
-      v-if="Object.keys(messages).length && ((mode === 0 && (params.needShowMessages || params.needShowPlayer)) || (mode === 1 && params.needShowMessages))"
       @play="playHandler"
       @stop="stopHandler"
       @change:needShowTail="changeShowTail"
@@ -473,8 +473,11 @@ export default {
         }
       }
       if (this.mode === 0) {
-        let date = new Date(this.date).setHours(0, 0, 0, 0)
-        await this.$store.dispatch(`messages/${id}/get`, { name: 'setDate', payload: date })
+        let from = new Date(this.date).setHours(0, 0, 0, 0)
+        let to = from + 86399999
+        this.$store.commit(`messages/${id}/setFrom`, from)
+        this.$store.commit(`messages/${id}/setTo`, to)
+        await this.$store.dispatch(`messages/${id}/get`)
         this.addFlags(id)
       }
     },
