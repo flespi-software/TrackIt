@@ -7,7 +7,7 @@
       </big>
     </q-item-label>
     <VirtualList
-      :size="70"
+      :size="64"
       :remain="itemsCount"
       :style="{height: `${height}px`}"
     >

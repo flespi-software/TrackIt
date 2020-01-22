@@ -13,14 +13,16 @@
             :messages="messages[deviceID]"
             :mode="mode"
             :date="date"
-            :isAdmin="isAdmin"
             :device="devices[deviceID]"
             :needShowMessages="needShowMessages"
             :needShowPlayer="needShowPlayer"
-            @send="sendInitMessages"
-            @play="playHandler"
-            @stop="stopHandler"
-            @change:needShowTail="(flag) => {$emit('change:needShowTail', flag)}"
+            :player="player"
+            @player:value="playHandler"
+            @player:play="data => $emit('player:play', data)"
+            @player:pause="data => $emit('player:pause', data)"
+            @player:stop="stopHandler"
+            @player:speed="data => $emit('player:speed', data)"
+            @player:mode="data => $emit('player:mode', data)"
             @change:needShowMessages="(flag) => {$emit('change:needShowMessages', flag)}"
             @view-on-map="(content)=>{ $emit('view-on-map', content) }"
           />
@@ -47,13 +49,13 @@ export default {
     'messages',
     'activeDevicesID',
     'devices',
-    'isAdmin',
     'telemetryDeviceId',
     'mode',
     'date',
     'needShowMessages',
     'needShowPlayer',
-    'markers'
+    'markers',
+    'player'
   ],
   data () {
     return {
@@ -80,14 +82,11 @@ export default {
     getNameById (id) {
       return this.devices.filter(device => device.id === id)[0].name || `<#${id}>`
     },
-    sendInitMessages (id) {
-      this.$emit('send', id)
-    },
     playHandler (data) {
-      this.$emit('play', data)
+      this.$emit('player:value', data)
     },
     stopHandler (data) {
-      this.$emit('stop', data)
+      this.$emit('player:stop', data)
     },
     changeColorHandler (id) {
       this.currentColorId = id

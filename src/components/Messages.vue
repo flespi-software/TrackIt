@@ -19,8 +19,10 @@
       @update:cols="updateColsHandler"
     >
       <messages-list-item
+        ref="renderedItems"
         slot="items"
         slot-scope="{item, index, actions, cols, etcVisible, actionsVisible, itemHeight, rowWidth}"
+        :class="[`scroll-list-item--${index}`]"
         :item="item"
         :key="`${JSON.stringify(item)}${index}`"
         :index="index"
@@ -30,7 +32,6 @@
         :rowWidth="rowWidth"
         :etcVisible="etcVisible"
         :actionsVisible="actionsVisible"
-        :selected="selected.includes(index)"
         @item-click="viewMessageOnMap"
         @action='actionHandler'
       />
@@ -39,7 +40,6 @@
           <div>No messages</div>
           <div style="font-size: 1.5rem;">or position is empty</div>
         </div>
-        <q-btn color="grey-9" v-if="isAdmin && mode === 1" @click="$emit('send', id)">Send message</q-btn>
       </div>
     </virtual-scroll-list>
     <message-viewer ref="messageViewer" :message="typeof selectedMessage !== 'undefined' ? selectedMessage : {}" inverted @close="closeHandler"></message-viewer>
@@ -51,6 +51,7 @@ import { VirtualScrollList } from 'qvirtualscroll'
 import MessageViewer from './MessageViewer'
 import { copyToClipboard } from 'quasar'
 import MessagesListItem from './MessagesListItem.vue'
+import throttle from 'lodash/throttle'
 
 const config = {
   'actions': [
@@ -87,8 +88,13 @@ export default {
     'activeMessagesIds'
   ],
   data () {
+    let style = document.createElement('style')
+    style.type = 'text/css'
+    let head = document.head || document.getElementsByTagName('head')[0]
+    let dynamicCSS = head.appendChild(style)
     return {
       selectedMessage: undefined,
+      dynamicCSS,
       theme: config.theme,
       i18n: {},
       viewConfig: config.viewConfig,
@@ -226,20 +232,31 @@ export default {
         this.selected = []
       }
     },
+    updateDynamicCSS (content) {
+      if (this.dynamicCSS.styleSheet) {
+        this.dynamicCSS.styleSheet.cssText = content
+      } else {
+        this.dynamicCSS.innerText = content
+      }
+    },
     highlightSelected (indexes) {
       if (indexes.length) {
-        indexes.forEach((index) => {
-          this.selected = [index]
-        })
+        let lastIndex = indexes[indexes.length - 1]
+        this.selected = [lastIndex]
+        this.updateDynamicCSS(`.scroll-list-item--${lastIndex} {background-color: rgba(255,255,255,0.7)!important; color: #333;}`)
       }
     },
     scrollToSelected (index) {
-      if (index) {
+      if (typeof index === 'number' && index >= 0 && this.$refs.scrollList) {
         let itemsCount = this.$refs.scrollList.itemsCount
         let scrollToIndex = index - Math.floor(itemsCount / 2)
-        if (scrollToIndex < 0) { return false }
+        if (scrollToIndex < 0) { scrollToIndex = 0 }
         this.$refs.scrollList.scrollTo(scrollToIndex)
       }
+    },
+    messageShow (indexes) {
+      this.highlightSelected(indexes)
+      this.scrollToSelected(indexes[indexes.length - 1])
     }
   },
   watch: {
@@ -247,16 +264,17 @@ export default {
       this.currentLimit = limit
     },
     activeMessagesIds (indexes) {
-      this.highlightSelected(indexes)
-      this.scrollToSelected(indexes[0])
+      this.debouncedMessageShow(indexes)
     }
   },
-  async created () {
+  created () {
+    this.debouncedMessageShow = throttle(this.messageShow, 300, { trailing: true })
     this.currentLimit = this.limit
     this.highlightSelected(this.activeMessagesIds)
   },
   destroyed () {
     this.$store.commit(`messages/${this.moduleName}/clearSelected`)
+    this.dynamicCSS.parentNode.removeChild(this.dynamicCSS)
   },
   components: { VirtualScrollList, MessagesListItem, MessageViewer }
 }

@@ -1,5 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.8.0] - 2020-01-22
+[feature] new mode in player
+[feature] time player rebased
+[feature] markers
+[fix] color pick
+[fix] small ui fixes
 ### [0.7.6] - 2020-01-14
 [feature] autoscroll to active message in player
 [fix] style

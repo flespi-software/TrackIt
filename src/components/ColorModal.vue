@@ -1,9 +1,9 @@
 <template>
   <q-dialog minimized ref="colorModal" class="color-modal" :content-css="{minWidth: '240px', minHeight: '201px'}">
-    <div slot="header" style="background-color: #444; height: 20px">
-      <q-icon color="white" name="close" class="absolute-top-right cursor-pointer" size="1rem" flat @click.native="modalButtonCloseHandler" />
+    <div class="bg-grey-9">
+      <q-color dark v-model="color" format-model="hex"/>
+      <q-btn @click="modalSubmit(color)" class="full-width" flat color="white">Set</q-btn>
     </div>
-    <q-color dark :value="color" @change="modalSubmit" format-model="hex"/>
   </q-dialog>
 </template>
 
@@ -13,7 +13,7 @@ export default {
   props: ['value'],
   data () {
     return {
-      color: '#fff'
+      color: this.value || '#fff'
     }
   },
   methods: {
@@ -31,6 +31,11 @@ export default {
     },
     show () {
       this.$refs.colorModal.show()
+    }
+  },
+  watch: {
+    value (color) {
+      this.color = color
     }
   }
 }

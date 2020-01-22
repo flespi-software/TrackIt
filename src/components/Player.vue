@@ -1,25 +1,25 @@
 <template>
   <div style="display: flex; background-color: #424242; width: 100%">
     <q-btn :disable="max <= min" class="text-white" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat>
-      x{{speed}}
-      <q-menu ref="speedPopover" anchor="top left" style="background-color: #424242">
+      x{{currentSpeed}}
+      <q-menu ref="currentSpeedPopover" anchor="top left" style="background-color: #424242">
         <div class="column">
-          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="speed = 100">x100</q-btn>
-          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="speed = 70">x70</q-btn>
-          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="speed = 50">x50</q-btn>
-          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="speed = 30">x30</q-btn>
-          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="speed = 10">x10</q-btn>
-          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="speed = 1">x1</q-btn>
+          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="changeSpeed(100)">x100</q-btn>
+          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="changeSpeed(70)">x70</q-btn>
+          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="changeSpeed(50)">x50</q-btn>
+          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="changeSpeed(30)">x30</q-btn>
+          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="changeSpeed(10)">x10</q-btn>
+          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="changeSpeed(1)">x1</q-btn>
         </div>
       </q-menu>
-      <q-tooltip v-if="$q.platform.is.desktop">Speed</q-tooltip>
+      <q-tooltip v-if="$q.platform.is.desktop">currentSpeed</q-tooltip>
     </q-btn>
     <q-btn
-      :color="status === 'play' ? 'blue' : 'white'"
+      :color="currentStatus === 'play' ? 'blue' : 'white'"
       :disable="max <= min" class="text-white"
       :dense="$q.platform.is.mobile"
       :size="$q.platform.is.desktop ? '1.4rem' : 'md'"
-      :icon="status === 'play' ? repeatFlag ? 'mdi-repeat' : 'mdi-pause' : 'mdi-play'"
+      :icon="currentStatus === 'play' ? repeatFlag ? 'mdi-repeat' : 'mdi-pause' : 'mdi-play'"
       flat
       @click="playClickHandler"
       @click.ctrl="playRepeatClickHandler"
@@ -28,45 +28,61 @@
       <q-tooltip v-if="$q.platform.is.desktop">Play/Pause (Ctrl+Click to repeat)</q-tooltip>
       <q-tooltip v-if="$q.platform.is.mobile">Play/Pause (Touch hold to repeat)</q-tooltip>
     </q-btn>
-    <q-btn :disable="max <= min" class="text-white" icon="mdi-skip-previous" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="$emit('prev')">
+    <q-btn
+      color="white" class="text-white"
+      :disable="max <= min"
+      :dense="$q.platform.is.mobile"
+      :size="$q.platform.is.desktop ? '1.4rem' : 'md'"
+      icon="mdi-stop"
+      flat
+      @click="stop"
+    >
+      <q-tooltip v-if="$q.platform.is.desktop">Stop</q-tooltip>
+    </q-btn>
+    <q-btn :disable="max <= min || mode === 'data'" class="text-white" icon="mdi-skip-previous" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="$emit('player:prev')">
       <q-tooltip v-if="$q.platform.is.desktop">Prev message</q-tooltip>
     </q-btn>
     <div class="player">
       <div class="player__main">
         <div class="player__container" style="transform: translate3d(0,0,0)" ref="playerContainer">
-          <q-range v-if="max > min" color="white" v-model="range" :min="min" :max="max" :step="1"/>
-          <div class="player__line cursor-pointer" :class="{disabled: max <= min}" @click="clickLineHandler">
+          <q-range v-if="max > min && mode === 'time'" color="white" v-model="range" :min="min" :max="max" :step="1"/>
+          <div class="player__line cursor-pointer" :class="{disabled: max <= min  || mode === 'data'}" @click="clickLineHandler">
             <div class="line line__disabled line__disabled--left" :style="{width: `${(100 * (rangeMin - min)) / (max - min)}%`}"></div>
-            <div class="line line__active" :style="{left: `${current}%`, width: `${100 - current - 100 / max * (max - rangeMax)}%`}"></div>
+            <div class="line line__active" :style="{left: `${mode === 'time' ? current : 0}%`, width: `${100 - (mode === 'time' ? current : 0) - 100 / max * (max - rangeMax)}%`}"></div>
             <div class="line line__disabled line__disabled--right" :style="{width: `${100 / (max - min) * (max - rangeMax)}%`}"></div>
           </div>
-          <div :style="{left: `${current}%`}" v-touch-pan.horizontal.mouse="dragPlayerControl" class="player__control cursor-pointer" :class="{'player__control--mobile': $q.platform.is.mobile, disabled: max <= min}"></div>
+          <div :style="{left: `${mode === 'time' ? current : 0}%`}" v-touch-pan.horizontal.mouse="dragPlayerControl" class="player__control cursor-pointer" :class="{'player__control--mobile': $q.platform.is.mobile, disabled: max <= min || mode === 'data'}"></div>
         </div>
       </div>
     </div>
-    <q-btn :disable="max <= min" class="text-white" icon="mdi-skip-next" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="$emit('next')">
+    <q-btn :disable="max <= min || mode === 'data'" class="text-white" icon="mdi-skip-next" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="$emit('player:next')">
       <q-tooltip v-if="$q.platform.is.desktop">Next message</q-tooltip>
     </q-btn>
   </div>
 </template>
 
 <script>
-import { debounce, throttle } from 'quasar'
+import debounce from 'lodash/debounce'
+import throttle from 'lodash/throttle'
 export default {
   name: 'Player',
   props: [
     'min',
     'max',
-    'value'
+    'value',
+    'status',
+    'speed',
+    'mode'
   ],
   data () {
     return {
-      status: 'pause',
+      currentStatus: this.status,
       currentValue: this.value,
       rangeMin: this.min,
       rangeMax: this.max,
       timer: 0,
-      speed: 10,
+      currentMode: this.mode,
+      currentSpeed: this.speed,
       percentsByPixel: 0,
       current: 0,
       repeatFlag: false
@@ -81,7 +97,7 @@ export default {
         }
       },
       set (range) {
-        this.stop()
+        this.pause()
         if (this.currentValue <= range.min) {
           this.currentValue = range.min
         }
@@ -104,13 +120,14 @@ export default {
       function (value) {
         this.$emit('input', Math.round(value))
       },
-      100
+      100,
+      { trailing: true }
     ),
-    speed: debounce(
+    currentSpeed: debounce(
       function (value) {
-        this.$refs.speedPopover.hide()
-        if (this.status === 'play') {
-          this.stop()
+        this.$refs.currentSpeedPopover.hide()
+        if (this.currentStatus === 'play') {
+          this.pause()
           this.$nextTick(this.play)
         }
       },
@@ -129,6 +146,23 @@ export default {
     },
     max (val) {
       this.rangeMax = val
+    },
+    status (status, old) {
+      if (status !== this.currentStatus) {
+        this.currentStatus = status
+        if (status === 'play' || status === 'pause') {
+          this.playClickHandler()
+        }
+        if (status === 'stop') {
+          this.stop()
+        }
+      }
+    },
+    mode (mode) {
+      this.currentMode = mode
+      this.current = 0
+      this.currentValue = this.min
+      if (this.timer) { clearInterval(this.timer) }
     }
   },
   methods: {
@@ -139,40 +173,61 @@ export default {
     },
     playRepeatClickHandler () {
       this.repeatFlag = !this.repeatFlag
-      if (this.status === 'pause') {
+      if (this.currentStatus === 'pause') {
         this.playClickHandler()
       }
     },
     playClickHandler () {
-      switch (this.status) {
+      switch (this.currentStatus) {
+        case 'stop':
         case 'pause': {
           this.play()
           break
         }
         case 'play': {
-          this.stop()
+          this.pause()
           break
         }
       }
     },
+    emit (event) {
+      if (status === this.currentStatus) { return }
+      this.$emit(`player:${event}`)
+    },
+    stop () {
+      if (this.timer) {
+        clearInterval(this.timer)
+        this.timer = 0
+        if (this.currentStatus === 'play') {
+          this.currentStatus = 'stop'
+          this.currentValue = this.min
+        }
+      }
+      this.emit('stop')
+    },
     changeCurrent () {
       let current = this.currentValue + 1
       if (current > this.rangeMax) {
-        this.stop()
+        this.pause()
         return false
       }
       this.currentValue = current
     },
+    changeSpeed (currentSpeed) {
+      this.currentSpeed = currentSpeed
+      this.$emit('player:speed', currentSpeed)
+    },
     play () {
-      if (this.status === 'pause') {
-        this.status = 'play'
+      if (this.currentStatus === 'pause' || this.currentStatus === 'stop') {
+        this.currentStatus = 'play'
+        this.emit('play')
       }
       if (this.currentValue === this.max) {
         this.currentValue = this.min
       }
-      this.timer = setInterval(this.changeCurrent, 1000 / this.speed)
+      this.timer = setInterval(this.changeCurrent, 1000 / this.currentSpeed)
     },
-    stop () {
+    pause () {
       if (this.repeatFlag) {
         if (this.currentValue === this.max) {
           setTimeout(() => { this.currentValue = this.min }, 600)
@@ -182,9 +237,10 @@ export default {
       if (this.timer) {
         clearInterval(this.timer)
         this.timer = 0
-        if (this.status === 'play') {
+        if (this.currentStatus === 'play') {
           this.end()
-          this.status = 'pause'
+          this.currentStatus = 'pause'
+          this.emit('pause')
         }
       }
     },
@@ -203,7 +259,7 @@ export default {
       }
     },
     dragPlayerControl (data) {
-      if (this.max <= this.min) {
+      if (this.max <= this.min || this.mode === 'data') {
         return false
       }
       let { left, step } = this.getPlayerParams(),
@@ -217,7 +273,7 @@ export default {
       this.currentValue = data.isFinal ? Math.round(position) : position
     },
     clickLineHandler (ev) {
-      if (this.max <= this.min) {
+      if (this.max <= this.min || this.mode === 'data') {
         return false
       }
       let x = ev.clientX,
@@ -229,10 +285,10 @@ export default {
         }
         this.currentValue = Math.round(current)
       }
-    },
-    beforeDestroy () {
-      this.stop()
     }
+  },
+  beforeDestroy () {
+    this.stop()
   }
 }
 </script>

@@ -117,7 +117,7 @@
               <q-item>
                 <q-toggle @input="menuChangeHandler" :disabled="!devices.length" v-model="params.needShowNamesOnMap" icon="pin_drop" label="Names" />
               </q-item>
-              <q-item class="within-iframe-hide" @click.native="exitHandler">
+              <q-item class="within-iframe-hide" @click="exitHandler" clickable>
                 <q-item-section avatar class="q-pl-md">
                   <q-icon name="exit_to_app" />
                 </q-item-section>
@@ -310,7 +310,6 @@ export default {
       this.$refs.datePickerModal.hide()
     },
     dateInputHandler (date) {
-      console.log(date)
       this.dateValue = date ? date.setSeconds(0) : new Date()
     }
   },

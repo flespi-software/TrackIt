@@ -22,53 +22,40 @@
       v-if="mode === 0 && needShowPlayer"
     >
       <q-btn
-        icon="more_vert"
-        color="white"
-        :dense="$q.platform.is.mobile"
-        size="md"
-        flat
-        v-if="$q.platform.is.mobile"
-      >
-        <q-menu ref="popoverExtra">
-          <q-list link separator class="scroll" style="min-width: 200px">
-            <q-item>
-              <q-toggle @input="$emit('change:needShowMessages', messagesFlag)" v-model="messagesFlag" icon="dvr" label="Messages" />
-            </q-item>
-            <q-item>
-              <q-toggle @input="$emit('change:needShowTail', needPolyline)" v-model="needPolyline" icon="mdi-ray-end" label="Tail" />
-            </q-item>
-          </q-list>
-        </q-menu>
-      </q-btn>
-      <q-btn
-        icon="mdi-ray-end"
-        :color="needPolyline ? 'blue' : 'white'"
-        :dense="$q.platform.is.mobile"
-        :size="$q.platform.is.desktop ? '1.4rem' : 'md'"
-        flat
-        @click="needPolyline = !needPolyline, $emit('change:needShowTail', needPolyline)"
-        v-if="$q.platform.is.desktop"
-      >
-        <q-tooltip v-if="$q.platform.is.desktop">Tail</q-tooltip>
-      </q-btn>
-      <q-btn
         icon="dvr"
         :color="needShowMessages ? 'blue' : 'white'"
         :dense="$q.platform.is.mobile"
         :size="$q.platform.is.desktop ? '1.4rem' : 'md'"
         flat
         @click="messagesFlag = !messagesFlag, $emit('change:needShowMessages', messagesFlag)"
-        v-if="$q.platform.is.desktop"
       >
         <q-tooltip v-if="$q.platform.is.desktop">Messages</q-tooltip>
+      </q-btn>
+      <q-btn
+        :icon="player.mode === 'time' ? 'mdi-map-clock-outline' : 'mdi-map-marker-distance'"
+        :disable="player.status === 'play'"
+        color="white"
+        :dense="$q.platform.is.mobile"
+        :size="$q.platform.is.desktop ? '1.4rem' : 'md'"
+        flat
+        @click="playerMode = playerMode === 'data' ? 'time' : 'data', $emit('player:mode', {mode: playerMode, id})"
+      >
+        <q-tooltip v-if="$q.platform.is.desktop">Change mode (Time/Data)</q-tooltip>
       </q-btn>
       <player
         ref="player"
         v-model="playerValue"
         :min="timeRange.min"
         :max="timeRange.max"
-        @next="playerNextHandler"
-        @prev="playerPrevHandler"
+        :status="player.status"
+        :speed="player.speed"
+        :mode="player.mode"
+        @player:next="playerNextHandler"
+        @player:prev="playerPrevHandler"
+        @player:play="playerPlayHandler"
+        @player:pause="playerPauseHandler"
+        @player:stop="playerStopHandler"
+        @player:speed="playerSpeedHandler"
       />
     </div>
   </div>
@@ -84,16 +71,16 @@ export default {
     'messages',
     'mode',
     'date',
-    'isAdmin',
     'device',
     'needShowMessages',
-    'needShowPlayer'
+    'needShowPlayer',
+    'player'
   ],
   data () {
     return {
+      playerMode: 'time',
       playerValue: 0,
       activeMessagesIndexes: [],
-      needPolyline: false,
       messagesFlag: this.needShowMessages
     }
   },
@@ -157,7 +144,7 @@ export default {
       return currentTimestamp
     },
     update (timestamp) {
-      this.$emit('play', { id: this.id, messagesIndexes: this.indexesByTimestamp[timestamp] })
+      this.$emit('player:value', { id: this.id, messagesIndexes: this.indexesByTimestamp[timestamp] })
       this.activeMessagesIndexes = this.indexesByTimestamp[timestamp]
     },
     playerNextHandler () {
@@ -185,6 +172,18 @@ export default {
         return false
       }
       this.playerValue = timestamps[index - 1]
+    },
+    playerPlayHandler () {
+      this.$emit('player:play', { id: this.id })
+    },
+    playerPauseHandler () {
+      this.$emit('player:pause', { id: this.id })
+    },
+    playerStopHandler () {
+      this.$emit('player:stop', { id: this.id })
+    },
+    playerSpeedHandler (speed) {
+      this.$emit('player:speed', { id: this.id, speed })
     },
     viewMessageHandler () {
       if (this.$refs.player) {
@@ -216,6 +215,14 @@ export default {
       })
       if (!isEquilPrevTimestamp) {
         this.update(currentTimestamp)
+      }
+    },
+    player: {
+      deep: true,
+      handler (player) {
+        if (this.activeMessagesIndexes[0] !== player.currentMsgIndex) {
+          this.activeMessagesIndexes = [player.currentMsgIndex]
+        }
       }
     },
     needShowMessages (val) {

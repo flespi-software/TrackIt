@@ -4,7 +4,7 @@ let buildMode = process.argv[2] || 'build',
 let shell = require('shelljs')
 
 process.env.FLESPI_SERVER = flespiServer
-process.env.NODE_ENV = flespiServer === 'flespi' ? 'production' : 'development'
+process.env.NODE_ENV = buildMode.indexOf('build') !== -1 ? 'production' : 'development'
 
 console.log('FLESPI_MODE is ' + flespiServer)
 

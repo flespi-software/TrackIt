@@ -14,10 +14,10 @@ if (DEV && !SERVER) {
 
 // check for pfront SERVER
 if (PROD && SERVER) {
-  if (window.location.host.indexOf('localhost:9004') !== -1 || window.location.host.indexOf('localhost:9005') !== -1 || window.location.host.indexOf('localhost:7004') !== -1) {
+  if (window.location.host.indexOf('flespi.io') === -1) {
     connectionConfig = {
-      httpConfig: { server: 'https://localhost', port: 9005 },
-      socketConfig: { server: `wss://localhost:9017`, clientId: `trackit-${version}-dev-${Math.random().toString(16).substr(2, 8)}`, mqttSettings }
+      httpConfig: { server: `https://${window.location.hostname}`, port: 9005 },
+      socketConfig: { server: `wss://${window.location.hostname}:9017`, clientId: `trackit-${version}-dev-${Math.random().toString(16).substr(2, 8)}`, mqttSettings }
     }
   }
 }

@@ -10,23 +10,6 @@ async function poolDevices ({ state, commit }) {
   } catch (error) { commit('reqFailed', error) }
 }
 
-async function postMessage ({ state, commit }, { data, id }) {
-  commit('reqStart')
-  try {
-    let postMessageResp = await Vue.connector.gw.postDevicesMessages(id, data)
-    let postMessage = postMessageResp.data
-    if (postMessage.errors) {
-      postMessage.errors.forEach((error) => {
-        commit('addError', error.reason)
-      })
-    }
-    commit('reqSuccessful', {
-      type: 'postMessage',
-      payload: postMessage
-    })
-  } catch (error) { commit('reqFailed', error) }
-}
-
 async function checkConnection ({ state, commit }) {
   try {
     let resp = await Vue.connector.http.external.get(`./statics/icons/favicon-16x16.png?_=${(new Date()).getTime()}`)
@@ -90,7 +73,6 @@ async function getInitDataByDeviceId ({ commit, state }, id) {
 
 export default {
   poolDevices,
-  postMessage,
   checkConnection,
   getLastUpdatePosition,
   getInitDataByDeviceId

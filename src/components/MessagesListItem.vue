@@ -3,8 +3,8 @@
     v-if="!item['__connectionStatus']"
     @click="itemClickHandler(index, clearItem)"
     class="cursor-pointer"
-    :class="[item.__status ? 'missed-items' : '']"
-    :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, backgroundColor: item['x-flespi-inited-by-telemetry'] ? 'rgba(111, 101, 19, 0.7)' : selected ? 'rgba(255,255,255,0.7)': '', color: selected ? '#333' : '', borderBottom: item.delimiter ? 'solid 1px #f40' : ''}">
+    :class="{'missed-items': item.__status, 'item--telemetry-inited': item['x-flespi-inited-by-telemetry']}"
+    :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, borderBottom: item.delimiter ? 'solid 1px #f40' : ''}">
     <span class="list__item item_actions" v-if="actionsVisible">
       <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, clearItem)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
         <q-tooltip>{{action.label}}</q-tooltip>
@@ -96,7 +96,7 @@ export default {
           }
           vals[propName].value = this.getValue(value)
         } else {
-          if (propName === 'delimiter' || propName === '__status' || propName === 'x-flespi-inited-by-telemetry') { return false }
+          if (propName === 'delimiter' || propName === '__status' || propName.indexOf('x-flespi-') !== -1) { return false }
           if (propName.indexOf('image.bin.') !== -1) {
             vals.etc.value += `${propName}: <binary image>`
           } else {
@@ -162,6 +162,8 @@ export default {
 </script>
 
 <style lang="stylus">
+  .item--telemetry-inited
+    background-color rgba(111, 101, 19, 0.7)!important
   .list__item
     display inline-block
     white-space nowrap
