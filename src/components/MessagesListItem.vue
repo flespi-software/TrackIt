@@ -4,16 +4,20 @@
     @click="itemClickHandler(index, clearItem)"
     class="cursor-pointer"
     :class="{'missed-items': item.__status, 'item--telemetry-inited': item['x-flespi-inited-by-telemetry']}"
-    :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, borderBottom: item.delimiter ? 'solid 1px #f40' : ''}">
-    <span class="list__item item_actions" v-if="actionsVisible">
-      <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, clearItem)" :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
-        <q-tooltip>{{action.label}}</q-tooltip>
-      </q-icon>
-    </span>
-    <span v-for="(prop, k) in cols" :key="prop.name + k" class="list__item" :class="{[`item_${k}`]: true}" :title="values[prop.name].value">
-      {{values[prop.name].value}}
-    </span>
-    <span v-if="etcVisible" class="list__item item_etc">{{values.etc.value || '*Empty*'}}</span>
+    :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, borderBottom: item.delimiter ? 'solid 1px #f40' : ''}"
+  >
+    <template v-for="(prop, k) in cols">
+      <span class="list__item item_actions" :class="{[`item_${k}`]: true}" v-if="prop.__dest === 'action'" :key="prop.name + k">
+        <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)"
+                :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
+          <q-tooltip>{{action.label}}</q-tooltip>
+        </q-icon>
+      </span>
+      <span v-else-if="prop.__dest === 'etc'" class="list__item item_etc" :class="{[`item_${k}`]: true}" :key="prop.name + k">{{values.etc.value || '*Empty*'}}</span>
+      <span v-else :key="prop.name + k" class="list__item" :class="{[`item_${k}`]: true}" :title="values[prop.name].value">
+        {{values[prop.name].value}}
+      </span>
+    </template>
   </div>
   <div
     v-else

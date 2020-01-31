@@ -456,7 +456,7 @@ export default {
       this.$q.loading.show()
       if (id) {
         this.$store.commit(`messages/${id}/setActive`, id)
-        await this.$store.dispatch(`messages/${id}/getCols`)
+        await this.$store.dispatch(`messages/${id}/getCols`, { actions: true, etc: true })
       }
       if (this.$store.state.messages[id].mode === null) {
         await this.modeChangeById(id)

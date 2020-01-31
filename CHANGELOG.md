@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.8.1] - 2020-01-31
+[update] VS and rebased to new API
 ### [0.8.0] - 2020-01-22
 [feature] new mode in player
 [feature] time player rebased
