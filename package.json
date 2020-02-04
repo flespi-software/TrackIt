@@ -9,9 +9,8 @@
   "private": true,
   "scripts": {
     "lint": "eslint --ext .js,.vue src",
-    "dev": "node ./build.js \"dev -m spa\" \"flespi\"",
-    "build": "node ./build.js \"build -m spa\" \"flespi\"",
-    "dev_local": "node ./build.js \"dev -m spa\" \"local\"",
+    "dev": "quasar dev -m spa",
+    "build": "quasar build -m spa",
     "deploy": "rm -rf dist && npm run build && rm -rf deploy && mkdir deploy && cp -R dist/spa/* misc LICENSE package.json deploy && cp README.md deploy/README.md && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rhttps://git.gurtam.net/flespi/frontend/TrackIt.git && rm -rf deploy && git push github gh-pages"
   },
   "dependencies": {
@@ -35,8 +34,7 @@
     "eslint": "^5.10.0",
     "eslint-loader": "^2.1.1",
     "eslint-plugin-vue": "^5.0.0",
-    "git-directory-deploy": "^1.5.1",
-    "shelljs": "^0.8.3"
+    "git-directory-deploy": "^1.5.1"
   },
   "engines": {
     "node": ">= 8.9.0",
