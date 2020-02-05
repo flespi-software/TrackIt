@@ -30,8 +30,7 @@ module.exports = {
     'Capacitor': true,
     'chrome': true,
     'DEV': true,
-    'PROD': true,
-    'SERVER': true
+    'PROD': true
   },
 
   // add your custom rules here

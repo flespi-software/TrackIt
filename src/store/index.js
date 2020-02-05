@@ -17,7 +17,9 @@ let state = {
   socketOffline: false,
   isLoading: false,
   newNotificationCounter: 0,
-  errors: []
+  errors: [],
+  regions: null,
+  currentRegion: null
 }
 
 const store = new Vuex.Store(

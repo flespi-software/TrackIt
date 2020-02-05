@@ -136,7 +136,7 @@ function setToken (state, val) {
   let token = val.replace('FlespiToken ', '')
   if (val && token.match(/^[a-z0-9]+$/i)) {
     Vue.connector.token = `FlespiToken ${token}`
-    SessionStorage.set('currentToken', token)
+    SessionStorage.set('flespi-trackit-token', token)
   } else {
     token = ''
     Vue.connector.token = ''
@@ -145,7 +145,7 @@ function setToken (state, val) {
   Vue.set(state, 'token', token)
 }
 function clearToken (state) {
-  SessionStorage.remove('currentToken')
+  SessionStorage.remove('flespi-trackit-token')
   Vue.connector.token = ''
   if (state.socketOffline) { setSocketOffline(state, false) }
   Vue.set(state, 'token', '')
@@ -198,6 +198,20 @@ function clearErrors (state) {
   Vue.set(state, 'errors', [])
 }
 
+function setRegions (state, regions) {
+  state.regions = regions
+}
+
+function setCurrentRegion (state, region) {
+  state.currentRegion = region
+  SessionStorage.set('flespi-trackit-region', region.name)
+}
+
+function clearCurrentRegion (state) {
+  state.currentRegion = null
+  SessionStorage.remove('flespi-trackit-region')
+}
+
 function clearNotificationCounter (state) { state.newNotificationCounter = 0 }
 export default {
   reqStart,
@@ -215,5 +229,8 @@ export default {
   setSocketOffline,
   clearNotificationCounter,
   addError,
-  clearErrors
+  clearErrors,
+  setRegions,
+  setCurrentRegion,
+  clearCurrentRegion
 }

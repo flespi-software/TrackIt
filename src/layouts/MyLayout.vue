@@ -235,8 +235,8 @@ export default {
   methods: {
     openURL,
     ...mapMutations([
-      'setToken',
       'clearToken',
+      'clearCurrentRegion',
       'setDevicesInit',
       'unsetDevicesInit',
       'setActiveDevice',
@@ -249,6 +249,7 @@ export default {
       Vue.connector.socket.off('error')
       this.unsetDevicesInit()
       this.clearToken()
+      this.clearCurrentRegion()
       this.$router.push('/login')
     },
     setWatchToDeviceID (id) {
@@ -348,7 +349,9 @@ export default {
     }
   },
   created () {
-    this.$store.registerModule('telemetry', telemetryVuexModule(this.$store, Vue))
+    if (!this.$store.state.telemetry) {
+      this.$store.registerModule('telemetry', telemetryVuexModule(this.$store, Vue))
+    }
     this.clearNotificationCounter()
     this.clearErrors()
     if (!this.token) {

@@ -11,7 +11,7 @@
         <p class="text-center">Track your devices on the map.</p>
         <div class="row full-width">
           <div class="col-12 text-center">
-            <q-btn @click="openWindow(`${$flespiServer}/login/#/providers`)" icon="mdi-account-circle" color="red-7" rounded label="login / register" size="lg"/>
+            <q-btn @click="openWindow(`${$authHost}/login/#/providers`)" icon="mdi-account-circle" color="red-7" rounded label="login / register" size="lg"/>
           </div>
         </div>
       </div>
@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex'
+import { mapMutations, mapActions } from 'vuex'
 
 export default {
   data () {
@@ -52,25 +52,30 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['setToken']),
-    logIn () {
-      this.setToken(this.token)
-      this.$nextTick(() => { this.$router.push('/') })
+    ...mapMutations(['setRegions', 'setCurrentRegion', 'setToken']),
+    ...mapActions(['initConnection']),
+    logIn (region) {
+      this.initConnection({ token: this.token, region })
+        .then(() => {
+          this.$nextTick(() => { this.$router.push('/') })
+        })
     },
     autoLogin () {
-      this.setToken(this.$route.params.token)
-      setTimeout(() => {
-        this.$router.push('/')
-      }, 1000)
+      this.initConnection({ token: this.$route.params.token })
+        .then(() => {
+          this.$router.push('/')
+        })
     },
     checkHasToken () {
-      let sessionStorageToken = this.$q.sessionStorage.getItem('currentToken')
+      let sessionStorageToken = this.$q.sessionStorage.getItem('flespi-trackit-token')
+      let sessionStorageRegion = this.$q.sessionStorage.getItem(`flespi-trackit-region`)
       if (this.$route.params && this.$route.params.token) {
         this.autoLogin()
         return true
       } else if (sessionStorageToken) {
         this.token = sessionStorageToken
-        this.logIn()
+        console.log(sessionStorageRegion)
+        this.logIn(sessionStorageRegion)
         return true
       } else { return false }
     },
@@ -91,6 +96,11 @@ export default {
       if (window.focus) {
         newWindow.focus()
       }
+    },
+    regionInitFromAuth (region) {
+      this.setRegions({ [region.name]: region })
+      this.setCurrentRegion(region)
+      this.$connector.setRegion(region)
     }
   },
   watch: {
@@ -103,9 +113,14 @@ export default {
   created () {
     if (!this.checkHasToken()) {
       let tokenHandler = (event) => {
-        if (typeof event.data === 'string' && ~event.data.indexOf('FlespiToken')) {
-          this.token = event.data
-          this.logIn()
+        if (typeof event.data === 'string' && ~event.data.indexOf('FlespiLogin|token:')) {
+          let payload = event.data
+          payload = payload.replace('FlespiLogin|token:', '')
+          payload = JSON.parse(payload)
+          this.token = payload.token
+          this.regionInitFromAuth(payload.region)
+          this.setToken(payload.token)
+          this.$router.push('/')
           window.removeEventListener('message', tokenHandler)
         }
       }

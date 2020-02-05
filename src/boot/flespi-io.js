@@ -1,33 +1,36 @@
 import VueConnection from 'flespi-io-js/dist/vue-plugin'
 import { version } from '../../package.json'
 
-let mqttSettings = { protocolVersion: 5, wsOptions: { objectMode: false, perMessageDeflate: true } }
-let connectionConfig = { socketConfig: { clientId: `trackit-${version}-${Math.random().toString(16).substr(2, 8)}`, mqttSettings } }
-
+let rest = '',
+  socket = ''
 /* if local dev build */
-if (DEV && !SERVER) {
-  connectionConfig = {
-    httpConfig: { server: 'https://localhost', port: 9005 },
-    socketConfig: { server: `wss://localhost:9017`, clientId: `trackit-${version}-dev-${Math.random().toString(16).substr(2, 8)}`, mqttSettings }
-  }
-}
-
-// check for pfront SERVER
-if (PROD && SERVER) {
+if (DEV) {
+  rest = 'https://localhost:9005'
+  socket = 'wss://localhost:9017'
+} else if (PROD) {
   if (window.location.host.indexOf('flespi.io') === -1) {
-    connectionConfig = {
-      httpConfig: { server: `https://${window.location.hostname}`, port: 9005 },
-      socketConfig: { server: `wss://${window.location.hostname}:9017`, clientId: `trackit-${version}-dev-${Math.random().toString(16).substr(2, 8)}`, mqttSettings }
-    }
+    rest = `https://${window.location.hostname}:9005`
+    socket = `wss://${window.location.hostname}:9017`
+  } else if (window.location.host.indexOf('toolbox') === -1) {
+    rest = `https://${window.location.origin}`
+    socket = `wss://${window.location.origin}`
   }
 }
 
-if (window.location.hash.split('/').slice(-1)[0] === 'flespi') {
-  connectionConfig = { socketConfig: { clientId: `toolbox-${version}-${Math.random().toString(16).substr(2, 8)}`, mqttSettings } }
+let isDev = DEV || (PROD && window.location.host.indexOf('flespi.io') === -1)
+let mqttSettings = { protocolVersion: 5, wsOptions: { objectMode: false, perMessageDeflate: true } }
+let connectionConfig = {
+  socketConfig: {
+    server: socket,
+    clientId: `trackit-${version}${isDev ? '-dev' : ''}-${Math.random().toString(16).substr(2, 8)}`,
+    mqttSettings
+  },
+  httpConfig: rest ? { server: rest } : undefined
 }
 
 export default ({ Vue, store }) => {
-  Vue.prototype.$flespiServer = connectionConfig.httpConfig && connectionConfig.httpConfig.server ? `${connectionConfig.httpConfig.server}:${connectionConfig.httpConfig.port}` : 'https://flespi.io'
+  Vue.prototype.$authHost = rest || 'https://flespi.io'
+  Vue.prototype.$flespiServer = rest || 'https://flespi.io'
   Vue.use(VueConnection, connectionConfig)
   Vue.connector.socket.on('error', (error) => {
     store.commit('reqFailed', error)

@@ -1,5 +1,5 @@
 import Vue from 'vue'
-
+import get from 'lodash/get'
 async function poolDevices ({ state, commit }) {
   commit('reqStart')
   try {
@@ -71,9 +71,60 @@ async function getInitDataByDeviceId ({ commit, state }, id) {
   commit(`messages/${id}/setMessages`, [initMessage])
 }
 
+async function getRegions ({ state, commit }) {
+  try {
+    if (typeof state.isLoading !== 'undefined') {
+      Vue.set(state, 'isLoading', true)
+    }
+    let resp = await Vue.connector.http.get('/auth/regions')
+    let regions = get(resp, 'data.result', [])
+    let currentRegion = null
+    regions = regions.reduce((regions, region) => {
+      if (region.default) {
+        currentRegion = region
+      }
+      regions[region.name] = region
+      return regions
+    }, {})
+    currentRegion && commit('setCurrentRegion', currentRegion)
+    commit('setRegions', regions)
+  } catch (e) {
+    commit('reqFailed', e)
+    if (typeof state.isLoading !== 'undefined') {
+      Vue.set(state, 'isLoading', false)
+    }
+  }
+}
+
+async function initConnection ({ state, commit }, { region, token }) {
+  try {
+    if (typeof state.isLoading !== 'undefined') {
+      Vue.set(state, 'isLoading', true)
+    }
+    if (!state.regions) {
+      await getRegions({ state, commit })
+    }
+    if (region) {
+      commit('setCurrentRegion', state.regions[region])
+    }
+    Vue.prototype.$flespiServer = state.currentRegion.rest
+    Vue.prototype.$flespiSocketServer = `wss://${state.currentRegion['mqtt-ws']}`
+    Vue.prototype.$flespiCDN = state.currentRegion.cdn
+    Vue.connector.setRegion(state.currentRegion)
+    commit('setToken', token)
+  } catch (e) {
+    commit('reqFailed', e)
+    if (typeof state.isLoading !== 'undefined') {
+      Vue.set(state, 'isLoading', false)
+    }
+  }
+}
+
 export default {
   poolDevices,
   checkConnection,
   getLastUpdatePosition,
-  getInitDataByDeviceId
+  getInitDataByDeviceId,
+  getRegions,
+  initConnection
 }
