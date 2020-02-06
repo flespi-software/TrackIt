@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [0.8.3] - 2020-02-06
+[fix] new login
 ### [0.8.2] - 2020-02-05
 [feature] new login logic
 ### [0.8.1] - 2020-01-31

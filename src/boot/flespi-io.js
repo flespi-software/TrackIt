@@ -11,9 +11,9 @@ if (DEV) {
   if (window.location.host.indexOf('flespi.io') === -1) {
     rest = `https://${window.location.hostname}:9005`
     socket = `wss://${window.location.hostname}:9017`
-  } else if (window.location.host.indexOf('toolbox') === -1) {
-    rest = `https://${window.location.origin}`
-    socket = `wss://${window.location.origin}`
+  } else if (window.location.host.indexOf('/trackit') !== -1) {
+    rest = `https://${window.location.host}`
+    socket = `wss://${window.location.host}`
   }
 }
 
