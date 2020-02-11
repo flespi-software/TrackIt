@@ -5,13 +5,15 @@ let rest = '',
   socket = ''
 /* if local dev build */
 if (DEV) {
-  rest = 'https://localhost:9005'
-  socket = 'wss://localhost:9017'
+  if (window.location.host.indexOf('localhost') !== -1) {
+    rest = 'https://localhost:9005'
+    socket = 'wss://localhost:9017'
+  }
 } else if (PROD) {
   if (window.location.host.indexOf('flespi.io') === -1) {
     rest = `https://${window.location.hostname}:9005`
     socket = `wss://${window.location.hostname}:9017`
-  } else if (window.location.host.indexOf('/trackit') !== -1) {
+  } else if (window.location.pathname.indexOf('/trackit') !== -1) {
     rest = `https://${window.location.host}`
     socket = `wss://${window.location.host}`
   }
