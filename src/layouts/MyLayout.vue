@@ -25,7 +25,7 @@
         </q-item>
         <q-telemetry class="scroll" style="height: calc(100% - 128px)" v-if="deviceIdForTelemetry" :propHistoryFlag="telemetryConfig.propHistoryFlag" :device="deviceForTelemetry" :inverted="telemetrySettings.inverted" :search="telemetrySearch" />
         <div v-else class="text-bold text-center q-mt-sm" :class="{'text-white': telemetrySettings.inverted}">
-          Select one by clicking on its <q-icon name="mdi-map-marker"/> marker
+          Select one by clicking on its <q-icon name="mdi-car-sports" size="1.2rem"/> marker
         </div>
       </div>
     </q-drawer>
@@ -59,7 +59,7 @@
             </q-list>
           </q-menu>
         </q-btn>
-        <div v-if="devices.length && mode === 0" class="floated date">
+        <div v-if="devices.length" class="floated date">
           <q-btn flat style="max-width: 120px; font-size: .85rem; line-height: .85rem;" class="q-pa-none" @click="$refs.datePickerModal.toggle()">
             <div>{{formatDate(date)}}</div>
           </q-btn>
@@ -97,9 +97,6 @@
             <q-btn dense style="pointer-events: auto" @click="openURL('https://flespi.io')" color="red-5" label="flespi.io"/>
           </div>
         </div>
-        <q-btn small dense flat size="md" v-if="devices.length" class="floated mode" :icon="mode === 1 ? 'playlist_play' : 'history'" @click="changeMode">
-          <q-tooltip>Change mode (History/Real-time)</q-tooltip>
-        </q-btn>
         <a v-if="$q.platform.is.desktop" href="https://github.com/flespi-software/TrackIt/" class="floated github" target="_blank"><q-btn flat round color="bg-grey-9"><img style="height: 30px;" src="../statics/GitHub-Mark-32px.png" alt="GitHub"><q-tooltip>Show on GitHub</q-tooltip></q-btn></a>
         <q-btn small round flat size="md" class="floated options">
           <q-icon color="bg-grey-9" name="more_vert" />
@@ -109,7 +106,7 @@
                 <q-toggle @input="menuChangeHandler" :disabled="!devices.length" v-model="params.needShowMessages" icon="dvr" label="Messages" />
               </q-item>
               <q-item>
-                <q-toggle @input="menuChangeHandler" v-model="params.needShowPlayer" :disable="mode === 1 || !devices.length" icon="mdi-play" label="Player" :title="mode === 1 ? 'Only in history mode' : ''" />
+                <q-toggle @input="menuChangeHandler" v-model="params.needShowPlayer" :disable="!devices.length" icon="mdi-play" label="Player" />
               </q-item>
               <q-item>
                 <q-toggle v-close-popup @input="menuChangeHandler" :disabled="!devices.length" v-model="params.needShowTelemetry" icon="av_timer" label="Telemetry" />
@@ -133,7 +130,6 @@
           :activeDevices="activeDevices"
           :deviceIdForWatch="deviceIdForWatch"
           :params="params"
-          :mode="mode"
           :date="date"
           @change:needShowMessages="(value) => { params.needShowMessages = value }"
         />
@@ -168,7 +164,6 @@ export default {
       telemetrySettings: {
         inverted: true
       },
-      mode: 1,
       telemetrySearch: '',
       telemetryConfig: {
         propHistoryFlag: true
@@ -195,20 +190,18 @@ export default {
         return state.isLoading
       },
       activeDevicesID (state) {
-        if (this.mode === 0) {
-          this.getLastUpdatePosition()
-            .then((date) => {
-              this.date = date || undefined
-              this.dateValue = date || undefined
-            })
-        }
+        this.getLastUpdatePosition()
+          .then((date) => {
+            this.date = date || undefined
+            this.dateValue = date || undefined
+          })
         return state.activeDevicesID
       },
       hasDevicesInit: state => state.hasDevicesInit,
       activeDevices: state => state.devices.filter(device => state.activeDevicesID.includes(device.id)),
       lastActiveDevicesUpdate (state) {
         return this.activeDevicesID.reduce((result, id) => {
-          let messages = state.messages[id].messages.filter((message) => {
+          const messages = state.messages[id].messages.filter((message) => {
             return !!message['position.latitude'] && !!message['position.longitude']
           })
           if (!messages.length) {
@@ -268,7 +261,7 @@ export default {
         this.setWatchToDeviceID(null)
         return false
       }
-      let devicesById = this.devices.filter(device => device.id === id)
+      const devicesById = this.devices.filter(device => device.id === id)
       if (devicesById.length) {
         this.deviceIdForTelemetry = id
         this.deviceIdForWatch = id
@@ -281,22 +274,6 @@ export default {
         }
       } else {
         this.deviceIdForTelemetry = null
-      }
-    },
-    changeMode () {
-      if (this.mode === 1) {
-        /* history mode change logic */
-        this.getLastUpdatePosition()
-          .then((date) => {
-            this.date = date || undefined
-            this.dateValue = date || undefined
-            this.mode = 0
-          })
-      } else {
-        /* rt mode change logic */
-        this.date = undefined
-        this.dateValue = undefined
-        this.mode = 1
       }
     },
     formatDate (timestamp) {
@@ -356,7 +333,7 @@ export default {
     this.clearErrors()
     if (!this.token) {
       if (this.$route.params.devices) {
-        let active = this.$route.params.devices.split(',').map(id => +id)
+        const active = this.$route.params.devices.split(',').map(id => +id)
         active.forEach((id) => {
           this.setActiveDevice(id)
         })
@@ -383,12 +360,12 @@ export default {
         this.deviceIdForWatch = this.activeDevicesID[0]
       }
     }
-    let params = this.$q.localStorage.getItem('TrackIt Params')
+    const params = this.$q.localStorage.getItem('TrackIt Params')
     if (params) {
       Vue.set(this, 'params', Object.assign(this.params, params))
       this.side_right = params.needShowTelemetry
     }
-    let telemetrySettings = this.$q.localStorage.getItem('TrackIt TelemetrySettings')
+    const telemetrySettings = this.$q.localStorage.getItem('TrackIt TelemetrySettings')
     if (telemetrySettings) {
       Vue.set(this, 'telemetrySettings', Object.assign(this.telemetrySettings, telemetrySettings))
     }
@@ -424,15 +401,9 @@ export default {
     &.options
       top 5px
       right 10px
-    &.mode
-      top 60px
-      right 10px
-      background-color white
-      box-shadow 0 0 15px rgba(0,0,0,0.5)
-      padding 2px 10px
     &.date
       top 60px
-      right 70px
+      right 10px
       background-color white
       padding 1px
       border-radius 3px

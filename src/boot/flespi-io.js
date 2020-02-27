@@ -1,3 +1,4 @@
+/* eslint-disable */
 import VueConnection from 'flespi-io-js/dist/vue-plugin'
 import { version } from '../../package.json'
 
@@ -19,9 +20,9 @@ if (DEV) {
   }
 }
 
-let isDev = DEV || (PROD && window.location.host.indexOf('flespi.io') === -1)
-let mqttSettings = { protocolVersion: 5, wsOptions: { objectMode: false, perMessageDeflate: true } }
-let connectionConfig = {
+const isDev = DEV || (PROD && window.location.host.indexOf('flespi.io') === -1)
+const mqttSettings = { protocolVersion: 5, wsOptions: { objectMode: false, perMessageDeflate: true } }
+const connectionConfig = {
   socketConfig: {
     server: socket,
     clientId: `trackit-${version}${isDev ? '-dev' : ''}-${Math.random().toString(16).substr(2, 8)}`,

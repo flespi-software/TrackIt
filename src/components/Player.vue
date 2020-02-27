@@ -134,18 +134,22 @@ export default {
       100
     ),
     value (value) {
-      let current = (value - this.min) / (this.max - this.min) * 100
+      const current = (value - this.min) / (this.max - this.min) * 100
       this.checkNeedRedraw(current)
       if (value === this.currentValue) {
         return false
       }
       this.currentValue = value
     },
-    min (val) {
-      this.rangeMin = val
+    min (val, prev) {
+      if (this.rangeMin === prev) {
+        this.rangeMin = val
+      }
     },
-    max (val) {
-      this.rangeMax = val
+    max (val, prev) {
+      if (this.rangeMax === prev) {
+        this.rangeMax = val
+      }
     },
     status (status, old) {
       if (status !== this.currentStatus) {
@@ -206,7 +210,7 @@ export default {
       this.emit('stop')
     },
     changeCurrent () {
-      let current = this.currentValue + 1
+      const current = this.currentValue + 1
       if (current > this.rangeMax) {
         this.pause()
         return false
@@ -250,7 +254,7 @@ export default {
       }
     },
     getPlayerParams () {
-      let container = this.$refs.playerContainer,
+      const container = this.$refs.playerContainer,
         left = container.getBoundingClientRect().left,
         width = container.offsetWidth,
         step = width / (this.max - this.min)
@@ -262,8 +266,8 @@ export default {
       if (this.max <= this.min || this.mode === 'data') {
         return false
       }
-      let { left, step } = this.getPlayerParams(),
-        position = this.min + ((data.position.left - left) / step)
+      const { left, step } = this.getPlayerParams()
+      let position = this.min + ((data.position.left - left) / step)
       if (position < this.rangeMin) {
         position = this.rangeMin
       }
@@ -276,7 +280,7 @@ export default {
       if (this.max <= this.min || this.mode === 'data') {
         return false
       }
-      let x = ev.clientX,
+      const x = ev.clientX,
         { left, step } = this.getPlayerParams(),
         current = this.min + ((x - left) / step)
       if (this.currentValue !== current) {
@@ -334,7 +338,7 @@ export default {
           background-color rgba(0,255,0,.8)
           border solid 1px white
           position absolute
-          top calc(53% - 1px)
+          top calc(50% - 1px)
           transform translate3d(-50%, -50%, 0) rotate(-135deg)
           border-bottom-left-radius inherit
           z-index 2
@@ -343,11 +347,12 @@ export default {
             height 16px
             top 50%
       .q-slider
-        height 0
+        height 7px
+        top 20px
         .q-slider__thumb-container
+          top 50%
+          z-index 1
           .q-slider__thumb
-            top 2px
-            z-index 1
             &.handle-at-minimum:after
               border none
         .q-slider__track-container

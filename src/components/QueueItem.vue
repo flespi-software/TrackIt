@@ -1,11 +1,10 @@
 <template>
   <div :style="[{height: height, position: 'relative'}]">
     <template v-if="needShowMessages">
-      <div :style="{height: mode === 0 && needShowPlayer ? 'calc(100% - 65px)' : '100%'}" class="table__wrapper">
+      <div :style="{height: needShowPlayer ? 'calc(100% - 65px)' : '100%'}" class="table__wrapper">
         <messages
           style="height: 100%;"
           :messages="messages"
-          :mode="mode"
           :item="device"
           :activeDeviceId="id"
           :limit="0"
@@ -18,8 +17,8 @@
     </template>
     <div
       style="display: flex; background-color: #424242;"
-      :style="{height: mode === 0 && needShowMessages ? '65px' : '100%'}"
-      v-if="mode === 0 && needShowPlayer"
+      :style="{height: needShowMessages ? '65px' : '100%'}"
+      v-if="needShowPlayer"
     >
       <q-btn
         icon="dvr"
@@ -69,7 +68,6 @@ export default {
   props: [
     'id',
     'messages',
-    'mode',
     'date',
     'device',
     'needShowMessages',
@@ -78,8 +76,9 @@ export default {
   ],
   data () {
     return {
-      playerMode: 'time',
+      playerMode: this.player.mode || 'time',
       playerValue: 0,
+      playerStatus: 'stop',
       activeMessagesIndexes: [],
       messagesFlag: this.needShowMessages
     }
@@ -99,7 +98,7 @@ export default {
     },
     indexesByTimestamp () {
       return this.messages.reduce((result, message, index) => {
-        let key = Math.floor(message.timestamp)
+        const key = Math.floor(message.timestamp)
         if (!result[key]) {
           result[key] = []
         }
@@ -108,7 +107,7 @@ export default {
       }, {})
     },
     height () {
-      if (this.mode === 0 && !!this.messages.length) {
+      if (this.messages.length) {
         if (this.needShowMessages && !this.needShowPlayer) {
           return '20vh'
         } else if (!this.needShowMessages && this.needShowPlayer) {
@@ -131,8 +130,8 @@ export default {
   },
   methods: {
     getCurrentActiveTimestamp () {
-      let currentTimestamp = 0,
-        timestamps = Object.keys(this.indexesByTimestamp)
+      let currentTimestamp = 0
+      const timestamps = Object.keys(this.indexesByTimestamp)
       timestamps.every((timestamp, index) => {
         if (this.playerValue >= timestamp) {
           currentTimestamp = timestamp
@@ -144,11 +143,12 @@ export default {
       return currentTimestamp
     },
     update (timestamp) {
+      if (this.playerMode !== 'time') { return }
       this.$emit('player:value', { id: this.id, messagesIndexes: this.indexesByTimestamp[timestamp] })
-      this.activeMessagesIndexes = this.indexesByTimestamp[timestamp]
+      this.activeMessagesIndexes = this.indexesByTimestamp[timestamp] || []
     },
     playerNextHandler () {
-      let timestamps = Object.keys(this.indexesByTimestamp),
+      const timestamps = Object.keys(this.indexesByTimestamp),
         index = timestamps.indexOf(this.getCurrentActiveTimestamp())
       if (index === timestamps.length - 1) {
         this.$q.notify({
@@ -161,7 +161,7 @@ export default {
       this.playerValue = timestamps[index + 1]
     },
     playerPrevHandler () {
-      let timestamps = Object.keys(this.indexesByTimestamp),
+      const timestamps = Object.keys(this.indexesByTimestamp),
         index = timestamps.indexOf(this.getCurrentActiveTimestamp())
       if (index === 0) {
         this.$q.notify({
@@ -174,12 +174,23 @@ export default {
       this.playerValue = timestamps[index - 1]
     },
     playerPlayHandler () {
+      this.playerStatus = 'play'
+      if (!this.playerValue) {
+        this.playerValue = Math.floor(this.messages[0].timestamp)
+      }
       this.$emit('player:play', { id: this.id })
     },
     playerPauseHandler () {
+      this.playerStatus = 'pause'
       this.$emit('player:pause', { id: this.id })
     },
     playerStopHandler () {
+      this.playerStatus = 'stop'
+      if (this.messages.length) {
+        this.playerValue = Math.floor(this.messages[0].timestamp)
+      } else {
+        this.playerValue = 0
+      }
       this.$emit('player:stop', { id: this.id })
     },
     playerSpeedHandler (speed) {
@@ -197,8 +208,8 @@ export default {
   watch: {
     playerValue (value, prev) {
       let currentTimestamp = 0,
-        isEquilPrevTimestamp = true,
-        timestamps = Object.keys(this.indexesByTimestamp)
+        isEquilPrevTimestamp = true
+      const timestamps = Object.keys(this.indexesByTimestamp)
       timestamps.every((timestamp, index) => {
         if (value >= timestamp) {
           currentTimestamp = timestamp
@@ -220,7 +231,7 @@ export default {
     player: {
       deep: true,
       handler (player) {
-        if (this.activeMessagesIndexes[0] !== player.currentMsgIndex) {
+        if (this.activeMessagesIndexes && this.activeMessagesIndexes[0] !== player.currentMsgIndex) {
           this.activeMessagesIndexes = [player.currentMsgIndex]
         }
       }
@@ -228,27 +239,11 @@ export default {
     needShowMessages (val) {
       this.messagesFlag = val
     },
-    messages (messages) {
-      if (this.mode === 0 && messages.length) {
-        let currentTimestamp = Math.floor(messages[0].timestamp)
-        this.playerValue = messages.length ? Math.floor(messages[0].timestamp) : 0
-        this.update(currentTimestamp)
-      }
+    date () {
+      this.playerValue = 0
+      this.playerStatus = 'stop'
     }
   },
-  components: { Messages, Player },
-  beforeDestroy () {
-    if (this.mode === 0 && this.messages.length) {
-      let currentTimestamp = Math.floor(this.messages[this.messages.length - 1].timestamp)
-      this.update(currentTimestamp)
-    }
-  },
-  created () {
-    if (this.mode === 0 && this.messages.length) {
-      let currentTimestamp = Math.floor(this.messages[0].timestamp)
-      this.playerValue = this.messages.length ? Math.floor(this.messages[0].timestamp) : 0
-      this.update(currentTimestamp)
-    }
-  }
+  components: { Messages, Player }
 }
 </script>

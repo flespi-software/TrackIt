@@ -8,7 +8,7 @@ import modules from './modules'
 
 Vue.use(Vuex)
 
-let state = {
+const state = {
   token: '',
   devices: [],
   activeDevicesID: [],

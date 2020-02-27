@@ -6,35 +6,19 @@
       :actions="actions"
       :items="messages"
       :dateRange="dateRange"
-      :mode="mode"
       :viewConfig="viewConfig"
       :colsConfigurator="'toolbar'"
-      :i18n="i18n"
       :theme="theme"
       :title="'Messages'"
       :loading="isLoading"
+      :autoscroll="realtimeEnabled"
+      scrollOffset="10%"
+      :item="listItem"
+      :itemprops="getItemsProps"
       @change:date-range="dateRangeChangeHandler"
-      @change:date-range-prev="dateRangePrevHandler"
-      @change:date-range-next="dateRangeNextHandler"
+      @action:to-bottom="actionToBottomHandler"
       @update:cols="updateColsHandler"
     >
-      <messages-list-item
-        ref="renderedItems"
-        slot="items"
-        slot-scope="{item, index, actions, cols, etcVisible, actionsVisible, itemHeight, rowWidth}"
-        :class="[`scroll-list-item--${index}`]"
-        :item="item"
-        :key="`${JSON.stringify(item)}${index}`"
-        :index="index"
-        :actions="actions"
-        :cols="cols"
-        :itemHeight="itemHeight"
-        :rowWidth="rowWidth"
-        :etcVisible="etcVisible"
-        :actionsVisible="actionsVisible"
-        @item-click="viewMessageOnMap"
-        @action='actionHandler'
-      />
       <div class="no-messages text-center" slot="empty">
         <div class="text-white" style="font-size: 3rem;">
           <div>No messages</div>
@@ -51,10 +35,9 @@ import { VirtualScrollList } from 'qvirtualscroll'
 import MessageViewer from './MessageViewer'
 import { copyToClipboard } from 'quasar'
 import MessagesListItem from './MessagesListItem.vue'
-import throttle from 'lodash/throttle'
 
 const config = {
-  'actions': [
+  actions: [
     {
       icon: 'mdi-eye',
       label: 'view',
@@ -62,18 +45,18 @@ const config = {
       type: 'view'
     }
   ],
-  'viewConfig': {
-    'needShowFilter': false,
-    'needShowMode': false,
-    'needShowPageScroll': false,
-    'needShowDate': false,
-    'needShowEtc': true
+  viewConfig: {
+    needShowFilter: false,
+    needShowMode: false,
+    needShowPageScroll: false,
+    needShowDate: false,
+    needShowEtc: true
   },
-  'theme': {
-    'color': 'white',
-    'bgColor': 'grey-9',
-    'contentInverted': true,
-    'controlsInverted': true
+  theme: {
+    color: 'white',
+    bgColor: 'grey-9',
+    contentInverted: true,
+    controlsInverted: true
   }
 }
 
@@ -88,15 +71,15 @@ export default {
     'activeMessagesIds'
   ],
   data () {
-    let style = document.createElement('style')
+    const style = document.createElement('style')
     style.type = 'text/css'
-    let head = document.head || document.getElementsByTagName('head')[0]
-    let dynamicCSS = head.appendChild(style)
+    const head = document.head || document.getElementsByTagName('head')[0]
+    const dynamicCSS = head.appendChild(style)
     return {
+      listItem: MessagesListItem,
       selectedMessage: undefined,
       dynamicCSS,
       theme: config.theme,
-      i18n: {},
       viewConfig: config.viewConfig,
       actions: config.actions,
       moduleName: this.activeDeviceId
@@ -154,11 +137,22 @@ export default {
         this.$store.commit(`messages/${this.moduleName}/setSelected`, val)
       }
     },
+    realtimeEnabled () {
+      return this.$store.state.messages[this.moduleName].realtimeEnabled
+    },
     isLoading () {
       return this.$store.state.messages[this.moduleName].isLoading
     }
   },
   methods: {
+    getItemsProps (index, data) {
+      const item = this.messages[index]
+      data.key = item['x-flespi-message-key']
+      data.class = [`scroll-list-item--${index}`]
+      if (!data.on) { data.on = {} }
+      data.on.action = this.actionHandler
+      data.on['item-click'] = this.viewMessageOnMap
+    },
     resetParams () {
       this.$refs.scrollList.resetParams()
     },
@@ -166,25 +160,13 @@ export default {
       this.cols = cols
     },
     dateRangeChangeHandler (range) {
-      let from = range[0],
+      const from = range[0],
         to = range[1]
       if (this.from === from && this.to === to) { return false }
       this.from = from
       this.to = to
       this.$store.commit(`${this.moduleName}/clearMessages`)
       this.$store.dispatch(`${this.moduleName}/get`)
-    },
-    dateRangePrevHandler () {
-      let delta = this.to - this.from,
-        newTo = this.from - 1,
-        newFrom = newTo - delta
-      this.dateRangeChangeHandler([newFrom, newTo])
-    },
-    dateRangeNextHandler () {
-      let delta = this.to - this.from,
-        newFrom = this.to + 1,
-        newTo = newFrom + delta
-      this.dateRangeChangeHandler([newFrom, newTo])
     },
     viewMessagesHandler ({ index, content }) {
       this.selected = [index]
@@ -202,19 +184,22 @@ export default {
         this.selected = [this.activeMessagesIds[this.activeMessagesIds.length - 1]]
       }
     },
+    actionToBottomHandler () {
+      this.$refs.scrollList.scrollTo(this.messages.length - 1)
+    },
     copyMessageHandler ({ index, content }) {
       copyToClipboard(JSON.stringify(content)).then((e) => {
         this.$q.notify({
           color: 'positive',
           icon: 'content_copy',
-          message: `Message copied`,
+          message: 'Message copied',
           timeout: 1000
         })
       }, (e) => {
         this.$q.notify({
           color: 'negative',
           icon: 'content_copy',
-          message: `Error coping messages`,
+          message: 'Error coping messages',
           timeout: 1000
         })
       })
@@ -241,22 +226,24 @@ export default {
     },
     highlightSelected (indexes) {
       if (indexes.length) {
-        let lastIndex = indexes[indexes.length - 1]
+        const lastIndex = indexes[indexes.length - 1]
         this.selected = [lastIndex]
         this.updateDynamicCSS(`.scroll-list-item--${lastIndex} {background-color: rgba(255,255,255,0.7)!important; color: #333;}`)
       }
     },
     scrollToSelected (index) {
       if (typeof index === 'number' && index >= 0 && this.$refs.scrollList) {
-        let itemsCount = this.$refs.scrollList.itemsCount
+        const itemsCount = this.$refs.scrollList.itemsCount
         let scrollToIndex = index - Math.floor(itemsCount / 2)
         if (scrollToIndex < 0) { scrollToIndex = 0 }
         this.$refs.scrollList.scrollTo(scrollToIndex)
       }
     },
     messageShow (indexes) {
-      this.highlightSelected(indexes)
-      this.scrollToSelected(indexes[indexes.length - 1])
+      if (this.selected[0] !== indexes[indexes.length - 1]) {
+        this.highlightSelected(indexes)
+        this.scrollToSelected(indexes[indexes.length - 1])
+      }
     }
   },
   watch: {
@@ -264,11 +251,10 @@ export default {
       this.currentLimit = limit
     },
     activeMessagesIds (indexes) {
-      this.debouncedMessageShow(indexes)
+      this.messageShow(indexes)
     }
   },
   created () {
-    this.debouncedMessageShow = throttle(this.messageShow, 300, { trailing: true })
     this.currentLimit = this.limit
     this.highlightSelected(this.activeMessagesIds)
   },
@@ -276,7 +262,7 @@ export default {
     this.$store.commit(`messages/${this.moduleName}/clearSelected`)
     this.dynamicCSS.parentNode.removeChild(this.dynamicCSS)
   },
-  components: { VirtualScrollList, MessagesListItem, MessageViewer }
+  components: { VirtualScrollList, MessageViewer }
 }
 </script>
 <style lang="stylus">

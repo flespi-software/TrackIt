@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.0.0] - 2020-02-27
+[feature] modes removed
 ### [0.8.4] - 2020-02-11
 [fix] new location login
 ### [0.8.3] - 2020-02-06

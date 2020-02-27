@@ -5,14 +5,13 @@
     </div>
     <queue
       ref="queue"
-      v-if="Object.keys(messages).length && ((mode === 0 && (params.needShowMessages || params.needShowPlayer)) || (mode === 1 && params.needShowMessages))"
+      v-if="Object.keys(messages).length && (params.needShowMessages || params.needShowPlayer)"
       :devices="activeDevices"
       :activeDevicesID="activeDevicesID"
       :needShowMessages="params.needShowMessages"
       :needShowPlayer="params.needShowPlayer"
       :messages="allMessages"
       :telemetryDeviceId="telemetryDeviceId"
-      :mode="mode"
       :date="date"
       :markers="markers"
       :player="player"
@@ -54,7 +53,6 @@ export default {
     'deviceIdForWatch',
     'activeDevices',
     'delay',
-    'mode',
     'date'
   ],
   data () {
@@ -70,10 +68,11 @@ export default {
       currentColorModel: '#fff',
       currentColorId: 0,
       player: {
-        currentMsgIndex: 0,
+        currentMsgIndex: null,
         speed: 10,
         status: 'stop',
-        mode: 'time'
+        mode: 'time',
+        tailInterval: 0
       }
     }
   },
@@ -108,18 +107,12 @@ export default {
     mapHeight () {
       let value = '100%'
       if (!this.activeDevices.length) { return value }
-      if (this.mode === 1) {
-        if (this.params.needShowMessages) {
-          value = 'calc(100% - 48px)'
-        }
-      } else if (this.mode === 0) {
-        if (this.params.needShowMessages && this.params.needShowPlayer) {
-          value = 'calc(100% - 113px)'
-        } else if (this.params.needShowMessages && !this.params.needShowPlayer) {
-          value = 'calc(100% - 48px)'
-        } else if (!this.params.needShowMessages && this.params.needShowPlayer) {
-          value = 'calc(100% - 65px)'
-        }
+      if (this.params.needShowMessages && this.params.needShowPlayer) {
+        value = 'calc(100% - 113px)'
+      } else if (this.params.needShowMessages && !this.params.needShowPlayer) {
+        value = 'calc(100% - 48px)'
+      } else if (!this.params.needShowMessages && this.params.needShowPlayer) {
+        value = 'calc(100% - 65px)'
       }
       return value
     }
@@ -146,7 +139,7 @@ export default {
     flyToWithHideTracks (position, zoom) {
       this.map.once('zoomstart', e => {
         Object.keys(this.tracks).forEach((trackId) => {
-          let track = this.tracks[trackId]
+          const track = this.tracks[trackId]
           if (track instanceof L.Polyline) {
             if (track.tail && track.tail instanceof L.Polyline) {
               this.map.removeLayer(track.tail)
@@ -160,7 +153,7 @@ export default {
       })
       this.map.once('zoomend', e => {
         Object.keys(this.tracks).forEach((trackId) => {
-          let track = this.tracks[trackId]
+          const track = this.tracks[trackId]
           if (track instanceof L.Polyline) {
             this.map.addLayer(track)
             if (track.tail && track.tail instanceof L.Polyline) {
@@ -183,8 +176,8 @@ export default {
       })
     },
     getColor () {
-      let letters = '0123456789ABCDEF',
-        color = `#${letters[Math.floor(Math.random() * 5)]}`
+      const letters = '0123456789ABCDEF'
+      let color = `#${letters[Math.floor(Math.random() * 5)]}`
       for (let i = 0; i < 5; i++) {
         color += letters[Math.floor(Math.random() * 15)]
       }
@@ -207,7 +200,7 @@ export default {
       return savedColors[id]
     },
     getAccuracyParams (message) {
-      let position = [message['position.latitude'], message['position.longitude']],
+      const position = [message['position.latitude'], message['position.longitude']],
         accuracy = message['position.hdop'] || message['position.pdop'] || 0,
         circleStyle = {
           stroke: true,
@@ -222,7 +215,7 @@ export default {
     },
     updateMarkerDirection (id, dir) {
       if (dir) {
-        let element = document.querySelector(`.icon-${id} .my-div-icon__inner`)
+        const element = document.querySelector(`.icon-${id} .my-div-icon__inner`)
         if (element) {
           element.style.transform = `rotate(${(dir || 0)}deg)`
         }
@@ -233,7 +226,7 @@ export default {
       this.markers[id].setLatLng(pos).update()
     },
     initMarker (id, name, position) {
-      let direction = this.messages[id][this.messages[id].length - 1]['position.direction'] ? this.messages[id][this.messages[id].length - 1]['position.direction'] : 0,
+      const direction = this.messages[id][this.messages[id].length - 1]['position.direction'] ? this.messages[id][this.messages[id].length - 1]['position.direction'] : 0,
         currentColor = this.tracks[id] && this.tracks[id].options ? this.tracks[id].options.color : this.markers[id] ? this.markers[id].color : this.getColorById(id)
       this.markers[id] = L.marker(position, {
         icon: this.generateIcon(id, name, currentColor),
@@ -242,7 +235,7 @@ export default {
       })
       this.markers[id].id = id
       this.markers[id].color = currentColor
-      let { position: pos, accuracy, circleStyle } = this.getAccuracyParams(this.messages[id][this.messages[id].length - 1])
+      const { position: pos, accuracy, circleStyle } = this.getAccuracyParams(this.messages[id][this.messages[id].length - 1])
       this.markers[id].accuracy = L.circle(pos, accuracy, circleStyle)
       this.markers[id].accuracy.addTo(this.map)
       this.markers[id].addEventListener('add', e => {
@@ -256,7 +249,7 @@ export default {
         this.$emit('update:telemetry-device-id', this.telemetryDeviceId)
       })
       this.markers[id].addEventListener('move', e => {
-        if (this.mode === 1) {
+        if (this.player.status === 'stop') {
           this.updateMarkerDirection(id, this.messages[id][this.messages[id].length - 1]['position.direction'])
         }
       })
@@ -268,34 +261,34 @@ export default {
       this.markers[id].addTo(this.map)
     },
     initDeviceOnMap (id) {
-      let currentDevice = this.activeDevices.filter(device => device.id === parseInt(id))[0]
+      const currentDevice = this.activeDevices.filter(device => device.id === parseInt(id))[0]
       if (!this.markers[id]) {
         this.markers[id] = {}
         this.markers[id].id = id
         this.markers[id].color = this.getColorById(id)
         this.tracks[id] = {}
       }
-      let hasInitPosition = this.messages[id] && this.messages[id].length
+      const hasInitPosition = this.messages[id] && this.messages[id].length
       if (!hasInitPosition) {
         return false
       }
-      let position = [this.messages[id][this.messages[id].length - 1]['position.latitude'], this.messages[id][this.messages[id].length - 1]['position.longitude']],
+      const position = [this.messages[id][this.messages[id].length - 1]['position.latitude'], this.messages[id][this.messages[id].length - 1]['position.longitude']],
         name = currentDevice.name || `#${id}`
       this.initMarker(id, name, position)
       this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), { color: this.markers[id].color }).addTo(this.map)
-      if (parseInt(id) === this.selected && this.mode === 0) {
-        let bounding = this.tracks[id].getBounds()
+      if (parseInt(id) === this.selected) {
+        const bounding = this.tracks[id].getBounds()
         this.map.fitBounds(bounding)
       }
     },
     updateDeviceOnMap (id) {
-      let currentArrPos = this.getLatLngArrByDevice(id),
+      const currentArrPos = this.getLatLngArrByDevice(id),
         markerWatchedPos = this.deviceIdForWatch && this.markers[this.deviceIdForWatch] && this.markers[this.deviceIdForWatch] instanceof L.Marker ? this.markers[this.deviceIdForWatch].getLatLng() : {},
         isWatchedPosChanged = this.deviceIdForWatch && this.messages[this.deviceIdForWatch] && this.messages[this.deviceIdForWatch].length &&
           markerWatchedPos.lat && markerWatchedPos.lat !== this.messages[this.deviceIdForWatch][this.messages[this.deviceIdForWatch].length - 1]['position.latitude'] &&
           markerWatchedPos.lng && markerWatchedPos.lng !== this.messages[this.deviceIdForWatch][this.messages[this.deviceIdForWatch].length - 1]['position.longitude']
       if (isWatchedPosChanged) {
-        let position = currentArrPos[currentArrPos.length - 1]
+        const position = currentArrPos[currentArrPos.length - 1]
         this.flyToWithHideTracks(position, this.flyToZoom)
       }
       /* if messages is empty clear marker and line */
@@ -320,7 +313,7 @@ export default {
         return false
       }
       if (!(this.markers[id] instanceof L.Marker)) {
-        let name = this.activeDevices.filter(device => device.id === parseInt(id))[0].name || `#${id}`,
+        const name = this.activeDevices.filter(device => device.id === parseInt(id))[0].name || `#${id}`,
           position = [this.messages[id][this.messages[id].length - 1]['position.latitude'], this.messages[id][this.messages[id].length - 1]['position.longitude']]
         this.initMarker(id, name, position)
       }
@@ -332,8 +325,8 @@ export default {
       this.markers[id].accuracy.setLatLng(currentArrPos[currentArrPos.length - 1])
       this.markers[id].setOpacity(1)
       this.tracks[id].setLatLngs(currentArrPos)
-      if (parseInt(id) === this.selected && this.mode === 0) {
-        let bounding = this.tracks[id].getBounds()
+      if (parseInt(id) === this.selected && !this.$store.state.messages[id].realtimeEnabled) {
+        const bounding = this.tracks[id].getBounds()
         this.map.fitBounds(bounding)
       }
     },
@@ -368,9 +361,9 @@ export default {
       Vue.delete(this.tracks, id)
     },
     flyToDevice (id) {
-      let devicesById = this.activeDevices.filter(device => device.id === id),
-        currentDevice = devicesById.length ? devicesById[0] : null,
-        currentPos = currentDevice && []
+      const devicesById = this.activeDevices.filter(device => device.id === id),
+        currentDevice = devicesById.length ? devicesById[0] : null
+      let currentPos = currentDevice && []
       if (this.messages[id] && this.messages[id].length) {
         currentPos = [this.messages[id][this.messages[id].length - 1]['position.latitude'], this.messages[id][this.messages[id].length - 1]['position.longitude']]
       }
@@ -381,9 +374,9 @@ export default {
       }
     },
     centerOnDevice (id) {
-      let devicesById = this.activeDevices.filter(device => device.id === id),
-        currentDevice = devicesById.length ? devicesById[0] : null,
-        currentPos = currentDevice && []
+      const devicesById = this.activeDevices.filter(device => device.id === id),
+        currentDevice = devicesById.length ? devicesById[0] : null
+      let currentPos = currentDevice && []
       if (this.messages[id] && this.messages[id].length) {
         currentPos = [this.messages[id][this.messages[id].length - 1]['position.latitude'], this.messages[id][this.messages[id].length - 1]['position.longitude']]
       }
@@ -411,7 +404,7 @@ export default {
         }
       }
       if (this.messages[id].length) {
-        let startPosition = [this.messages[id][0]['position.latitude'], this.messages[id][0]['position.longitude']],
+        const startPosition = [this.messages[id][0]['position.latitude'], this.messages[id][0]['position.longitude']],
           stopPosition = [this.messages[id][this.messages[id].length - 1]['position.latitude'], this.messages[id][this.messages[id].length - 1]['position.longitude']]
         this.markers[id].flags.start = L.marker(startPosition, {
           icon: this.generateFlag({ id, status: 'start' })
@@ -420,7 +413,8 @@ export default {
         this.markers[id].flags.stop = L.marker(stopPosition, {
           icon: this.generateFlag({ id, status: 'stop' })
         })
-        this.markers[id].flags.stop.addTo(this.map)
+        const needStopFlag = this.$store.state.messages[id].to <= Date.now()
+        needStopFlag && this.markers[id].flags.stop.addTo(this.map)
       }
     },
     removeFlags (id) {
@@ -431,25 +425,26 @@ export default {
       this.markers[id].flags.stop.remove()
       this.markers[id].flags = undefined
     },
-    async modeChangeById (id) {
-      let isNullMode = this.$store.state.messages[id].mode !== null
-      this.$store.commit(`messages/${id}/clearMessages`)
-      this.$store.commit(`messages/${id}/setMode`, this.mode)
-      if (this.mode === 1 && isNullMode) {
-        this.$store.commit(`messages/${id}/setTo`, Date.now())
-        await this.$store.dispatch(`messages/${id}/getHistory`, 200)
+    async getDeviceData (id) {
+      if (id) {
+        if (this.$store.state.messages[id].realtimeEnabled) {
+          await this.$store.dispatch(`messages/${id}/unsubscribePooling`)
+        }
+        this.$store.commit(`messages/${id}/clearMessages`)
+        const from = new Date(this.date).setHours(0, 0, 0, 0)
+        const to = from + 86399999
+        this.$store.commit(`messages/${id}/setFrom`, from)
+        this.$store.commit(`messages/${id}/setTo`, to)
+        await this.$store.dispatch(`messages/${id}/get`)
+        if (to > Date.now()) {
+          const render = await this.$store.dispatch(`messages/${id}/pollingGet`)
+          render()
+        }
+        this.addFlags(id)
         if (!this.$store.state.messages[id].messages.length) {
           /* try to init device by telemetry */
           await this.$store.dispatch('getInitDataByDeviceId', id)
         }
-      }
-      if (this.mode === 0) {
-        let from = new Date(this.date).setHours(0, 0, 0, 0)
-        let to = from + 86399999
-        this.$store.commit(`messages/${id}/setFrom`, from)
-        this.$store.commit(`messages/${id}/setTo`, to)
-        await this.$store.dispatch(`messages/${id}/get`)
-        this.addFlags(id)
       }
     },
     async initDevice (id) {
@@ -457,25 +452,13 @@ export default {
       if (id) {
         this.$store.commit(`messages/${id}/setActive`, id)
         await this.$store.dispatch(`messages/${id}/getCols`, { actions: true, etc: true })
+        await this.getDeviceData(id)
       }
-      if (this.$store.state.messages[id].mode === null) {
-        await this.modeChangeById(id)
-        await this.$store.dispatch(`messages/${id}/pollingGet`)
-        if (this.mode === 1) {
-          await this.$store.dispatch(`messages/${id}/getHistory`, 200)
-          if (!this.$store.state.messages[id].messages.length) {
-            /* try to init device by telemetry */
-            await this.$store.dispatch('getInitDataByDeviceId', id)
-          }
-        }
-      }
-      Vue.connector.socket.on('offline', () => { this.$store.commit(`messages/${id}/setOffline`, this.mode === 1) })
+      Vue.connector.socket.on('offline', () => { this.$store.commit(`messages/${id}/setOffline`, true) })
       Vue.connector.socket.on('connect', () => {
         if (this.$store.state.messages[id].offline) {
-          this.$store.commit(`messages/${id}/setReconnected`, this.mode === 1)
-          if (this.mode === 1) {
-            this.$store.dispatch(`messages/${id}/getMissedMessages`)
-          }
+          this.$store.commit(`messages/${id}/setReconnected`, true)
+          this.$store.dispatch(`messages/${id}/getMissedMessages`)
         }
       })
       if (this.needInitWatchingDevice && id === this.deviceIdForWatch) {
@@ -490,11 +473,11 @@ export default {
     },
     viewOnMapHandler (content) {
       if (content['position.latitude'] && content['position.longitude']) {
-        let position = [content['position.latitude'], content['position.longitude']],
+        const position = [content['position.latitude'], content['position.longitude']],
           icon = L.divIcon({
-            className: `my-highlight-icon`,
+            className: 'my-highlight-icon',
             iconSize: new L.Point(40, 40),
-            html: `<div class="my-highlight-icon__innner"></div>`
+            html: '<div class="my-highlight-icon__innner"></div>'
           }),
           marker = L.marker(position, {
             icon: icon
@@ -503,7 +486,7 @@ export default {
         this.flyToWithHideTracks(position, currentZoom > 12 ? currentZoom : 12)
         this.map.once('moveend', () => {
           marker.addTo(this.map)
-          let markerElement = document.querySelector('.my-highlight-icon__innner')
+          const markerElement = document.querySelector('.my-highlight-icon__innner')
           animate.start({
             from: 20,
             to: 40,
@@ -528,8 +511,7 @@ export default {
       }
     },
     playProcess (data, type) {
-      if (this.mode === 1) { return }
-      let mode = this.player.mode === 'data' ? 0 : 1
+      const mode = this.player.mode === 'data' ? 0 : 1
       switch (type) {
         case 'value': {
           mode ? this.playerTimeValue(data) : this.playerDataValue(data)
@@ -553,47 +535,67 @@ export default {
       }
     },
     playerTimeValue ({ id, messagesIndexes }) {
-      if (!this.messages[id]) { return false }
-      let renderDuration = 0
+      if (!this.messages[id] || !messagesIndexes || this.player.status !== 'play') { return false }
+      let renderDuration = 0,
+        lastMessageIndexWithPosition = null
+      const endIndex = messagesIndexes[messagesIndexes.length - 1],
+        startIndex = 0,
+        tailMessages = this.messages[id].slice(startIndex, endIndex + 1),
+        tail = tailMessages.reduce((tail, message, index) => {
+          if (typeof message['position.latitude'] === 'number' && typeof message['position.longitude'] === 'number') {
+            lastMessageIndexWithPosition = index
+            tail.push([message['position.latitude'], message['position.longitude']])
+          }
+          return tail
+        }, [])
       messagesIndexes.forEach((messageIndex) => {
         if (this.markers[id] && this.markers[id] instanceof L.Marker) {
-          let message = this.messages[id][messageIndex]
-          if (!message || typeof message['position.latitude'] !== 'number' || typeof message['position.longitude'] !== 'number') { return false }
+          const message = this.messages[id][messageIndex]
+          const havePosition = message && typeof message['position.latitude'] === 'number' && typeof message['position.longitude'] === 'number'
           this.player.currentMsgIndex = messageIndex
-          let pos = [message['position.latitude'], message['position.longitude']]
-          if (this.player.status === 'play' && messagesIndexes[0] !== 0) {
-            let duration = ((1000 / this.player.speed) / messagesIndexes.length)
-            if (messageIndex !== 0) {
-              let prevTimestamp = this.messages[id][messageIndex - 1].timestamp,
-                currentTimestamp = message.timestamp,
-                durationInSeconds = currentTimestamp - prevTimestamp
-              duration = ((durationInSeconds * 1000) / this.player.speed)
-              renderDuration = durationInSeconds
+          if (havePosition) {
+            const pos = [message['position.latitude'], message['position.longitude']]
+            if (this.player.status === 'play' && messagesIndexes[0] !== 0) {
+              let duration = ((1000 / this.player.speed) / messagesIndexes.length)
+              if (messageIndex !== 0) {
+                const prevTimestamp = this.messages[id][messageIndex - 1].timestamp,
+                  currentTimestamp = message.timestamp,
+                  durationInSeconds = currentTimestamp - prevTimestamp
+                duration = ((durationInSeconds * 1000) / this.player.speed)
+                renderDuration = durationInSeconds
+              }
+              duration = duration - 50
+              if (duration) {
+                this.markers[id].slideTo(pos, { duration: duration })
+              } else {
+                this.markers[id].setLatLng(pos).update()
+              }
+              this.updateMarkerDirection(id, message['position.direction'])
+            } else {
+              this.markers[id].setLatLng(pos).update()
+              this.updateMarker(id, pos, message['position.direction'])
             }
-            this.markers[id].slideTo(pos, { duration: duration - 50 })
-            this.updateMarkerDirection(id, message['position.direction'])
+            this.markers[id].accuracy.setRadius(this.getAccuracyParams(message).accuracy)
+            this.markers[id].accuracy.setLatLng(pos)
           } else {
+            const message = this.messages[id][lastMessageIndexWithPosition]
+            const pos = tail[tail.length - 1]
             this.markers[id].setLatLng(pos).update()
             this.updateMarker(id, pos, message['position.direction'])
+            this.markers[id].accuracy.setRadius(this.getAccuracyParams(message).accuracy)
+            this.markers[id].accuracy.setLatLng(pos)
           }
-          this.markers[id].accuracy.setRadius(this.getAccuracyParams(message).accuracy)
-          this.markers[id].accuracy.setLatLng(pos)
         }
       })
       /* tail render logic */
-      let endIndex = messagesIndexes[messagesIndexes.length - 1],
-        startIndex = 0,
-        tailMessages = this.messages[id].slice(startIndex, endIndex + 1),
-        tail = tailMessages.map(message => {
-          return [message['position.latitude'], message['position.longitude']]
-        })
       if (this.tracks[id] && this.tracks[id] instanceof L.Polyline && tail.length) {
         if (!this.tracks[id].tail || !(this.tracks[id].tail instanceof L.Polyline)) {
           this.tracks[id].tail = L.polyline(tail, this.tracks[id].options)
           this.tracks[id].tail.addTo(this.map)
           return true
         }
-        setTimeout(() => { this.tracks[id].tail && this.tracks[id].tail.setLatLngs(tail) }, ((renderDuration * 700) / this.player.speed))
+        if (this.player.tailInterval) { clearTimeout(this.player.tailInterval) }
+        this.player.tailInterval = setTimeout(() => { this.tracks[id].tail && this.tracks[id].tail.setLatLngs(tail) }, ((renderDuration * 700) / this.player.speed))
       }
     },
     playerTimePlay ({ id }) {
@@ -605,12 +607,13 @@ export default {
         this.tracks[id].tail.remove()
         delete this.tracks[id].tail
       }
-      let message = this.messages[id][0]
-      this.player.currentMsgIndex = 0
+      const realtimeEnabled = this.$store.state.messages[id].realtimeEnabled
+      const msgIndex = realtimeEnabled ? this.messages[id].length - 1 : 0
+      const message = this.messages[id][msgIndex]
+      this.$nextTick(() => { this.player.currentMsgIndex = msgIndex ? null : 0 })
       this.player.status = 'stop'
-      this.player.speed = 10
       this.tracks[id].addTo(this.map)
-      let lastPos = [message['position.latitude'], message['position.longitude']]
+      const lastPos = [message['position.latitude'], message['position.longitude']]
       this.updateMarker(id, lastPos, message['position.direction'])
     },
     playerTimePause ({ id }) {
@@ -625,7 +628,7 @@ export default {
       }
       this.player.status = 'play'
       this.tracks[id].remove()
-      let latlngs = this.messages[id].map(message => ({
+      const latlngs = this.messages[id].map(message => ({
         lat: message['position.latitude'],
         lng: message['position.longitude'],
         dir: message['position.direction'],
@@ -634,18 +637,17 @@ export default {
       if (latlngs.length < 2) {
         this.tracks[id].addTo(this.map)
         this.player.status = 'stop'
-        this.player.currentMsgIndex = 0
-        this.player.speed = 10
+        this.player.currentMsgIndex = null
         return
       }
-      let line = L.polyline(latlngs, { snakingSpeed: 20 * this.player.speed, color: this.tracks[id].options.color })
+      const line = L.polyline(latlngs, { snakingSpeed: 20 * this.player.speed, color: this.tracks[id].options.color })
       this.tracks[id].overview = line
       line.addTo(this.map).snakeIn()
       line.on('snake', () => {
-        let points = line.getLatLngs()
-        let point = points.slice(-1)[0]
-        let lastPos = point.slice(-1)[0]
-        let message = latlngs[points[0].length - 2]
+        const points = line.getLatLngs()
+        const point = points.slice(-1)[0]
+        const lastPos = point.slice(-1)[0]
+        const message = latlngs[points[0].length - 1]
         this.updateMarker(id, lastPos, message.dir)
         if (this.player.currentMsgIndex !== message.index) {
           this.player.currentMsgIndex = message.index
@@ -657,7 +659,6 @@ export default {
     },
     playerDataStop ({ id }) {
       this.player.status = 'stop'
-      this.player.speed = 10
       if (this.tracks[id].overview) {
         this.tracks[id].overview.remove()
         delete this.tracks[id].overview
@@ -665,10 +666,10 @@ export default {
       if (this.tracks[id] && this.tracks[id] instanceof L.Polyline) {
         this.tracks[id].addTo(this.map)
       }
-      let message = this.messages[id].slice(-1)[0]
+      const message = this.messages[id].slice(-1)[0]
+      this.player.currentMsgIndex = null
       if (message) {
-        this.player.currentMsgIndex = this.allMessages[id].length - 1
-        let lastPos = [message['position.latitude'], message['position.longitude']]
+        const lastPos = [message['position.latitude'], message['position.longitude']]
         this.updateMarker(id, lastPos, message['position.direction'])
       }
     },
@@ -680,7 +681,7 @@ export default {
     playerSpeedChangeHandler ({ speed, id }) {
       this.player.speed = speed
       if (this.player.mode === 'data' && this.player.status !== 'stop') {
-        this.tracks[id].overview.setStyle({ 'snakingSpeed': 20 * speed })
+        this.tracks[id].overview.setStyle({ snakingSpeed: 20 * speed })
       }
     },
     playerModeChange ({ id, mode }) {
@@ -706,7 +707,8 @@ export default {
     messages: {
       deep: true,
       handler (messages) {
-        let keyArr = Object.keys(messages),
+        if (this.player.status === 'play' || this.player.status === 'pause') { return false }
+        const keyArr = Object.keys(messages),
           oldKeyArr = Object.keys(this.markers)
         if (!keyArr.length) {
           Object.keys(this.markers).forEach(id => {
@@ -715,7 +717,7 @@ export default {
           return false
         }
         if (keyArr.length < oldKeyArr.length) {
-          let removeDeviceId = oldKeyArr.filter(key => !keyArr.includes(key))[0]
+          const removeDeviceId = oldKeyArr.filter(key => !keyArr.includes(key))[0]
           this.removeMarker(removeDeviceId)
           return false
         }
@@ -737,11 +739,11 @@ export default {
       }
     },
     activeDevices (newVal) {
-      let activeDevicesID = newVal.map((device) => device.id)
+      const activeDevicesID = newVal.map((device) => device.id)
       if (!this.activeDeviceID) {
         activeDevicesID.forEach((id) => { this.initActiveDeviceID(id) })
       }
-      let currentDevicesID = Object.keys(this.messages).map(id => parseInt(id)),
+      const currentDevicesID = Object.keys(this.messages).map(id => parseInt(id)),
         modifyType = currentDevicesID.length > activeDevicesID.length ? 'remove' : 'add'
       activeDevicesID.forEach((id) => {
         if (!this.$store.state.messages[id]) {
@@ -753,7 +755,7 @@ export default {
       this.activeDevicesID = activeDevicesID
       switch (modifyType) {
         case 'remove': {
-          let removedDevicesID = currentDevicesID.filter(id => !activeDevicesID.includes(id))
+          const removedDevicesID = currentDevicesID.filter(id => !activeDevicesID.includes(id))
           if (removedDevicesID.length === 1 && removedDevicesID[0]) {
             this.$store.commit(`messages/${removedDevicesID[0]}/clear`)
           } else if (removedDevicesID.length === currentDevicesID.length) {
@@ -764,7 +766,7 @@ export default {
           break
         }
         case 'add': {
-          let addedDeviceID = activeDevicesID.filter(id => !currentDevicesID.includes(id))
+          const addedDeviceID = activeDevicesID.filter(id => !currentDevicesID.includes(id))
           if (addedDeviceID) {
             addedDeviceID.forEach((id) => { this.initDevice(id) })
           }
@@ -782,7 +784,7 @@ export default {
     },
     'params.needShowNamesOnMap': function (needShowNamesOnMap) {
       Object.keys(this.markers).forEach(id => {
-        let currentDevice = this.activeDevices.filter(device => device.id === parseInt(id))[0],
+        const currentDevice = this.activeDevices.filter(device => device.id === parseInt(id))[0],
           position = this.messages[id] && this.messages[id].length ? [this.messages[id][this.messages[id].length - 1]['position.latitude'], this.messages[id][this.messages[id].length - 1]['position.longitude']] : [],
           name = currentDevice.name || `#${id}`
         if (this.markers[id] instanceof L.Marker) {
@@ -792,27 +794,18 @@ export default {
         }
       })
     },
-    mode (mode) {
-      if (mode) {
-        this.player.currentMsgIndex = 0
-        this.player.speed = 10
-        this.player.status = 'stop'
-        this.player.mode = 'time'
-      }
-      this.activeDevicesID.forEach(async (id) => {
-        await this.modeChangeById(id)
-      })
-    },
     date (date, prev) {
-      if (this.mode === 0 && prev) {
+      if (prev) {
+        this.player.status = 'stop'
+        this.player.currentMsgIndex = null
         this.activeDevicesID.forEach(async (id) => {
-          await this.modeChangeById(id)
+          await this.getDeviceData(id)
         })
       }
     },
     selected (active) {
-      if (this.tracks[active] && this.tracks[active] instanceof L.Polyline && this.mode === 0) {
-        let bounding = this.tracks[active].getBounds()
+      if (this.tracks[active] && this.tracks[active] instanceof L.Polyline) {
+        const bounding = this.tracks[active].getBounds()
         this.map.fitBounds(bounding)
       }
     }
@@ -871,22 +864,24 @@ export default {
     position relative
     top -20px
     left 2px
-  .my-div-icon__name
-    line-height 20px
-    font-size .9rem
-    font-weight bolder
-    position absolute
-    top 0
-    left 30px
-    max-width 200px
-    text-overflow ellipsis
-    overflow hidden
-    background-color rgba(0,0,0,0.5)
-    color #fff
-    border-radius 5px
-    padding 0 5px
-    border 1px solid white
-    box-shadow 3px 3px 10px #999
+  .my-div-icon
+    z-index 2000!important
+    .my-div-icon__name
+      line-height 20px
+      font-size .9rem
+      font-weight bolder
+      position absolute
+      top 0
+      left 30px
+      max-width 200px
+      text-overflow ellipsis
+      overflow hidden
+      background-color rgba(0,0,0,0.5)
+      color #fff
+      border-radius 5px
+      padding 0 5px
+      border 1px solid white
+      box-shadow 3px 3px 10px #999
   .direction
     border 2px solid black
     border-radius 50% 0 50% 50%

@@ -1,5 +1,5 @@
 <template>
-  <q-list separator>
+  <q-list separator class="bg-grey-9 text-white">
     <q-item-label ref="header" style="height: 58px; line-height: 58px!important;">
       <big>
         <q-icon name="mdi-arrow-left" size="1.8rem" class="cursor-pointer" style="margin-right: 15px" @click.native="$emit('click:hide')"/>
@@ -7,7 +7,7 @@
       </big>
     </q-item-label>
     <VirtualList
-      :size="64"
+      :size="68"
       :remain="itemsCount"
       :style="{height: `${height}px`}"
     >
@@ -43,8 +43,8 @@ export default {
       this.$emit('update:watch-by-id', id)
     },
     onResize (height) {
-      this.height = height - 76
-      this.itemsCount = Math.floor((height - 76) / 70)
+      this.height = height - 58
+      this.itemsCount = Math.ceil((height - 58) / 68)
     }
   },
   watch: {

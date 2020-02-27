@@ -1,6 +1,6 @@
 import { uid } from 'quasar'
 const linear = t => t
-let ids = {}
+const ids = {}
 
 export function start ({ name, duration = 300, to, from, apply, done, cancel, easing }) {
   let id = name
@@ -38,7 +38,7 @@ export function stop (id) {
   if (!id) {
     return
   }
-  let anim = ids[id]
+  const anim = ids[id]
   if (anim && anim.timer) {
     cancelAnimationFrame(anim.timer)
     anim.cancel && anim.cancel(anim.last)

@@ -11,7 +11,6 @@
             :key="`tab-pane-${deviceID}`"
             :id="deviceID"
             :messages="messages[deviceID]"
-            :mode="mode"
             :date="date"
             :device="devices[deviceID]"
             :needShowMessages="needShowMessages"
@@ -50,7 +49,6 @@ export default {
     'activeDevicesID',
     'devices',
     'telemetryDeviceId',
-    'mode',
     'date',
     'needShowMessages',
     'needShowPlayer',

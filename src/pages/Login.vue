@@ -1,6 +1,6 @@
 <template>
   <div class="login-page window-height window-width bg-light column items-center no-wrap">
-    <a v-if="!$q.platform.is.mobile" href="https://github.com/flespi-software/TrackIt/" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0; width: 149px; height: 149px;" src="../statics/right-graphite@2x.png" alt="Fork me on GitHub"></a>
+    <a v-if="!$q.platform.is.mobile || !$q.platform.within.iframe" href="https://github.com/flespi-software/TrackIt/" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0; width: 149px; height: 149px;" src="../statics/right-graphite@2x.png" alt="Fork me on GitHub"></a>
     <div class="login-back flex items-center justify-center">
       <div class="login-code flex items-center justify-center">
         Track it!
@@ -67,30 +67,29 @@ export default {
         })
     },
     checkHasToken () {
-      let sessionStorageToken = this.$q.sessionStorage.getItem('flespi-trackit-token')
-      let sessionStorageRegion = this.$q.sessionStorage.getItem(`flespi-trackit-region`)
+      const sessionStorageToken = this.$q.sessionStorage.getItem('flespi-trackit-token')
+      const sessionStorageRegion = this.$q.sessionStorage.getItem('flespi-trackit-region')
       if (this.$route.params && this.$route.params.token) {
         this.autoLogin()
         return true
       } else if (sessionStorageToken) {
         this.token = sessionStorageToken
-        console.log(sessionStorageRegion)
         this.logIn(sessionStorageRegion)
         return true
       } else { return false }
     },
     openWindow (url, title) {
       title = title || 'auth'
-      let w = 500, h = 600
-      let dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : screen.left
-      let dualScreenTop = window.screenTop !== undefined ? window.screenTop : screen.top
+      const w = 500, h = 600
+      const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : screen.left
+      const dualScreenTop = window.screenTop !== undefined ? window.screenTop : screen.top
 
-      let width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width
-      let height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height
+      const width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width
+      const height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height
 
-      let left = ((width / 2) - (w / 2)) + dualScreenLeft
-      let top = ((height / 2) - (h / 2)) + dualScreenTop
-      let newWindow = window.open(url, title, 'toolbar=no,location=no,status=yes,resizable=yes,scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left)
+      const left = ((width / 2) - (w / 2)) + dualScreenLeft
+      const top = ((height / 2) - (h / 2)) + dualScreenTop
+      const newWindow = window.open(url, title, 'toolbar=no,location=no,status=yes,resizable=yes,scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left)
 
       // Puts focus on the newWindow
       if (window.focus) {
@@ -112,7 +111,7 @@ export default {
   },
   created () {
     if (!this.checkHasToken()) {
-      let tokenHandler = (event) => {
+      const tokenHandler = (event) => {
         if (typeof event.data === 'string' && ~event.data.indexOf('FlespiLogin|token:')) {
           let payload = event.data
           payload = payload.replace('FlespiLogin|token:', '')

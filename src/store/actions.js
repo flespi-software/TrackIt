@@ -4,7 +4,7 @@ async function poolDevices ({ state, commit }) {
   commit('reqStart')
   try {
     if (state.token) {
-      let ids = await Vue.connector.poolDevices((resp) => { commit('setDevices', resp) }, (type, device) => { commit('updateDevices', { type, device }) })
+      const ids = await Vue.connector.poolDevices((resp) => { commit('setDevices', resp) }, (type, device) => { commit('updateDevices', { type, device }) })
       return async () => { await Vue.connector.poolDevicesStop(ids) }
     }
   } catch (error) { commit('reqFailed', error) }
@@ -12,7 +12,7 @@ async function poolDevices ({ state, commit }) {
 
 async function checkConnection ({ state, commit }) {
   try {
-    let resp = await Vue.connector.http.external.get(`./statics/icons/favicon-16x16.png?_=${(new Date()).getTime()}`)
+    const resp = await Vue.connector.http.external.get(`./statics/icons/favicon-16x16.png?_=${(new Date()).getTime()}`)
     if (resp.status === 200 && state.offline) {
       commit('setOfflineFlag', false)
     }
@@ -27,16 +27,17 @@ async function checkConnection ({ state, commit }) {
 }
 
 async function getLastUpdatePosition ({ commit, state }, selector) {
-  let items = selector || state.activeDevicesID.join(',')
+  if (!state.token) { return }
+  const items = selector || state.activeDevicesID.join(',')
   if (items) {
-    let telemetryResp = await Vue.connector.gw.getDevicesTelemetry(items),
+    const telemetryResp = await Vue.connector.gw.getDevicesTelemetry(items),
       telemetryRespData = telemetryResp.data
     if (telemetryRespData.errors) {
       postMessage.errors.forEach((error) => {
         commit('addError', error.reason)
       })
     }
-    let now = Math.max(
+    const now = Math.max(
       ...telemetryRespData.result.reduce((result, info) => {
         result.push(info.telemetry && info.telemetry['position.latitude'] ? Math.floor(info.telemetry['position.latitude'].ts * 1000) : 0)
         result.push(info.telemetry && info.telemetry['position.longitude'] ? Math.floor(info.telemetry['position.longitude'].ts * 1000) : 0)
@@ -50,25 +51,26 @@ async function getLastUpdatePosition ({ commit, state }, selector) {
 }
 
 async function getInitDataByDeviceId ({ commit, state }, id) {
-  let telemetryResp = await Vue.connector.gw.getDevicesTelemetry(id),
+  if (!state.token) { return }
+  const telemetryResp = await Vue.connector.gw.getDevicesTelemetry(id),
     telemetryRespData = telemetryResp.data
   if (telemetryRespData.errors) {
     postMessage.errors.forEach((error) => {
       commit('addError', error.reason)
     })
   }
-  let telemetry = telemetryRespData && telemetryRespData.result[0] && telemetryRespData.result[0].telemetry ? telemetryRespData.result[0].telemetry : {},
+  const telemetry = telemetryRespData && telemetryRespData.result[0] && telemetryRespData.result[0].telemetry ? telemetryRespData.result[0].telemetry : {},
     telemetryFields = Object.keys(telemetry)
   if (!telemetryFields.length) {
     return false
   }
-  let initMessage = telemetryFields.reduce((message, paramName) => {
+  const initMessage = telemetryFields.reduce((message, paramName) => {
     if (paramName === 'position') { return message }
     message[paramName] = telemetry[paramName].value
     return message
   }, {})
   initMessage['x-flespi-inited-by-telemetry'] = true
-  commit(`messages/${id}/setMessages`, [initMessage])
+  commit(`messages/${id}/setHistoryMessages`, [initMessage])
 }
 
 async function getRegions ({ state, commit }) {
@@ -76,7 +78,7 @@ async function getRegions ({ state, commit }) {
     if (typeof state.isLoading !== 'undefined') {
       Vue.set(state, 'isLoading', true)
     }
-    let resp = await Vue.connector.http.get('/auth/regions')
+    const resp = await Vue.connector.http.get('/auth/regions')
     let regions = get(resp, 'data.result', [])
     let currentRegion = null
     regions = regions.reduce((regions, region) => {

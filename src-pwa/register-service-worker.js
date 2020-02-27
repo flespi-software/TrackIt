@@ -13,7 +13,7 @@ register(process.env.SERVICE_WORKER_FILE, {
     console.log('Content has been cached for offline use.')
   },
   updated (registration) { // registration -> a ServiceWorkerRegistration instance
-    let notification = document.createElement('div')
+    const notification = document.createElement('div')
     notification.id = 'sw-notification'
     notification.innerHTML = `<div style="z-index: 10000" class="q-notification-list q-notification-list-bottom fixed column items-end absolute">
                                               <div class="q-notification">
@@ -45,7 +45,7 @@ register(process.env.SERVICE_WORKER_FILE, {
                                                 </div>
                                               </div>
                                             </div>`
-    let buttons = notification.getElementsByTagName('button'),
+    const buttons = notification.getElementsByTagName('button'),
       body = document.getElementsByTagName('body')[0]
     function reload () {
       if ('serviceWorker' in navigator) {

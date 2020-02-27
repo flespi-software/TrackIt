@@ -8,7 +8,7 @@ function reqStart (state) {
   }
 }
 function reqSuccessful (state, { type, payload }) {
-  let { result } = payload
+  const { result } = payload
   switch (type) {
     case 'postMessage': {
       Notify.create({
@@ -46,7 +46,7 @@ function setDevices (state, devices) {
       setDevicesInit(state)
     } else {
       setDevicesInit(state)
-      let activeDevicesFromLocalStorage = LocalStorage.getItem('TrackIt Active Devices')
+      const activeDevicesFromLocalStorage = LocalStorage.getItem('TrackIt Active Devices')
       if (activeDevicesFromLocalStorage && activeDevicesFromLocalStorage.length) {
         activeDevicesFromLocalStorage.forEach(id => {
           if (devices.data.result.filter(device => device.id === id).length) {
@@ -161,7 +161,7 @@ function setActiveDevice (state, id) {
   }
 }
 function unsetActiveDevice (state, id) {
-  let index = state.activeDevicesID.indexOf(id)
+  const index = state.activeDevicesID.indexOf(id)
   state.activeDevicesID.splice(index, 1)
   LocalStorage.set('TrackIt Active Devices', state.activeDevicesID)
   if (state.activeDevicesID.length) {

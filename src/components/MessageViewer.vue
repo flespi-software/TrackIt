@@ -54,14 +54,14 @@ export default {
         this.$q.notify({
           color: 'positive',
           icon: 'content_copy',
-          message: `Successfully copied`,
+          message: 'Successfully copied',
           timeout: 1000
         })
       }, (e) => {
         this.$q.notify({
           color: 'negative',
           icon: 'content_copy',
-          message: `Error coping`,
+          message: 'Error coping',
           timeout: 1000
         })
       })

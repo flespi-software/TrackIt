@@ -48,13 +48,13 @@ export default function (L) {
 
       if (!this._snakeLatLngs) {
         this._snakeLatLngs = L.LineUtil.isFlat(this._latlngs)
-          ? [ this._latlngs ]
+          ? [this._latlngs]
           : this._latlngs
       }
 
       // Init with just the first (0th) vertex in a new ring
       // Twice because the first thing that this._snake is is chop the head.
-      this._latlngs = [[ this._snakeLatLngs[0][0], this._snakeLatLngs[0][0] ]]
+      this._latlngs = [[this._snakeLatLngs[0][0], this._snakeLatLngs[0][0]]]
 
       this._update()
       this._snake()
@@ -78,14 +78,14 @@ export default function (L) {
 
       if (!this._snakeLatLngs) {
         this._snakeLatLngs = L.LineUtil.isFlat(this._latlngs)
-          ? [ this._latlngs ]
+          ? [this._latlngs]
           : this._latlngs
       }
 
       if (!this._snakingIn) {
         // need to do a deep copy
-        let tempArray = []
-        let keys = Object.keys(this._snakeLatLngs)
+        const tempArray = []
+        const keys = Object.keys(this._snakeLatLngs)
         keys.forEach(() => {
           tempArray.push([])
           this._snakeLatLngs[tempArray.length - 1].forEach(function (entry) {
@@ -115,19 +115,19 @@ export default function (L) {
       if (!this._map) return
       if (this._snakingPaused) return
 
-      let now = performance.now()
+      const now = performance.now()
       let diff = now - this._snakingTime // In milliseconds
       diff = (diff === 0 ? 0.001 : diff) // avoids low time resolution issues in some browsers
-      let forward = diff * this.options.snakingSpeed / 1000 // In pixels
+      const forward = diff * this.options.snakingSpeed / 1000 // In pixels
       this._snakingTime = now
 
       // Chop the head from the previous frame
       if (this._snakingIn) {
-        this._latlngs[ this._snakingRings ].pop()
+        this._latlngs[this._snakingRings].pop()
       }
       // Chop the tail from the previous frame
       if (this._snakingOut) {
-        this._latlngs[ this._snakingTailRings ].shift()
+        this._latlngs[this._snakingTailRings].shift()
       }
 
       if (this._snakingIn) {
@@ -150,9 +150,9 @@ export default function (L) {
     _snakeHeadForward: function (forward) {
       // Calculate distance from current vertex to next vertex
       let currPoint = this._map.latLngToContainerPoint(
-        this._snakeLatLngs[ this._snakingRings ][ this._snakingVertices ])
+        this._snakeLatLngs[this._snakingRings][this._snakingVertices])
       let nextPoint = this._map.latLngToContainerPoint(
-        this._snakeLatLngs[ this._snakingRings ][ this._snakingVertices + 1 ])
+        this._snakeLatLngs[this._snakingRings][this._snakingVertices + 1])
 
       let distance = currPoint.distanceTo(nextPoint)
 
@@ -162,39 +162,39 @@ export default function (L) {
       while (this._snakingDistance + forward > distance) {
         // Jump to next vertex
         this._snakingVertices++
-        this._latlngs[ this._snakingRings ].push(this._snakeLatLngs[ this._snakingRings ][ this._snakingVertices ])
+        this._latlngs[this._snakingRings].push(this._snakeLatLngs[this._snakingRings][this._snakingVertices])
 
-        if (this._snakingVertices >= this._snakeLatLngs[ this._snakingRings ].length - 1) {
+        if (this._snakingVertices >= this._snakeLatLngs[this._snakingRings].length - 1) {
           if (this._snakingRings >= this._snakeLatLngs.length - 1) {
             return this._snakeInEnd()
           } else {
             this._snakingVertices = 0
             this._snakingRings++
-            this._latlngs[ this._snakingRings ] = [
-              this._snakeLatLngs[ this._snakingRings ][ this._snakingVertices ]
+            this._latlngs[this._snakingRings] = [
+              this._snakeLatLngs[this._snakingRings][this._snakingVertices]
             ]
           }
         }
 
         this._snakingDistance -= distance
         currPoint = this._map.latLngToContainerPoint(
-          this._snakeLatLngs[ this._snakingRings ][ this._snakingVertices ])
+          this._snakeLatLngs[this._snakingRings][this._snakingVertices])
         nextPoint = this._map.latLngToContainerPoint(
-          this._snakeLatLngs[ this._snakingRings ][ this._snakingVertices + 1 ])
+          this._snakeLatLngs[this._snakingRings][this._snakingVertices + 1])
         distance = currPoint.distanceTo(nextPoint)
       }
 
       this._snakingDistance += forward
 
-      let percent = this._snakingDistance / distance
+      const percent = this._snakingDistance / distance
 
-      let headPoint = nextPoint.multiplyBy(percent).add(
+      const headPoint = nextPoint.multiplyBy(percent).add(
         currPoint.multiplyBy(1 - percent)
       )
 
       // Put a new head in place.
-      let headLatLng = this._map.containerPointToLatLng(headPoint)
-      this._latlngs[ this._snakingRings ].push(headLatLng)
+      const headLatLng = this._map.containerPointToLatLng(headPoint)
+      this._latlngs[this._snakingRings].push(headLatLng)
       if (this.options.followHead) {
         this._map.setView(headLatLng)
       }
@@ -205,9 +205,9 @@ export default function (L) {
     _snakeTailForward: function (forward) {
       // Calculate distance from current vertex to next vertex
       let currPoint = this._map.latLngToContainerPoint(
-        this._snakeLatLngs[ this._snakingTailRings ][ this._snakingTailVertices ])
+        this._snakeLatLngs[this._snakingTailRings][this._snakingTailVertices])
       let nextPoint = this._map.latLngToContainerPoint(
-        this._snakeLatLngs[ this._snakingTailRings ][ this._snakingTailVertices + 1 ])
+        this._snakeLatLngs[this._snakingTailRings][this._snakingTailVertices + 1])
 
       let distance = currPoint.distanceTo(nextPoint)
 
@@ -219,36 +219,36 @@ export default function (L) {
         this._snakingTailVertices++
         this._latlngs[this._snakingTailRings].shift()
 
-        if (this._snakingTailVertices >= this._snakeLatLngs[ this._snakingTailRings ].length - 1) {
+        if (this._snakingTailVertices >= this._snakeLatLngs[this._snakingTailRings].length - 1) {
           if (this._snakingTailRings >= this._snakeLatLngs.length - 1) {
             return this._snakeOutEnd()
           } else {
             this._snakingTailVertices = 0
-            this._latlngs[ this._snakingTailRings ] = []
+            this._latlngs[this._snakingTailRings] = []
             this._snakingTailRings++
-            this._latlngs[ this._snakingTailRings ].shift() // Remove first point of new line
+            this._latlngs[this._snakingTailRings].shift() // Remove first point of new line
           }
         }
 
         this._snakingTailDistance -= distance
         currPoint = this._map.latLngToContainerPoint(
-          this._snakeLatLngs[ this._snakingTailRings ][ this._snakingTailVertices ])
+          this._snakeLatLngs[this._snakingTailRings][this._snakingTailVertices])
         nextPoint = this._map.latLngToContainerPoint(
-          this._snakeLatLngs[ this._snakingTailRings ][ this._snakingTailVertices + 1 ])
+          this._snakeLatLngs[this._snakingTailRings][this._snakingTailVertices + 1])
         distance = currPoint.distanceTo(nextPoint)
       }
 
       this._snakingTailDistance += forward
 
-      let percent = this._snakingTailDistance / distance
+      const percent = this._snakingTailDistance / distance
 
-      let tailPoint = nextPoint.multiplyBy(percent).add(
+      const tailPoint = nextPoint.multiplyBy(percent).add(
         currPoint.multiplyBy(1 - percent)
       )
 
       // Put a new tail in place.
-      let tailLatLng = this._map.containerPointToLatLng(tailPoint)
-      this._latlngs[ this._snakingTailRings ].unshift(tailLatLng)
+      const tailLatLng = this._map.containerPointToLatLng(tailPoint)
+      this._latlngs[this._snakingTailRings].unshift(tailLatLng)
 
       return this
     },
@@ -287,8 +287,8 @@ export default function (L) {
     snakeUnpause: function () {
       if (!this._snakingPaused) return
       this._snakingPaused = false
-      let now = performance.now()
-      let diff = now - this._snakingPauseTime
+      const now = performance.now()
+      const diff = now - this._snakingPauseTime
       this._snakingPauseTime = 0
       this._snakingTime += diff
       L.Util.requestAnimFrame(this._snake, this)
@@ -328,7 +328,7 @@ export default function (L) {
       if (this.options.snakeRemoveLayers) {
         this.clearLayers()
       } else {
-        for (let currentLayer in this._snakingLayers) {
+        for (const currentLayer in this._snakingLayers) {
           if (this._snakingLayers[currentLayer] instanceof L.Polyline) { // remove only paths
             this.removeLayer(this._snakingLayers[currentLayer])
           }
@@ -361,9 +361,9 @@ export default function (L) {
 
     _initSnakingLayers: function () {
       // Copy layers ref in _snakingLayers
-      let keys = Object.keys(this._layers)
-      for (let i in keys) {
-        let key = keys[i]
+      const keys = Object.keys(this._layers)
+      for (const i in keys) {
+        const key = keys[i]
         this._snakingLayers.push(this._layers[key])
       }
       return this
@@ -379,7 +379,7 @@ export default function (L) {
         return
       }
 
-      let currentLayer = this._snakingLayers[this._snakingLayersDone]
+      const currentLayer = this._snakingLayers[this._snakingLayersDone]
 
       this._snakingLayersDone++
 
@@ -412,7 +412,7 @@ export default function (L) {
         this._snakingOut = false
         return
       }
-      let currentLayer = this._snakingLayers[this._snakingTailLayersDone]
+      const currentLayer = this._snakingLayers[this._snakingTailLayersDone]
 
       this._snakingTailLayersDone++
 
@@ -436,12 +436,12 @@ export default function (L) {
         this._initSnakingLayers()
       }
 
-      for (let id in this._snakeTimeoutsId) {
+      for (const id in this._snakeTimeoutsId) {
         clearTimeout(id)
       }
       this._snakeTimeoutsId = []
 
-      for (let currentLayer in this._snakingLayers) {
+      for (const currentLayer in this._snakingLayers) {
         if (this._snakingLayers[currentLayer] instanceof L.Polyline) {
           this._snakingLayers[currentLayer].snakeReset()
         }

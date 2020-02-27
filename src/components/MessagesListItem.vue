@@ -3,12 +3,12 @@
     v-if="!item['__connectionStatus']"
     @click="itemClickHandler(index, clearItem)"
     class="cursor-pointer"
-    :class="{'missed-items': item.__status, 'item--telemetry-inited': item['x-flespi-inited-by-telemetry']}"
+    :class="{'missed-items': item['x-flespi-status'], 'item--telemetry-inited': item['x-flespi-inited-by-telemetry']}"
     :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, borderBottom: item.delimiter ? 'solid 1px #f40' : ''}"
   >
     <template v-for="(prop, k) in cols">
       <span class="list__item item_actions" :class="{[`item_${k}`]: true}" v-if="prop.__dest === 'action'" :key="prop.name + k">
-        <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, item)"
+        <q-icon v-for="(action, i) in actions" :key="i" @click.stop.native="clickHandler(index, action.type, clearItem)"
                 :class="action.classes" class="cursor-pointer on-left" :name="action.icon">
           <q-tooltip>{{action.label}}</q-tooltip>
         </q-icon>
@@ -76,14 +76,14 @@ export default {
       }
       Object.keys(this.item).forEach((propName) => {
         if (propName.indexOf('#') !== -1) {
-          let splitedName = propName.split('#'),
+          const splitedName = propName.split('#'),
             name = splitedName[0],
             index = splitedName[1]
           if (vals[name]) {
             if (!vals[name].value) {
               vals[name].value = {}
             } else if (typeof vals[name].value !== 'object') {
-              let value = vals[name].value
+              const value = vals[name].value
               vals[name].value = { [index - 1]: value }
             }
             vals[name].value[index] = this.getValue(this.item[propName])
@@ -100,7 +100,7 @@ export default {
           }
           vals[propName].value = this.getValue(value)
         } else {
-          if (propName === 'delimiter' || propName === '__status' || propName.indexOf('x-flespi-') !== -1) { return false }
+          if (propName.indexOf('x-flespi-') !== -1) { return false }
           if (propName.indexOf('image.bin.') !== -1) {
             vals.etc.value += `${propName}: <binary image>`
           } else {
@@ -111,7 +111,7 @@ export default {
       Object.keys(vals).forEach((key) => {
         if (typeof vals[key].value === 'object' && vals[key].value) {
           if (vals[key].value instanceof Array) {
-            let buff = vals[key].value.reduce((acc, item, index, arr) => {
+            const buff = vals[key].value.reduce((acc, item, index, arr) => {
               acc += item
               if (index !== arr.length - 1) {
                 acc += ', '
@@ -120,7 +120,7 @@ export default {
             }, '')
             vals[key].value = buff
           } else if (vals[key].value instanceof Object) {
-            let buff = Object.keys(vals[key].value).reduce((acc, name, index, arr) => {
+            const buff = Object.keys(vals[key].value).reduce((acc, name, index, arr) => {
               acc += `${name}: ${vals[key].value[name]}`
               if (index !== arr.length - 1) {
                 acc += ', '
@@ -135,15 +135,7 @@ export default {
     },
     clearItem () {
       return Object.keys(this.item).reduce((result, key) => {
-        if (
-          key === 'delimiter' ||
-          key === '__status' ||
-          key === 'uuid' ||
-          key === 'x-flespi-filter-fields' ||
-          key === 'x-flespi-filter-next' ||
-          key === 'x-flespi-filter-prev' ||
-          key === 'x-flespi-inited-by-telemetry'
-        ) {
+        if (key === 'uuid' || key.indexOf('x-flespi') !== -1) {
           return result
         }
         result[key] = this.item[key]
@@ -153,10 +145,10 @@ export default {
   },
   methods: {
     clickHandler (index, type, content) {
-      this.$emit(`action`, { index, type, content })
+      this.$emit('action', { index, type, content })
     },
     itemClickHandler (index, content) {
-      this.$emit(`item-click`, { index, content })
+      this.$emit('item-click', { index, content })
     },
     getValue (value) {
       return typeof value === 'string' ? value : JSON.stringify(value)
