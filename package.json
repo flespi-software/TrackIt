@@ -1,6 +1,6 @@
 {
   "name": "track-it",
-  "version": "0.8.4",
+  "version": "1.0.0",
   "description": "A simple application based on flespi.io and built with Quasar and Leaflet.js. Allows tracking different devices on the map, viewing telemetry messages for these devices.",
   "productName": "TrackIt!",
   "cordovaId": "org.cordova.quasar.app",
@@ -14,7 +14,7 @@
     "deploy": "rm -rf dist && npm run build && rm -rf deploy && mkdir deploy && cp -R dist/spa/* misc LICENSE package.json deploy && cp README.md deploy/README.md && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rhttps://git.gurtam.net/flespi/frontend/TrackIt.git && rm -rf deploy && git push github gh-pages"
   },
   "dependencies": {
-    "@quasar/extras": "^1.0.0",
+    "@quasar/extras": "^1.5.2",
     "flespi-io-js": "git+https://github.com/flespi-software/flespi-io-js.git",
     "leaflet": "^1.6.0",
     "leaflet.marker.slideto": "^0.2.0",
@@ -22,18 +22,22 @@
     "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "qtelemetry": "git+https://github.com/flespi-software/QTelemetry.git",
-    "quasar": "^1.5.9",
+    "quasar": "^1.9.4",
     "qvirtualscroll": "git+https://github.com/flespi-software/QVirtualScroll.git",
-    "vue-i18n": "^8.15.1",
-    "vue-virtual-scroll-list": "^1.4.4"
+    "vue-i18n": "^8.15.4",
+    "vue-virtual-scroll-list": "^1.4.6"
   },
   "devDependencies": {
-    "@quasar/app": "^1.4.1",
-    "@vue/eslint-config-standard": "^4.0.0",
-    "babel-eslint": "^10.0.1",
-    "eslint": "^5.10.0",
-    "eslint-loader": "^2.1.1",
-    "eslint-plugin-vue": "^5.0.0",
+    "@quasar/app": "^1.5.8",
+    "@vue/eslint-config-standard": "^5.1.2",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.8.0",
+    "eslint-loader": "^3.0.3",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "eslint-plugin-vue": "^6.2.1",
     "git-directory-deploy": "^1.5.1"
   },
   "engines": {
