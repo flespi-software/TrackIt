@@ -132,7 +132,8 @@ module.exports = function (ctx) {
           new webpack.DefinePlugin({
             SERVER: JSON.stringify(serverAliases[process.env.FLESPI_SERVER]),
             DEV: process.env.NODE_ENV === 'development',
-            PROD: process.env.NODE_ENV === 'production'
+            PROD: process.env.NODE_ENV === 'production',
+            LOCAL: process.env.NODE_LOCAL === 'local'
           })
         )
       }

@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.0.2] - 2020-04-13
+[fix] build
 ### [1.0.1] - 2020-03-02
 [update] deps
 ### [1.0.0] - 2020-02-27

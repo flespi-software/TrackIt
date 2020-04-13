@@ -5,7 +5,7 @@ import { version } from '../../package.json'
 let rest = '',
   socket = ''
 /* if local dev build */
-if (DEV) {
+if (DEV && LOCAL) {
   if (window.location.host.indexOf('localhost') !== -1) {
     rest = 'https://localhost:9005'
     socket = 'wss://localhost:9017'
