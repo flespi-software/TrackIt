@@ -20,7 +20,7 @@
     "leaflet": "^1.6.0",
     "leaflet.marker.slideto": "^0.2.0",
     "leaflet.polyline.snakeanim": "^0.2.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "moment": "^2.24.0",
     "qtelemetry": "git+https://github.com/flespi-software/QTelemetry.git",
     "quasar": "^1.9.4",
