@@ -22,18 +22,26 @@
 - [Node.js](https://nodejs.org/en/) (>=6.x)
 - npm version 3+ and [Git](https://git-scm.com/).
 
+## Used API resurces:
+
+REST<br />
+https://flespi.io/gw/devices/{selector}<br />
+https://flespi.io/gw/devices/{selector}/telemetry<br />
+https://flespi.io/gw/devices/{selector}/messages<br />
+https://flespi.io/gw/protocols<br />
+MQTT<br />
+flespi/log/gw/devices/{selector}/created<br />
+flespi/log/gw/devices/{selector}/updated<br />
+flespi/log/gw/devices/{selector}/deleted<br />
+flespi/message/gw/devices/{selector}/#<br />
+
 ## Requirements:
 You need to have a separate token with at least the following ACLs:<br />
 REST<br />
 https://flespi.io/gw/devices/{selector}<br />
 https://flespi.io/gw/devices/{selector}/telemetry<br />
 https://flespi.io/gw/devices/{selector}/messages<br />
-https://flespi.io/gw/protocols<br />Е
-MQTT<br />
-flespi/log/gw/devices/{selector}/created<br />
-flespi/log/gw/devices/{selector}/updated<br />
-flespi/log/gw/devices/{selector}/deleted<br />
-flespi/message/gw/devices/{selector}/#<br />
+https://flespi.io/gw/protocols
 
 ## Build Setup
 
