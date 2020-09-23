@@ -60,27 +60,11 @@
           </q-menu>
         </q-btn>
         <div v-if="devices.length" class="floated date">
-          <q-btn flat style="max-width: 120px; font-size: .85rem; line-height: .85rem;" class="q-pa-none" @click="$refs.datePickerModal.toggle()">
-            <div>{{formatDate(date)}}</div>
-          </q-btn>
-          <q-dialog ref="datePickerModal" content-class="modal-date">
-            <q-card>
-              <q-card-section class="q-pa-none">
-                <div class="flex flex-center">
-                  <vue-flat-pickr
-                    :value="dateValue"
-                    @input="dateInputHandler"
-                    :config="dateConfig"
-                  />
-                </div>
-              </q-card-section>
-              <q-separator />
-              <q-card-actions align="right">
-                <q-btn flat @click="datePickerModalClose">close</q-btn>
-                <q-btn flat @click="datePickerModalSave">save</q-btn>
-              </q-card-actions>
-            </q-card>
-          </q-dialog>
+          <date-range-modal
+            :date="date"
+            :theme="dateTheme"
+            @save="dateRange => date = [...dateRange]"
+          />
         </div>
         <div v-if="!activeDevicesID.length && devices.length" class="floated no-devices">
           <span class="no-devices__message">You have no selected devices</span>
@@ -141,7 +125,8 @@
 <script>
 import Vue from 'vue'
 import { mapState, mapMutations, mapActions } from 'vuex'
-import { VueFlatPickr } from 'datetimerangepicker'
+// import { VueFlatPickr } from 'datetimerangepicker'
+import DateRangeModal from '../components/DateRangeModal'
 import { QTelemetry, telemetryVuexModule } from 'qtelemetry'
 import MapComponent from '../components/Map.vue'
 import DeviceList from '../components/DeviceList.vue'
@@ -169,13 +154,11 @@ export default {
         propHistoryFlag: true
       },
       version: dist.version,
-      date: undefined,
-      dateValue: undefined,
-      dateConfig: {
-        inline: true,
-        maxDate: (new Date()).setHours(23, 59, 59, 999),
-        mode: 'single',
-        locale: { firstDayOfWeek: 1 }
+      date: [0, 0],
+      dateTheme: {
+        color: 'white',
+        bgColor: 'grey-9',
+        modeSwitch: false
       },
       isInit: Vue.connector.socket.connected(),
       unsubscribeDevices: () => {}
@@ -193,7 +176,6 @@ export default {
         this.getLastUpdatePosition()
           .then((date) => {
             this.date = date || undefined
-            this.dateValue = date || undefined
           })
         return state.activeDevicesID
       },
@@ -223,7 +205,7 @@ export default {
     DeviceList,
     MapComponent,
     QTelemetry,
-    VueFlatPickr
+    DateRangeModal
   },
   methods: {
     openURL,
@@ -278,18 +260,18 @@ export default {
     },
     formatDate (timestamp) {
       return date.formatDate(timestamp, 'DD/MM/YYYY')
-    },
-    datePickerModalClose () {
-      this.dateValue = this.date
-      this.$refs.datePickerModal.hide()
-    },
-    datePickerModalSave () {
-      this.date = this.dateValue
-      this.$refs.datePickerModal.hide()
-    },
-    dateInputHandler (date) {
-      this.dateValue = date ? date.setSeconds(0) : new Date()
-    }
+    }// ,
+    // datePickerModalClose () {
+    //   this.dateValue = this.date
+    //   this.$refs.datePickerModal.hide()
+    // },
+    // datePickerModalSave () {
+    //   this.date = this.dateValue
+    //   this.$refs.datePickerModal.hide()
+    // },
+    // dateInputHandler (date) {
+    //   this.dateValue = date ? date.setSeconds(0) : new Date()
+    // }
   },
   watch: {
     token (val) {

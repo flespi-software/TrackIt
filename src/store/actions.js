@@ -29,6 +29,7 @@ async function checkConnection ({ state, commit }) {
 async function getLastUpdatePosition ({ commit, state }, selector) {
   if (!state.token) { return }
   const items = selector || state.activeDevicesID.join(',')
+  let initTime
   if (items) {
     const telemetryResp = await Vue.connector.gw.getDevicesTelemetry(items),
       telemetryRespData = telemetryResp.data
@@ -44,10 +45,13 @@ async function getLastUpdatePosition ({ commit, state }, selector) {
         return result
       }, [])
     )
-    return now - (now % 86400000)
+    initTime = now
   } else {
-    return Date.now()
+    initTime = Date.now()
   }
+  const from = new Date(initTime).setHours(0, 0, 0, 0)
+  const to = from + 86399999
+  return [from, to]
 }
 
 async function getInitDataByDeviceId ({ commit, state }, id) {

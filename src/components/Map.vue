@@ -431,8 +431,8 @@ export default {
           await this.$store.dispatch(`messages/${id}/unsubscribePooling`)
         }
         this.$store.commit(`messages/${id}/clearMessages`)
-        const from = new Date(this.date).setHours(0, 0, 0, 0)
-        const to = from + 86399999
+        const from = this.date[0]
+        const to = this.date[1]
         this.$store.commit(`messages/${id}/setFrom`, from)
         this.$store.commit(`messages/${id}/setTo`, to)
         await this.$store.dispatch(`messages/${id}/get`)
