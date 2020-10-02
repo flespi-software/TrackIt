@@ -39,7 +39,7 @@
     >
       <q-tooltip v-if="$q.platform.is.desktop">Stop</q-tooltip>
     </q-btn>
-    <q-btn :disable="max <= min || mode === 'data'" class="text-white" icon="mdi-skip-previous" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="$emit('player:prev')">
+    <q-btn :disable="max <= min || mode === 'data'" class="text-white" icon="mdi-skip-previous" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="$emit('player-prev')">
       <q-tooltip v-if="$q.platform.is.desktop">Prev message</q-tooltip>
     </q-btn>
     <div class="player">
@@ -55,7 +55,7 @@
         </div>
       </div>
     </div>
-    <q-btn :disable="max <= min || mode === 'data'" class="text-white" icon="mdi-skip-next" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="$emit('player:next')">
+    <q-btn :disable="max <= min || mode === 'data'" class="text-white" icon="mdi-skip-next" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="$emit('player-next')">
       <q-tooltip v-if="$q.platform.is.desktop">Next message</q-tooltip>
     </q-btn>
   </div>
@@ -219,7 +219,7 @@ export default {
     },
     changeSpeed (currentSpeed) {
       this.currentSpeed = currentSpeed
-      this.$emit('player:speed', currentSpeed)
+      this.$emit('player-speed', currentSpeed)
     },
     play () {
       if (this.currentStatus === 'pause' || this.currentStatus === 'stop') {

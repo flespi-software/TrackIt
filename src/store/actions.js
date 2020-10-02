@@ -45,7 +45,7 @@ async function getLastUpdatePosition ({ commit, state }, selector) {
         return result
       }, [])
     )
-    initTime = now
+    initTime = now || Date.now()
   } else {
     initTime = Date.now()
   }

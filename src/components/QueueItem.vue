@@ -26,7 +26,7 @@
         :dense="$q.platform.is.mobile"
         :size="$q.platform.is.desktop ? '1.4rem' : 'md'"
         flat
-        @click="messagesFlag = !messagesFlag, $emit('change:needShowMessages', messagesFlag)"
+        @click="messagesFlag = !messagesFlag, $emit('change-need-show-messages', messagesFlag)"
       >
         <q-tooltip v-if="$q.platform.is.desktop">Messages</q-tooltip>
       </q-btn>
@@ -37,7 +37,7 @@
         :dense="$q.platform.is.mobile"
         :size="$q.platform.is.desktop ? '1.4rem' : 'md'"
         flat
-        @click="playerMode = playerMode === 'data' ? 'time' : 'data', $emit('player:mode', {mode: playerMode, id})"
+        @click="playerMode = playerMode === 'data' ? 'time' : 'data', $emit('player-mode', {mode: playerMode, id})"
       >
         <q-tooltip v-if="$q.platform.is.desktop">Change mode (Time/Data)</q-tooltip>
       </q-btn>
@@ -49,12 +49,12 @@
         :status="player.status"
         :speed="player.speed"
         :mode="player.mode"
-        @player:next="playerNextHandler"
-        @player:prev="playerPrevHandler"
-        @player:play="playerPlayHandler"
-        @player:pause="playerPauseHandler"
+        @player-next="playerNextHandler"
+        @player-prev="playerPrevHandler"
+        @player-play="playerPlayHandler"
+        @player-pause="playerPauseHandler"
         @player:stop="playerStopHandler"
-        @player:speed="playerSpeedHandler"
+        @player-speed="playerSpeedHandler"
       />
     </div>
   </div>
@@ -178,11 +178,11 @@ export default {
       if (!this.playerValue) {
         this.playerValue = Math.floor(this.messages[0].timestamp)
       }
-      this.$emit('player:play', { id: this.id })
+      this.$emit('player-play', { id: this.id })
     },
     playerPauseHandler () {
       this.playerStatus = 'pause'
-      this.$emit('player:pause', { id: this.id })
+      this.$emit('player-pause', { id: this.id })
     },
     playerStopHandler () {
       this.playerStatus = 'stop'
@@ -194,7 +194,7 @@ export default {
       this.$emit('player:stop', { id: this.id })
     },
     playerSpeedHandler (speed) {
-      this.$emit('player:speed', { id: this.id, speed })
+      this.$emit('player-speed', { id: this.id, speed })
     },
     viewMessageHandler () {
       if (this.$refs.player) {

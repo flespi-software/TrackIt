@@ -17,12 +17,12 @@
             :needShowPlayer="needShowPlayer"
             :player="player"
             @player:value="playHandler"
-            @player:play="data => $emit('player:play', data)"
-            @player:pause="data => $emit('player:pause', data)"
+            @player-play="data => $emit('player-play', data)"
+            @player-pause="data => $emit('player-pause', data)"
             @player:stop="stopHandler"
-            @player:speed="data => $emit('player:speed', data)"
-            @player:mode="data => $emit('player:mode', data)"
-            @change:needShowMessages="(flag) => {$emit('change:needShowMessages', flag)}"
+            @player-speed="data => $emit('player-speed', data)"
+            @player-mode="data => $emit('player-mode', data)"
+            @change-need-show-messages="(flag) => {$emit('change-need-show-messages', flag)}"
             @view-on-map="(content)=>{ $emit('view-on-map', content) }"
           />
         </q-tab-panel>

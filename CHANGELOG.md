@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.1.1] - 2020-10-02
+[feature] devices filter
+[fix] init device by time w/o position
+[fix] custom events
 ### [1.1.0] - 2020-09-23
 [feature] date range and manual modes in date picker
 ### [1.0.2] - 2020-04-13

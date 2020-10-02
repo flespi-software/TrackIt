@@ -1,7 +1,7 @@
 <template>
   <q-layout ref="layout" view="hHh LpR lFf">
     <q-drawer v-if="isInit" side="left" :no-swipe-open="$q.platform.is.desktop" :no-swipe-close="$q.platform.is.desktop" v-model="side_left" :breakpoint="576" behavior="mobile">
-      <device-list v-show="devices.length" @update:watch-by-id="setWatchToDeviceID" :deviceIdForWatch="deviceIdForWatch" :activeDevicesID="activeDevicesID" :devices="devices" @click:hide="side_left = false"/>
+      <device-list v-show="devices.length" @update:watch-by-id="setWatchToDeviceID" :deviceIdForWatch="deviceIdForWatch" :activeDevicesID="activeDevicesID" :devices="devices" @click-hide="side_left = false"/>
     </q-drawer>
     <q-drawer side="right" no-swipe-open no-swipe-close :content-class="{'bg-grey-9':telemetrySettings.inverted}" v-model="side_right">
       <div style="position: relative; height: 100vh; overflow: hidden;">
@@ -20,7 +20,7 @@
         </q-item>
         <q-item v-if="deviceIdForTelemetry">
           <q-item-section>
-            <q-input type="text" label="Search" v-model="telemetrySearch" :dark="telemetrySettings.inverted" :color="telemetrySettings.inverted ? 'white' : 'grey'" />
+            <q-input type="text" label="Search" v-model="telemetrySearch" :dark="telemetrySettings.inverted" :color="telemetrySettings.inverted ? 'white' : 'grey'" outlined hide-bottom-space class="q-mb-xs"/>
           </q-item-section>
         </q-item>
         <q-telemetry class="scroll" style="height: calc(100% - 128px)" v-if="deviceIdForTelemetry" :propHistoryFlag="telemetryConfig.propHistoryFlag" :device="deviceForTelemetry" :inverted="telemetrySettings.inverted" :search="telemetrySearch" />
@@ -115,7 +115,7 @@
           :deviceIdForWatch="deviceIdForWatch"
           :params="params"
           :date="date"
-          @change:needShowMessages="(value) => { params.needShowMessages = value }"
+          @change-need-show-messages="(value) => { params.needShowMessages = value }"
         />
       </q-page>
     </q-page-container>
