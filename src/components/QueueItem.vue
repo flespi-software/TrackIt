@@ -197,7 +197,7 @@ export default {
       this.$emit('player-speed', { id: this.id, speed })
     },
     viewMessageHandler () {
-      if (this.$refs.player) {
+      if (this.$refs.player && this.playerStatus !== 'stop') {
         this.$refs.player.stop()
       }
     },

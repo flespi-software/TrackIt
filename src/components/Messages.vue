@@ -7,17 +7,18 @@
       :items="messages"
       :dateRange="dateRange"
       :viewConfig="viewConfig"
-      :colsConfigurator="'toolbar'"
       :theme="theme"
       :title="'Messages'"
       :loading="isLoading"
-      :autoscroll="realtimeEnabled"
+      :autoscroll="needAutoscroll"
       scrollOffset="10%"
       :item="listItem"
       :itemprops="getItemsProps"
-      @change:date-range="dateRangeChangeHandler"
-      @action:to-bottom="actionToBottomHandler"
-      @update:cols="updateColsHandler"
+      @action-to-bottom="actionToBottomHandler"
+      @update-cols="updateColsHandler"
+      @scroll-bottom="scrollBottomHandler"
+      @action="actionHandler"
+      @to-default-cols="toDefaultColsHandler"
     >
       <div class="no-messages text-center" slot="empty">
         <div class="text-white" style="font-size: 3rem;">
@@ -40,15 +41,13 @@ const config = {
   actions: [
     {
       icon: 'mdi-eye',
-      label: 'view',
+      label: 'Show message',
       classes: '',
       type: 'view'
     }
   ],
   viewConfig: {
     needShowFilter: false,
-    needShowMode: false,
-    needShowPageScroll: false,
     needShowDate: false,
     needShowEtc: true
   },
@@ -82,10 +81,16 @@ export default {
       theme: config.theme,
       viewConfig: config.viewConfig,
       actions: config.actions,
-      moduleName: this.activeDeviceId
+      moduleName: this.activeDeviceId,
+      autoscroll: true
     }
   },
   computed: {
+    storedMessages () {
+      const messages = this.$store.state.messages[this.moduleName].messages
+      this.scrollControlling(messages.length)
+      return messages
+    },
     cols: {
       get () {
         return this.$store.state.messages[this.moduleName].cols
@@ -134,6 +139,7 @@ export default {
         return this.$store.state.messages[this.moduleName].selected
       },
       set (val) {
+        if (val && val.length) { this.autoscroll = false }
         this.$store.commit(`messages/${this.moduleName}/setSelected`, val)
       }
     },
@@ -142,6 +148,9 @@ export default {
     },
     isLoading () {
       return this.$store.state.messages[this.moduleName].isLoading
+    },
+    needAutoscroll () {
+      return this.realtimeEnabled && !this.selected.length && this.autoscroll
     }
   },
   methods: {
@@ -152,6 +161,10 @@ export default {
       if (!data.on) { data.on = {} }
       data.on.action = this.actionHandler
       data.on['item-click'] = this.viewMessageOnMap
+      data.dataHandler = (col, row, data) => {
+        this.autoscroll = false
+        return this.listItem.methods.getValueOfProp(col.data, row.data)
+      }
     },
     resetParams () {
       this.$refs.scrollList.resetParams()
@@ -159,18 +172,9 @@ export default {
     updateColsHandler (cols) {
       this.cols = cols
     },
-    dateRangeChangeHandler (range) {
-      const from = range[0],
-        to = range[1]
-      if (this.from === from && this.to === to) { return false }
-      this.from = from
-      this.to = to
-      this.$store.commit(`${this.moduleName}/clearMessages`)
-      this.$store.dispatch(`${this.moduleName}/get`)
-    },
     viewMessagesHandler ({ index, content }) {
-      this.selected = [index]
       this.selectedMessage = content
+      this.highlightSelected([index])
       this.$refs.messageViewer.show()
       this.$emit('view')
     },
@@ -178,14 +182,19 @@ export default {
       this.$emit('view-on-map', content)
     },
     closeHandler () {
-      this.selected = []
+      let selected = []
       this.selectedMessage = undefined
       if (this.activeMessagesIds.length) {
-        this.selected = [this.activeMessagesIds[this.activeMessagesIds.length - 1]]
+        selected = [this.activeMessagesIds[this.activeMessagesIds.length - 1]]
       }
+      this.highlightSelected(selected)
     },
     actionToBottomHandler () {
+      this.autoscroll = true
       this.$refs.scrollList.scrollTo(this.messages.length - 1)
+    },
+    scrollBottomHandler () {
+      this.autoscroll = true
     },
     copyMessageHandler ({ index, content }) {
       copyToClipboard(JSON.stringify(content)).then((e) => {
@@ -207,6 +216,13 @@ export default {
     actionHandler ({ index, type, content }) {
       switch (type) {
         case 'view': {
+          content = Object.keys(content).reduce((result, key) => {
+            if (key === 'uuid' || key.indexOf('x-flespi') !== -1) {
+              return result
+            }
+            result[key] = content[key]
+            return result
+          }, {})
           this.viewMessagesHandler({ index, content })
           break
         }
@@ -225,11 +241,17 @@ export default {
       }
     },
     highlightSelected (indexes) {
+      let css, selected
       if (indexes.length) {
         const lastIndex = indexes[indexes.length - 1]
-        this.selected = [lastIndex]
-        this.updateDynamicCSS(`.scroll-list-item--${lastIndex} {background-color: rgba(255,255,255,0.7)!important; color: #333;}`)
+        selected = [lastIndex]
+        css = `.scroll-list-item--${lastIndex} {background-color: rgba(255,255,255,0.7)!important; color: #333;}`
+      } else {
+        selected = []
+        css = ''
       }
+      this.selected = selected
+      this.updateDynamicCSS(css)
     },
     scrollToSelected (index) {
       if (typeof index === 'number' && index >= 0 && this.$refs.scrollList) {
@@ -243,6 +265,14 @@ export default {
       if (this.selected[0] !== indexes[indexes.length - 1]) {
         this.highlightSelected(indexes)
         this.scrollToSelected(indexes[indexes.length - 1])
+      }
+    },
+    toDefaultColsHandler () {
+      this.$store.commit(`messages/${this.moduleName}/setDefaultCols`)
+    },
+    scrollControlling (count) {
+      if (this.selected.length && this.selected[0] + 1000 <= count) {
+        this.$store.dispatch(`messages/${this.moduleName}/unsubscribePooling`)
       }
     }
   },
@@ -269,6 +299,8 @@ export default {
 .message-viewer
   .list-wrapper
     background-color inherit!important
-    .bg-grey-9, .bg-dark
-      background-color rgba(0,0,0,0.5)!important
+    .list__content
+      background-color rgba(0,0,0,0.15)!important
+    .list__header
+      background-color rgba(97, 97, 97, 0.8)!important
 </style>
