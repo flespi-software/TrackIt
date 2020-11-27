@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.2.1] - 2020-27-11
+[update] lib
 ### [1.2.0] - 2020-11-04
 [feature] table context menu
 [fix] selection
