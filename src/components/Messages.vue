@@ -18,7 +18,6 @@
       @update-cols="updateColsHandler"
       @scroll-bottom="scrollBottomHandler"
       @action="actionHandler"
-      @to-default-cols="toDefaultColsHandler"
     >
       <div class="no-messages text-center" slot="empty">
         <div class="text-white" style="font-size: 3rem;">
@@ -266,9 +265,6 @@ export default {
         this.highlightSelected(indexes)
         this.scrollToSelected(indexes[indexes.length - 1])
       }
-    },
-    toDefaultColsHandler () {
-      this.$store.commit(`messages/${this.moduleName}/setDefaultCols`)
     },
     scrollControlling (count) {
       if (this.selected.length && this.selected[0] + 1000 <= count) {
