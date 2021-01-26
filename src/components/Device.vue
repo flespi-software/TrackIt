@@ -60,7 +60,7 @@ export default {
       if (!this.activeDevicesID.includes(this.device.id)) {
         this.setActiveDevice()
       }
-      setTimeout(() => { this.isDeviceWatched ? this.$emit('update:watch-by-id', null) : this.$emit('update:watch-by-id', this.device.id) }, 500)
+      setTimeout(() => { this.isDeviceWatched ? this.$emit('update-watch-by-id', null) : this.$emit('update-watch-by-id', this.device.id) }, 500)
       setTimeout(() => { this.watchTooltip = false }, 500)
     }
   }

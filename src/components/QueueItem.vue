@@ -53,7 +53,7 @@
         @player-prev="playerPrevHandler"
         @player-play="playerPlayHandler"
         @player-pause="playerPauseHandler"
-        @player:stop="playerStopHandler"
+        @player-stop="playerStopHandler"
         @player-speed="playerSpeedHandler"
       />
     </div>
@@ -144,7 +144,7 @@ export default {
     },
     update (timestamp) {
       if (this.playerMode !== 'time') { return }
-      this.$emit('player:value', { id: this.id, messagesIndexes: this.indexesByTimestamp[timestamp] })
+      this.$emit('player-value', { id: this.id, messagesIndexes: this.indexesByTimestamp[timestamp] })
       this.activeMessagesIndexes = this.indexesByTimestamp[timestamp] || []
     },
     playerNextHandler () {
@@ -191,7 +191,7 @@ export default {
       } else {
         this.playerValue = 0
       }
-      this.$emit('player:stop', { id: this.id })
+      this.$emit('player-stop', { id: this.id })
     },
     playerSpeedHandler (speed) {
       this.$emit('player-speed', { id: this.id, speed })

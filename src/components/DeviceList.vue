@@ -14,7 +14,7 @@
       :remain="itemsCount"
       :style="{height: `${height}px`}"
     >
-      <device @update:watch-by-id="setWatchByDeviceID" v-for="device in filteredDevices" :key="device.id" :device="device" :activeDevicesID="activeDevicesID" :isDeviceWatched="deviceIdForWatch === device.id" />
+      <device @update-watch-by-id="setWatchByDeviceID" v-for="device in filteredDevices" :key="device.id" :device="device" :activeDevicesID="activeDevicesID" :isDeviceWatched="deviceIdForWatch === device.id" />
     </VirtualList>
   </q-list>
 </template>
@@ -82,7 +82,7 @@ export default {
   },
   methods: {
     setWatchByDeviceID (id) {
-      this.$emit('update:watch-by-id', id)
+      this.$emit('update-watch-by-id', id)
     },
     onResize (height) {
       this.height = height - 138

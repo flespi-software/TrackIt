@@ -1,7 +1,7 @@
 <template>
   <q-layout ref="layout" view="hHh LpR lFf">
     <q-drawer v-if="isInit" side="left" :no-swipe-open="$q.platform.is.desktop" :no-swipe-close="$q.platform.is.desktop" v-model="side_left" :breakpoint="576" behavior="mobile">
-      <device-list v-show="devices.length" @update:watch-by-id="setWatchToDeviceID" :deviceIdForWatch="deviceIdForWatch" :activeDevicesID="activeDevicesID" :devices="devices" @click-hide="side_left = false"/>
+      <device-list v-show="devices.length" @update-watch-by-id="setWatchToDeviceID" :deviceIdForWatch="deviceIdForWatch" :activeDevicesID="activeDevicesID" :devices="devices" @click-hide="side_left = false"/>
     </q-drawer>
     <q-drawer side="right" no-swipe-open no-swipe-close :content-class="{'bg-grey-9':telemetrySettings.inverted}" v-model="side_right">
       <div style="position: relative; height: 100vh; overflow: hidden;">
@@ -110,7 +110,7 @@
           </q-menu>
         </q-btn>
         <map-component
-          @update:telemetry-device-id="updateTelemetryDeviceId"
+          @update-telemetry-device-id="updateTelemetryDeviceId"
           :activeDevices="activeDevices"
           :deviceIdForWatch="deviceIdForWatch"
           :params="params"

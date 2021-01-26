@@ -196,7 +196,7 @@ export default {
     },
     emit (event) {
       if (status === this.currentStatus) { return }
-      this.$emit(`player:${event}`)
+      this.$emit(`player-${event}`)
     },
     stop () {
       if (this.timer) {

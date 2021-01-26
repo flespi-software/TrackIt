@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@quasar/extras": "^1.5.2",
-    "flespi-io-js": "git+https://github.com/flespi-software/flespi-io-js.git",
+    "flespi-io-js": "github:flespi-software/flespi-io-js#c6e8c7b4c3bbda061e5c08d7e6ced1af2889c16e",
     "leaflet": "^1.6.0",
     "leaflet.marker.slideto": "^0.2.0",
     "leaflet.polyline.snakeanim": "^0.2.0",
@@ -24,7 +24,7 @@
     "moment": "^2.24.0",
     "qtelemetry": "git+https://github.com/flespi-software/QTelemetry.git",
     "quasar": "^1.9.4",
-    "qvirtualscroll": "git+https://github.com/flespi-software/QVirtualScroll.git",
+    "qvirtualscroll": "github:flespi-software/QVirtualScroll#796b3fd3dac752f51ac70864b0c3b0ff3a46cd52",
     "vue-i18n": "^8.15.4",
     "vue-virtual-scroll-list": "^1.4.6"
   },

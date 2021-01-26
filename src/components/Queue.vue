@@ -16,10 +16,10 @@
             :needShowMessages="needShowMessages"
             :needShowPlayer="needShowPlayer"
             :player="player"
-            @player:value="playHandler"
+            @player-value="playHandler"
             @player-play="data => $emit('player-play', data)"
             @player-pause="data => $emit('player-pause', data)"
-            @player:stop="stopHandler"
+            @player-stop="stopHandler"
             @player-speed="data => $emit('player-speed', data)"
             @player-mode="data => $emit('player-mode', data)"
             @change-need-show-messages="(flag) => {$emit('change-need-show-messages', flag)}"
@@ -71,7 +71,7 @@ export default {
     color: {
       get () { return this.currentColorModel },
       set (color) {
-        this.$emit('update:color', { id: this.currentColorId, color })
+        this.$emit('update-color', { id: this.currentColorId, color })
         this.currentColorModel = color
       }
     }
@@ -81,10 +81,10 @@ export default {
       return this.devices.filter(device => device.id === id)[0].name || `<#${id}>`
     },
     playHandler (data) {
-      this.$emit('player:value', data)
+      this.$emit('player-value', data)
     },
     stopHandler (data) {
-      this.$emit('player:stop', data)
+      this.$emit('player-stop', data)
     },
     changeColorHandler (id) {
       this.currentColorId = id
@@ -99,7 +99,7 @@ export default {
   },
   created () {
     if (this.activeDevicesID.length) {
-      this.$emit('change:selected', parseInt(this.activeDevicesID[0]))
+      this.$emit('change-selected', parseInt(this.activeDevicesID[0]))
     }
   },
   watch: {
@@ -130,7 +130,7 @@ export default {
       }
     },
     selected (selected) {
-      this.$emit('change:selected', parseInt(selected))
+      this.$emit('change-selected', parseInt(selected))
     }
   },
   components: { QueueItem, ColorModal }

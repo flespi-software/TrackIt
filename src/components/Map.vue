@@ -15,15 +15,15 @@
       :date="date"
       :markers="markers"
       :player="player"
-      @player:value="data => playProcess(data, 'value')"
+      @player-value="data => playProcess(data, 'value')"
       @player-play="data => playProcess(data, 'play')"
       @player-pause="data => playProcess(data, 'pause')"
-      @player:stop="data => playProcess(data, 'stop')"
+      @player-stop="data => playProcess(data, 'stop')"
       @player-speed="playerSpeedChangeHandler"
       @player-mode="playerModeChange"
       @change-need-show-messages="(flag) => {$emit('change-need-show-messages', flag)}"
-      @change:selected="(active) => { selected = active }"
-      @update:color="updateColorHandler"
+      @change-selected="(active) => { selected = active }"
+      @update-color="updateColorHandler"
       @view-on-map="viewOnMapHandler"
     />
     <color-modal ref="colorModal" v-model="color"/>
@@ -246,7 +246,7 @@ export default {
       })
       this.markers[id].addEventListener('click', e => {
         this.telemetryDeviceId = parseInt(id)
-        this.$emit('update:telemetry-device-id', this.telemetryDeviceId)
+        this.$emit('update-telemetry-device-id', this.telemetryDeviceId)
       })
       this.markers[id].addEventListener('move', e => {
         if (this.player.status === 'stop') {
@@ -463,7 +463,7 @@ export default {
       })
       if (this.needInitWatchingDevice && id === this.deviceIdForWatch) {
         this.telemetryDeviceId = parseInt(id)
-        this.$emit('update:telemetry-device-id', this.telemetryDeviceId)
+        this.$emit('update-telemetry-device-id', this.telemetryDeviceId)
         this.centerOnDevice(id)
       }
       this.$q.loading.hide()
