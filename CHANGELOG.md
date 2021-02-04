@@ -1,6 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 ### [1.2.2] - 2021-01-26
+[fix] rebase events
 ### [1.2.1] - 2020-11-27
 [update] lib
 ### [1.2.0] - 2020-11-04
