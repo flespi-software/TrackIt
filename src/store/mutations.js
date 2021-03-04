@@ -213,6 +213,10 @@ function clearCurrentRegion (state) {
 }
 
 function clearNotificationCounter (state) { state.newNotificationCounter = 0 }
+
+function setDate (state, date) {
+  state.date = date
+}
 export default {
   reqStart,
   reqSuccessful,
@@ -232,5 +236,6 @@ export default {
   clearErrors,
   setRegions,
   setCurrentRegion,
-  clearCurrentRegion
+  clearCurrentRegion,
+  setDate
 }

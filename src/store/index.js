@@ -18,6 +18,7 @@ const state = {
   isLoading: false,
   newNotificationCounter: 0,
   errors: [],
+  date: [0, 0],
   regions: null,
   currentRegion: null
 }

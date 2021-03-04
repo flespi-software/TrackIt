@@ -454,10 +454,10 @@ export default {
         await this.$store.dispatch(`messages/${id}/getCols`, { actions: true, etc: true })
         await this.getDeviceData(id)
       }
-      Vue.connector.socket.on('offline', () => { this.$store.commit(`messages/${id}/setOffline`, true) })
+      Vue.connector.socket.on('offline', () => { this.$store.commit(`messages/${id}/setOffline`) })
       Vue.connector.socket.on('connect', () => {
         if (this.$store.state.messages[id].offline) {
-          this.$store.commit(`messages/${id}/setReconnected`, true)
+          this.$store.commit(`messages/${id}/setReconnected`)
           this.$store.dispatch(`messages/${id}/getMissedMessages`)
         }
       })

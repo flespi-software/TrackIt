@@ -64,6 +64,7 @@
             :date="date"
             :theme="dateTheme"
             @save="dateRange => date = [...dateRange]"
+            @reinit="initDate"
           />
         </div>
         <div v-if="!activeDevicesID.length && devices.length" class="floated no-devices">
@@ -154,7 +155,6 @@ export default {
         propHistoryFlag: true
       },
       version: dist.version,
-      date: [0, 0],
       dateTheme: {
         color: 'white',
         bgColor: 'grey-9',
@@ -173,10 +173,6 @@ export default {
         return state.isLoading
       },
       activeDevicesID (state) {
-        this.getLastUpdatePosition()
-          .then((date) => {
-            this.date = date || undefined
-          })
         return state.activeDevicesID
       },
       hasDevicesInit: state => state.hasDevicesInit,
@@ -199,7 +195,13 @@ export default {
       deviceForTelemetry (state) {
         return this.deviceIdForTelemetry ? state.devices.filter(device => device.id === this.deviceIdForTelemetry)[0] : {}
       }
-    })
+    }),
+    date: {
+      get () { return this.$store.state.date },
+      set (date) {
+        this.$store.commit('setDate', date)
+      }
+    }
   },
   components: {
     DeviceList,
@@ -260,18 +262,54 @@ export default {
     },
     formatDate (timestamp) {
       return date.formatDate(timestamp, 'DD/MM/YYYY')
-    }// ,
-    // datePickerModalClose () {
-    //   this.dateValue = this.date
-    //   this.$refs.datePickerModal.hide()
-    // },
-    // datePickerModalSave () {
-    //   this.date = this.dateValue
-    //   this.$refs.datePickerModal.hide()
-    // },
-    // dateInputHandler (date) {
-    //   this.dateValue = date ? date.setSeconds(0) : new Date()
-    // }
+    },
+    paramsProcess () {
+      const params = this.$q.localStorage.getItem('TrackIt Params')
+      if (params) {
+        this.$set(this, 'params', Object.assign(this.params, params))
+        this.side_right = params.needShowTelemetry
+      }
+      const telemetrySettings = this.$q.localStorage.getItem('TrackIt TelemetrySettings')
+      if (telemetrySettings) {
+        this.$set(this, 'telemetrySettings', Object.assign(this.telemetrySettings, telemetrySettings))
+      }
+    },
+    connectProcess () {
+      if (!this.isInit) {
+        Vue.connector.socket.on('connect', () => {
+          this.isInit = true
+          this.$q.loading.hide()
+        })
+        this.$q.loading.show()
+      }
+    },
+    initDate () {
+      this.getLastUpdatePosition()
+        .then((date) => {
+          this.date = date
+        })
+    },
+    routeProcess () {
+      const from = this.$route.query.from,
+        to = this.$route.query.to,
+        devices = this.$route.params.devices
+      if (from && to) {
+        this.date = [from * 1000, to * 1000]
+      } else if (!this.date[0] && !this.date[1]) {
+        this.initDate()
+      }
+      if (devices) {
+        const active = devices.split(',').map(id => +id)
+        active.forEach((id) => { this.setActiveDevice(id) })
+      }
+    },
+    loginProcess () {
+      if (this.$route.params.token) {
+        this.$router.push(`/login/${this.$route.params.token}`)
+      } else {
+        this.$router.push('/login')
+      }
+    }
   },
   watch: {
     token (val) {
@@ -313,44 +351,21 @@ export default {
     }
     this.clearNotificationCounter()
     this.clearErrors()
+    this.routeProcess()
     if (!this.token) {
-      if (this.$route.params.devices) {
-        const active = this.$route.params.devices.split(',').map(id => +id)
-        active.forEach((id) => {
-          this.setActiveDevice(id)
-        })
-      }
-      if (this.$route.params.token) {
-        this.$router.push(`/login/${this.$route.params.token}`)
-      } else {
-        this.$router.push('/login')
-      }
+      this.loginProcess()
       return false
     }
-    if (!this.isInit) {
-      Vue.connector.socket.on('connect', () => {
-        this.isInit = true
-        this.$q.loading.hide()
-      })
-      this.$q.loading.show()
-    }
+    this.connectProcess()
     this.poolDevices().then(callback => { this.unsubscribeDevices = callback })
     if (this.activeDevicesID.length) {
-      this.$router.push(`devices/${this.activeDevicesID.join(',')}`)
+      this.$router.push(`/devices/${this.activeDevicesID.join(',')}`)
       // watching current device if it one
       if (this.activeDevicesID.length === 1) {
         this.deviceIdForWatch = this.activeDevicesID[0]
       }
     }
-    const params = this.$q.localStorage.getItem('TrackIt Params')
-    if (params) {
-      Vue.set(this, 'params', Object.assign(this.params, params))
-      this.side_right = params.needShowTelemetry
-    }
-    const telemetrySettings = this.$q.localStorage.getItem('TrackIt TelemetrySettings')
-    if (telemetrySettings) {
-      Vue.set(this, 'telemetrySettings', Object.assign(this.telemetrySettings, telemetrySettings))
-    }
+    this.paramsProcess()
   },
   destroyed () {
     this.unsubscribeDevices && this.unsubscribeDevices()

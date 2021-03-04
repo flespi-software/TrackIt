@@ -31,9 +31,14 @@
             />
           </div>
         </q-card-section>
-        <q-card-actions align="right" :class="{[`bg-${theme.bgColor}`]: true, 'text-white': !!theme.bgColor}">
-          <q-btn flat :color="theme.color" @click="dateRangeModalClose">close</q-btn>
-          <q-btn flat :color="theme.color" @click="dateRangeModalSave" :disable="saveDisabled">save</q-btn>
+        <q-card-actions align='between' :class="{[`bg-${theme.bgColor}`]: true, 'text-white': !!theme.bgColor}">
+          <q-btn flat :color="theme.color" dense icon="mdi-map-clock-outline" @click="$emit('reinit'),dateRangeModalClose()">
+            <q-tooltip>Reinit time by devices positions</q-tooltip>
+          </q-btn>
+          <div>
+            <q-btn flat :color="theme.color" @click="dateRangeModalClose">close</q-btn>
+            <q-btn flat :color="theme.color" @click="dateRangeModalSave" :disable="saveDisabled">save</q-btn>
+          </div>
         </q-card-actions>
       </q-card>
     </q-dialog>

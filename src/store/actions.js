@@ -27,30 +27,33 @@ async function checkConnection ({ state, commit }) {
 }
 
 async function getLastUpdatePosition ({ commit, state }, selector) {
-  if (!state.token) { return }
-  const items = selector || state.activeDevicesID.join(',')
-  let initTime
-  if (items) {
-    const telemetryResp = await Vue.connector.gw.getDevicesTelemetry(items),
-      telemetryRespData = telemetryResp.data
-    if (telemetryRespData.errors) {
-      postMessage.errors.forEach((error) => {
-        commit('addError', error.reason)
-      })
+  let from = new Date().setHours(0, 0, 0, 0),
+    to = from + 86399999
+  if (state.token) {
+    const items = selector || state.activeDevicesID.join(',')
+    let initTime
+    if (items) {
+      const telemetryResp = await Vue.connector.gw.getDevicesTelemetry(items),
+        telemetryRespData = telemetryResp.data
+      if (telemetryRespData.errors) {
+        postMessage.errors.forEach((error) => {
+          commit('addError', error.reason)
+        })
+      }
+      const now = Math.max(
+        ...telemetryRespData.result.reduce((result, info) => {
+          result.push(info.telemetry && info.telemetry['position.latitude'] ? Math.floor(info.telemetry['position.latitude'].ts * 1000) : 0)
+          result.push(info.telemetry && info.telemetry['position.longitude'] ? Math.floor(info.telemetry['position.longitude'].ts * 1000) : 0)
+          return result
+        }, [])
+      )
+      initTime = now || Date.now()
+    } else {
+      initTime = Date.now()
     }
-    const now = Math.max(
-      ...telemetryRespData.result.reduce((result, info) => {
-        result.push(info.telemetry && info.telemetry['position.latitude'] ? Math.floor(info.telemetry['position.latitude'].ts * 1000) : 0)
-        result.push(info.telemetry && info.telemetry['position.longitude'] ? Math.floor(info.telemetry['position.longitude'].ts * 1000) : 0)
-        return result
-      }, [])
-    )
-    initTime = now || Date.now()
-  } else {
-    initTime = Date.now()
+    from = new Date(initTime).setHours(0, 0, 0, 0)
+    to = from + 86399999
   }
-  const from = new Date(initTime).setHours(0, 0, 0, 0)
-  const to = from + 86399999
   return [from, to]
 }
 

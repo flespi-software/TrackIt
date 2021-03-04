@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.2.4] - 2021-03-04
+[feature] from/to query params
+[feature] reinit time by devices telemetry
+[fix] reinit time by device list update
 ### [1.2.2] - 2021-01-26
 [fix] rebase events
 ### [1.2.1] - 2020-11-27
