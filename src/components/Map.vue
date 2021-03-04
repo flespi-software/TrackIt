@@ -34,6 +34,8 @@
 import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.marker.slideto'
+import 'leaflet.polylinemeasure/Leaflet.PolylineMeasure.css'
+import 'leaflet.polylinemeasure/Leaflet.PolylineMeasure'
 import lefleatSnake from '../assets/lefleat-snake'
 import Vue from 'vue'
 import Queue from './Queue.vue'
@@ -134,6 +136,15 @@ export default {
           }
         })
         L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { minZoom: 3, noWrap: true }).addTo(this.map)
+        L.control.polylineMeasure({
+          position: 'topleft',
+          showBearings: false,
+          clearMeasurementsOnStop: false,
+          showUnitControl: false,
+          showMeasurementsClearControl: true,
+          measureControlTitleOn: 'Turn on ruler',
+          measureControlTitleOff: 'Turn off ruler'
+        }).addTo(this.map)
       }
     },
     flyToWithHideTracks (position, zoom) {
@@ -844,7 +855,7 @@ export default {
 <style lang="stylus">
   .leaflet-container.crosshair-cursor-enabled
     cursor crosshair
-  .leaflet-control-zoom.leaflet-bar
+  .leaflet-control.leaflet-bar
     top 50px
     left 6px
     border none

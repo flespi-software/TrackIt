@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.2.5] - 2021-03-04
+[feature] ruler
 ### [1.2.4] - 2021-03-04
 [feature] from/to query params
 [feature] reinit time by devices telemetry
