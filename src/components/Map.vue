@@ -141,9 +141,14 @@ export default {
           showBearings: false,
           clearMeasurementsOnStop: false,
           showUnitControl: false,
-          showMeasurementsClearControl: true,
+          showClearControl: true,
           measureControlTitleOn: 'Turn on ruler',
-          measureControlTitleOff: 'Turn off ruler'
+          measureControlTitleOff: 'Turn off ruler',
+          tooltipTextFinish: 'Click to <b>finish line</b><br>',
+          tooltipTextDelete: 'Press SHIFT-key and click to <b>delete point</b>',
+          tooltipTextMove: 'Click and drag to <b>move point</b><br>',
+          tooltipTextResume: '<br>Press CTRL-key and click to <b>resume line</b>',
+          tooltipTextAdd: 'Press CTRL-key and click to <b>add point</b>'
         }).addTo(this.map)
       }
     },
