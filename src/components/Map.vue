@@ -41,10 +41,11 @@ import Vue from 'vue'
 import Queue from './Queue.vue'
 import ColorModal from './ColorModal'
 import { mapState } from 'vuex'
-import { devicesMessagesModule } from 'qvirtualscroll'
+import devicesMessagesModule from 'qvirtualscroll/src/store/modules/devicesMessages'
 import { colors } from 'quasar'
 import animate from '../mixins/animate'
 import getIconHTML from '../assets/getIconHTML.js'
+import { getFromStore, setToStore } from '../mixins/store'
 
 lefleatSnake(L)
 
@@ -200,19 +201,19 @@ export default {
       return color
     },
     getColorById (id) {
-      let savedColors = this.$q.localStorage.getItem('trackit-colors-settings')
+      let savedColors = getFromStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'colors' })
       if (!savedColors) { savedColors = {} }
       if (!savedColors[id]) {
         savedColors[id] = this.getColor()
       }
-      this.$q.localStorage.set('trackit-colors-settings', savedColors)
+      setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'colors', value: savedColors })
       return savedColors[id]
     },
     setColorById (id, color) {
-      let savedColors = this.$q.localStorage.getItem('trackit-colors-settings')
+      let savedColors = getFromStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'colors' })
       if (!savedColors) { savedColors = {} }
       savedColors[id] = color
-      this.$q.localStorage.set('trackit-colors-settings', savedColors)
+      setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'colors', value: savedColors })
       return savedColors[id]
     },
     getAccuracyParams (message) {
@@ -717,6 +718,16 @@ export default {
       this.markers[id].color = color
       this.markers[id].setIcon(this.generateIcon(id, this.markers[id].options.title, color))
       this.setColorById(id, color)
+    },
+    registerModule (id) {
+      this.$store.registerModule(
+        ['messages', id],
+        devicesMessagesModule({
+          Vue,
+          LocalStorage: this.$q.localStorage,
+          name: { name: 'messages', lsNamespace: `${this.$store.state.storeName}.cols` },
+          errorHandler: (err) => { this.$store.commit('reqFailed', err) }
+        }))
     }
   },
   watch: {
@@ -763,7 +774,7 @@ export default {
         modifyType = currentDevicesID.length > activeDevicesID.length ? 'remove' : 'add'
       activeDevicesID.forEach((id) => {
         if (!this.$store.state.messages[id]) {
-          this.$store.registerModule(['messages', id], devicesMessagesModule({ Vue, LocalStorage: this.$q.localStorage, name: `messages/${id}`, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
+          this.registerModule(id)
           this.$store.commit(`messages/${id}/setSortBy`, 'timestamp')
           this.$store.commit(`messages/${id}/setLimit`, 0)
         }
@@ -832,7 +843,7 @@ export default {
     }
     this.activeDevicesID = this.activeDevices.map((device) => device.id)
     this.activeDevicesID.forEach((id) => {
-      this.$store.registerModule(['messages', id], devicesMessagesModule({ Vue, LocalStorage: this.$q.localStorage, name: `messages/${id}`, errorHandler: (err) => { this.$store.commit('reqFailed', err) } }))
+      this.registerModule(id)
       this.$store.commit(`messages/${id}/setSortBy`, 'timestamp')
       this.initDevice(id)
     })

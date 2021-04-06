@@ -1,5 +1,8 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.3.0] - 2021-04-06
+[feature] names and hidelist query params
+[rebase] local and session storage
 ### [1.2.6] - 2021-03-05
 [fix] ruler titles
 ### [1.2.5] - 2021-03-04

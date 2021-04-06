@@ -1,6 +1,7 @@
 import { Notify, LocalStorage, SessionStorage } from 'quasar'
 import Vue from 'vue'
 import Router from '../router'
+import { getFromStore, setToStore } from '../mixins/store'
 
 function reqStart (state) {
   if (DEV) {
@@ -46,7 +47,7 @@ function setDevices (state, devices) {
       setDevicesInit(state)
     } else {
       setDevicesInit(state)
-      const activeDevicesFromLocalStorage = LocalStorage.getItem('TrackIt Active Devices')
+      const activeDevicesFromLocalStorage = getFromStore({ store: LocalStorage, storeName: state.storeName, name: 'active' })
       if (activeDevicesFromLocalStorage && activeDevicesFromLocalStorage.length) {
         activeDevicesFromLocalStorage.forEach(id => {
           if (devices.data.result.filter(device => device.id === id).length) {
@@ -136,7 +137,7 @@ function setToken (state, val) {
   let token = val.replace('FlespiToken ', '')
   if (val && token.match(/^[a-z0-9]+$/i)) {
     Vue.connector.token = `FlespiToken ${token}`
-    SessionStorage.set('flespi-trackit-token', token)
+    setToStore({ store: SessionStorage, storeName: state.storeName, name: 'token', value: token })
   } else {
     token = ''
     Vue.connector.token = ''
@@ -145,7 +146,7 @@ function setToken (state, val) {
   Vue.set(state, 'token', token)
 }
 function clearToken (state) {
-  SessionStorage.remove('flespi-trackit-token')
+  setToStore({ store: SessionStorage, storeName: state.storeName, name: 'token', value: null })
   Vue.connector.token = ''
   if (state.socketOffline) { setSocketOffline(state, false) }
   Vue.set(state, 'token', '')
@@ -155,7 +156,7 @@ function setActiveDevice (state, id) {
     return
   }
   state.activeDevicesID.push(id)
-  LocalStorage.set('TrackIt Active Devices', state.activeDevicesID)
+  setToStore({ store: LocalStorage, storeName: state.storeName, name: 'active', value: state.activeDevicesID })
   if (state.hasDevicesInit) {
     Router.push(`/devices/${state.activeDevicesID.join(',')}`)
   }
@@ -163,7 +164,7 @@ function setActiveDevice (state, id) {
 function unsetActiveDevice (state, id) {
   const index = state.activeDevicesID.indexOf(id)
   state.activeDevicesID.splice(index, 1)
-  LocalStorage.set('TrackIt Active Devices', state.activeDevicesID)
+  setToStore({ store: LocalStorage, storeName: state.storeName, name: 'active', value: state.activeDevicesID })
   if (state.activeDevicesID.length) {
     Router.push(`/devices/${state.activeDevicesID.join(',')}`)
   } else {
@@ -204,12 +205,12 @@ function setRegions (state, regions) {
 
 function setCurrentRegion (state, region) {
   state.currentRegion = region
-  SessionStorage.set('flespi-trackit-region', region.name)
+  setToStore({ store: SessionStorage, storeName: state.storeName, name: 'region', value: region.name })
 }
 
 function clearCurrentRegion (state) {
   state.currentRegion = null
-  SessionStorage.remove('flespi-trackit-region')
+  setToStore({ store: SessionStorage, storeName: state.storeName, name: 'region', value: null })
 }
 
 function clearNotificationCounter (state) { state.newNotificationCounter = 0 }

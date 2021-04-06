@@ -1,6 +1,6 @@
 <template>
   <q-layout ref="layout" view="hHh LpR lFf">
-    <q-drawer v-if="isInit" side="left" :no-swipe-open="$q.platform.is.desktop" :no-swipe-close="$q.platform.is.desktop" v-model="side_left" :breakpoint="576" behavior="mobile">
+    <q-drawer v-if="isInit && needShowList" side="left" :no-swipe-open="$q.platform.is.desktop" :no-swipe-close="$q.platform.is.desktop" v-model="side_left" :breakpoint="576" behavior="mobile">
       <device-list v-show="devices.length" @update-watch-by-id="setWatchToDeviceID" :deviceIdForWatch="deviceIdForWatch" :activeDevicesID="activeDevicesID" :devices="devices" @click-hide="side_left = false"/>
     </q-drawer>
     <q-drawer side="right" no-swipe-open no-swipe-close :content-class="{'bg-grey-9':telemetrySettings.inverted}" v-model="side_right">
@@ -31,7 +31,7 @@
     </q-drawer>
     <q-page-container>
       <q-page>
-        <q-btn @click="side_left = !side_left" small round flat color="bg-grey-9" size="md" v-if="devices.length" class="floated menu">
+        <q-btn @click="side_left = !side_left" small round flat color="bg-grey-9" size="md" v-if="devices.length && needShowList" class="floated menu">
           <q-icon name="menu" />
         </q-btn>
         <div class="floated label">
@@ -96,7 +96,7 @@
               <q-item>
                 <q-toggle v-close-popup @input="menuChangeHandler" :disabled="!devices.length" v-model="params.needShowTelemetry" icon="av_timer" label="Telemetry" />
               </q-item>
-              <q-item>
+              <q-item v-if="!needHideNamesInMenu">
                 <q-toggle @input="menuChangeHandler" :disabled="!devices.length" v-model="params.needShowNamesOnMap" icon="pin_drop" label="Names" />
               </q-item>
               <q-item class="within-iframe-hide" @click="exitHandler" clickable>
@@ -133,12 +133,15 @@ import MapComponent from '../components/Map.vue'
 import DeviceList from '../components/DeviceList.vue'
 import dist from '../../package.json'
 import { openURL, date } from 'quasar'
+import { getFromStore, setToStore } from '../mixins/store'
 
 export default {
   data () {
     return {
       deviceIdForWatch: null,
       deviceIdForTelemetry: null,
+      needShowList: true,
+      needHideNamesInMenu: false,
       params: {
         needShowMessages: false,
         needShowTelemetry: false,
@@ -234,11 +237,11 @@ export default {
       this.deviceIdForWatch = id
     },
     menuChangeHandler (val) {
-      this.$q.localStorage.set('TrackIt Params', this.params)
+      setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'params', value: this.params })
     },
     telemetrySettingsChangeHandler () {
       this.$set(this.telemetrySettings, 'inverted', !this.telemetrySettings.inverted)
-      this.$q.localStorage.set('TrackIt TelemetrySettings', this.telemetrySettings)
+      setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'telemertySettings', value: this.telemetrySettings })
     },
     updateTelemetryDeviceId (id) {
       if (this.deviceIdForTelemetry === id) {
@@ -264,12 +267,12 @@ export default {
       return date.formatDate(timestamp, 'DD/MM/YYYY')
     },
     paramsProcess () {
-      const params = this.$q.localStorage.getItem('TrackIt Params')
+      const params = getFromStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'params' })
       if (params) {
         this.$set(this, 'params', Object.assign(this.params, params))
         this.side_right = params.needShowTelemetry
       }
-      const telemetrySettings = this.$q.localStorage.getItem('TrackIt TelemetrySettings')
+      const telemetrySettings = getFromStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'telemetrySettings' })
       if (telemetrySettings) {
         this.$set(this, 'telemetrySettings', Object.assign(this.telemetrySettings, telemetrySettings))
       }
@@ -292,11 +295,27 @@ export default {
     routeProcess () {
       const from = this.$route.query.from,
         to = this.$route.query.to,
+        hidelist = this.$route.query.hidelist || getFromStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'hidelist' }),
+        names = this.$route.query.names || getFromStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'names' }),
         devices = this.$route.params.devices
       if (from && to) {
         this.date = [from * 1000, to * 1000]
       } else if (!this.date[0] && !this.date[1]) {
         this.initDate()
+      }
+      if (hidelist) {
+        setToStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'hidelist', value: hidelist })
+        this.needShowList = false
+      }
+      if (names) {
+        this.needHideNamesInMenu = true
+        setToStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'names', value: names })
+        if (names === 'true') {
+          this.$set(this.params, 'needShowNamesOnMap', true)
+        } else if (names === 'false') {
+          this.$set(this.params, 'needShowNamesOnMap', false)
+        }
+        this.menuChangeHandler()
       }
       if (devices) {
         const active = devices.split(',').map(id => +id)

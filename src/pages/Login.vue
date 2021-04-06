@@ -26,6 +26,7 @@
 
 <script>
 import { mapMutations, mapActions } from 'vuex'
+import { getFromStore } from '../mixins/store'
 
 export default {
   data () {
@@ -67,8 +68,8 @@ export default {
         })
     },
     checkHasToken () {
-      const sessionStorageToken = this.$q.sessionStorage.getItem('flespi-trackit-token')
-      const sessionStorageRegion = this.$q.sessionStorage.getItem('flespi-trackit-region')
+      const sessionStorageToken = getFromStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'token' })
+      const sessionStorageRegion = getFromStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'region' })
       if (this.$route.params && this.$route.params.token) {
         this.autoLogin()
         return true

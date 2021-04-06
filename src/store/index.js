@@ -20,7 +20,8 @@ const state = {
   errors: [],
   date: [0, 0],
   regions: null,
-  currentRegion: null
+  currentRegion: null,
+  storeName: 'flespi-trackit-settings'
 }
 
 const store = new Vuex.Store(
