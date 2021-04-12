@@ -33,7 +33,7 @@ async function getLastUpdatePosition ({ commit, state }, selector) {
     const items = selector || state.activeDevicesID.join(',')
     let initTime
     if (items) {
-      const telemetryResp = await Vue.connector.gw.getDevicesTelemetry(items),
+      const telemetryResp = await Vue.connector.gw.getDevicesTelemetry(items, 'position.latitude,position.longitude'),
         telemetryRespData = telemetryResp.data
       if (telemetryRespData.errors) {
         postMessage.errors.forEach((error) => {
@@ -59,7 +59,7 @@ async function getLastUpdatePosition ({ commit, state }, selector) {
 
 async function getInitDataByDeviceId ({ commit, state }, id) {
   if (!state.token) { return }
-  const telemetryResp = await Vue.connector.gw.getDevicesTelemetry(id),
+  const telemetryResp = await Vue.connector.gw.getDevicesTelemetry(id, 'all'),
     telemetryRespData = telemetryResp.data
   if (telemetryRespData.errors) {
     postMessage.errors.forEach((error) => {
