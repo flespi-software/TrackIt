@@ -21,7 +21,7 @@
     "leaflet.marker.slideto": "^0.2.0",
     "leaflet.polyline.snakeanim": "^0.2.0",
     "leaflet.polylinemeasure": "github:ppete2/Leaflet.PolylineMeasure#b85a4b9",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "moment": "^2.24.0",
     "qtelemetry": "git+https://github.com/flespi-software/QTelemetry.git",
     "quasar": "^1.9.4",
