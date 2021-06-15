@@ -35,7 +35,7 @@
           <q-icon name="menu" />
         </q-btn>
         <div class="floated label">
-          <img src="../statics/track-it-logo.png" alt="Track it!" style="height: 40px; margin-top: 3px; display: inline-block">
+          <img src="track-it-logo.png" alt="Track it!" style="height: 40px; margin-top: 3px; display: inline-block">
           <div class="q-toolbar-title" style="color: rgb(51, 51, 51); display: inline-block">
             Track it! <sup>{{version}}</sup>
             <div class="q-toolbar-subtitle">
@@ -82,7 +82,7 @@
             <q-btn dense style="pointer-events: auto" @click="openURL('https://flespi.io')" color="red-5" label="flespi.io"/>
           </div>
         </div>
-        <a v-if="$q.platform.is.desktop" href="https://github.com/flespi-software/TrackIt/" class="floated github" target="_blank"><q-btn flat round color="bg-grey-9"><img style="height: 30px;" src="../statics/GitHub-Mark-32px.png" alt="GitHub"><q-tooltip>Show on GitHub</q-tooltip></q-btn></a>
+        <a v-if="$q.platform.is.desktop" href="https://github.com/flespi-software/TrackIt/" class="floated github" target="_blank"><q-btn flat round color="bg-grey-9"><img style="height: 30px;" src="GitHub-Mark-32px.png" alt="GitHub"><q-tooltip>Show on GitHub</q-tooltip></q-btn></a>
         <q-btn small round flat size="md" class="floated options">
           <q-icon color="bg-grey-9" name="more_vert" />
           <q-menu ref="popover-menu">
@@ -442,7 +442,7 @@ export default {
       width 100%
       padding-top 15vh
       font-size 10vmax
-      background-image url(../statics/trackit.png)
+      background-image url(../../public/trackit.png)
       background-position center
       background-size contain
       background-repeat no-repeat

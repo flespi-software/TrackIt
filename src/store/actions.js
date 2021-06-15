@@ -12,7 +12,7 @@ async function poolDevices ({ state, commit }) {
 
 async function checkConnection ({ state, commit }) {
   try {
-    const resp = await Vue.connector.http.external.get(`./statics/icons/favicon-16x16.png?_=${(new Date()).getTime()}`)
+    const resp = await Vue.connector.http.external.get(`./icons/favicon-16x16.png?_=${(new Date()).getTime()}`)
     if (resp.status === 200 && state.offline) {
       commit('setOfflineFlag', false)
     }

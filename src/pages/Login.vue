@@ -1,6 +1,6 @@
 <template>
   <div class="login-page window-height window-width bg-light column items-center no-wrap">
-    <a v-if="!$q.platform.is.mobile || !$q.platform.within.iframe" href="https://github.com/flespi-software/TrackIt/" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0; width: 149px; height: 149px;" src="../statics/right-graphite@2x.png" alt="Fork me on GitHub"></a>
+    <a v-if="!$q.platform.is.mobile || !$q.platform.within.iframe" href="https://github.com/flespi-software/TrackIt/" target="_blank"><img style="position: absolute; top: 0; right: 0; border: 0; width: 149px; height: 149px;" src="right-graphite@2x.png" alt="Fork me on GitHub"></a>
     <div class="login-back flex items-center justify-center">
       <div class="login-code flex items-center justify-center">
         Track it!
@@ -139,7 +139,7 @@ export default {
       height 50vh
       overflow hidden
       font-size 8vmax
-      background-image url(../statics/mountain.svg)
+      background-image url(../../public/mountain.svg)
       background-position center 100px
       background-size contain
       background-repeat no-repeat
@@ -149,7 +149,7 @@ export default {
         height 50vh
         width: 80vw;
         max-width: 600px;
-        background-image url(../statics/trackit.png)
+        background-image url(../..//public/trackit.png)
         background-position center
         background-size contain
         background-repeat no-repeat

@@ -36,13 +36,13 @@ export default {
     right 0
     z-index 10020
     opacity .7
-    background-image url(../statics/trackit.png)
+    background-image url(../../public/trackit.png)
     .offline-back
       width 100%
       height 100vh
       overflow hidden
       font-size 10vmax
-      background-image url(../statics/corpse.png)
+      background-image url(../../public/corpse.png)
       background-position center 100px
       background-size contain
       background-repeat no-repeat
@@ -61,7 +61,7 @@ export default {
         width 160%
         transform rotate(-20deg) translate(-50%)
         background-color #ff0
-        background-image url(../statics/police50.png)
+        background-image url(../../public/police50.png)
         margin -30% 50%
         font-size 3rem
         & > span

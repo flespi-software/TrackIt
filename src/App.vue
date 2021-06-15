@@ -1,7 +1,7 @@
 <template>
   <div id="q-app">
     <router-view />
-    <offline logo="../statics/trackit.png"/>
+    <offline logo="trackit.png"/>
   </div>
 </template>
 

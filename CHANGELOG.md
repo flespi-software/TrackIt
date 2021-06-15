@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.4.0] - 2021-06-15
+[update] all deps
 ### [1.3.0] - 2021-04-06
 [feature] names and hidelist query params
 [rebase] local and session storage
