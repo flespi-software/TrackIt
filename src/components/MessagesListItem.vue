@@ -2,8 +2,8 @@
   <div
     @click="itemClickHandler(index, clearItem)"
     class="cursor-pointer"
-    :class="{'missed-items': item['x-flespi-status'], 'item--telemetry-inited': item['x-flespi-inited-by-telemetry']}"
-    :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, borderBottom: item.delimiter ? 'solid 1px #f40' : ''}"
+    :class="{'missed-items': item['x-flespi-status'], 'bg-white-opasity': selected, 'item--telemetry-inited': item['x-flespi-inited-by-telemetry']}"
+    :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, borderBottom: item.delimiter ? 'solid 1px #f40' : '', color: selected ? '#333' : ''}"
   >
     <template v-for="(prop, k) in cols">
       <span v-if="prop.__dest === 'etc'" class="list__item item_etc" :class="{[`item_${k}`]: true, 'item--active': menuCellActive && menuCellActive.row === index && menuCellActive.col === k}" :key="prop.name + k">{{values.etc.value || '*Empty*'}}</span>
@@ -100,6 +100,8 @@ export default {
 </script>
 
 <style lang="stylus">
+  .bg-white-opasity
+    background-color rgba(255, 255, 255, .7)!important
   .item--telemetry-inited
     background-color rgba(111, 101, 19, 0.7)!important
   .list__item

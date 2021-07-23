@@ -1,6 +1,6 @@
 {
   "name": "track-it",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "A simple application based on flespi.io and built with Quasar and Leaflet.js. Allows tracking different devices on the map, viewing telemetry messages for these devices.",
   "productName": "TrackIt!",
   "capacitorId": "",
@@ -18,6 +18,7 @@
     "core-js": "^3.14.0",
     "flespi-io-js": "github:flespi-software/flespi-io-js",
     "leaflet": "^1.6.0",
+    "leaflet-geometryutil": "^0.10.0",
     "leaflet.marker.slideto": "^0.2.0",
     "leaflet.polyline.snakeanim": "^0.2.0",
     "leaflet.polylinemeasure": "github:ppete2/Leaflet.PolylineMeasure#b85a4b9",

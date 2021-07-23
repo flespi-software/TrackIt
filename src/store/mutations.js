@@ -159,6 +159,7 @@ function setActiveDevice (state, id) {
   setToStore({ store: LocalStorage, storeName: state.storeName, name: 'active', value: state.activeDevicesID })
   if (state.hasDevicesInit) {
     Router.push(`/devices/${state.activeDevicesID.join(',')}`)
+      .catch((e) => { DEV && console.log(e) })
   }
 }
 function unsetActiveDevice (state, id) {
@@ -167,8 +168,10 @@ function unsetActiveDevice (state, id) {
   setToStore({ store: LocalStorage, storeName: state.storeName, name: 'active', value: state.activeDevicesID })
   if (state.activeDevicesID.length) {
     Router.push(`/devices/${state.activeDevicesID.join(',')}`)
+      .catch((e) => { DEV && console.log(e) })
   } else {
     Router.push('/')
+      .catch((e) => { DEV && console.log(e) })
   }
 }
 function setDevicesInit (state) {

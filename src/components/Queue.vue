@@ -27,7 +27,7 @@
           />
         </q-tab-panel>
     </q-tab-panels>
-    <q-tabs v-if="devices.length > 1" v-model="selected" align="left" class="bg-grey-9" indicator-color="white">
+    <q-tabs v-if="devices.length > 1" v-model="selected" align="left" class="bg-grey-9" dark indicator-color="white">
       <q-tab v-for="(deviceID) in activeDevicesID" :key="`tab-${deviceID}`" :name="deviceID.toString()" @click="messages[deviceID].length && markers[deviceID] && markers[deviceID]._icon ? changeTabColorHandler(deviceID) : ''">
         <div class="text-white">
           <div v-if="messages[deviceID].length && markers[deviceID] && markers[deviceID]._icon" :style="{backgroundColor: markers[deviceID].color}" class="color-view q-mr-xs" @click.stop="changeColorHandler(deviceID)"></div>
@@ -153,6 +153,8 @@ export default {
     .no-messages
       min-height 140px
       opacity 0.7
+    .q-tabs__arrow
+      color white
     // .q-tabs
     //   height 100%
     //   .q-tab-label

@@ -135,7 +135,12 @@ export default {
     },
     selected: {
       get () {
-        return this.$store.state.messages[this.moduleName].selected
+        const selected = this.$store.state.messages[this.moduleName].selected
+        const lastSelected = selected.slice(-1)[0]
+        if (lastSelected !== undefined) {
+          this.scrollToSelected(lastSelected)
+        }
+        return selected
       },
       set (val) {
         if (val && val.length) { this.autoscroll = false }
@@ -157,6 +162,7 @@ export default {
       const item = this.messages[index]
       data.key = item['x-flespi-message-key']
       data.class = [`scroll-list-item--${index}`]
+      data.props.selected = this.selected.includes(index)
       if (!data.on) { data.on = {} }
       data.on.action = this.actionHandler
       data.on['item-click'] = this.viewMessageOnMap
@@ -178,6 +184,7 @@ export default {
       this.$emit('view')
     },
     viewMessageOnMap ({ index, content }) {
+      this.selected = [index]
       this.$emit('view-on-map', content)
     },
     closeHandler () {

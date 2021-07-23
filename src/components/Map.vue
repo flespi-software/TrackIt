@@ -32,6 +32,7 @@
 
 <script>
 import * as L from 'leaflet'
+import 'leaflet-geometryutil'
 import 'leaflet/dist/leaflet.css'
 import 'leaflet.marker.slideto'
 import 'leaflet.polylinemeasure/Leaflet.PolylineMeasure.css'
@@ -136,6 +137,7 @@ export default {
             this.flyToZoom = e.target.getZoom()
           }
         })
+        this.map.addEventListener('click', this.mapClickHandler)
         L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { minZoom: 3, noWrap: true }).addTo(this.map)
         L.control.polylineMeasure({
           position: 'topleft',
@@ -154,32 +156,29 @@ export default {
       }
     },
     flyToWithHideTracks (position, zoom) {
+      const disabledLayout = []
       this.map.once('zoomstart', e => {
         Object.keys(this.tracks).forEach((trackId) => {
           const track = this.tracks[trackId]
           if (track instanceof L.Polyline) {
-            if (track.tail && track.tail instanceof L.Polyline) {
+            if (track.tail && track.tail instanceof L.Polyline && this.map.hasLayer(track.tail)) {
               this.map.removeLayer(track.tail)
+              disabledLayout.push(track.tail)
             }
-            if (track.overview && track.overview instanceof L.Polyline) {
+            if (track.overview && track.overview instanceof L.Polyline && this.map.hasLayer(track.overview)) {
               this.map.removeLayer(track.overview)
+              disabledLayout.push(track.overview)
             }
-            this.map.removeLayer(track)
+            if (this.map.hasLayer(track.overview)) {
+              this.map.removeLayer(track)
+              disabledLayout.push(track)
+            }
           }
         })
       })
       this.map.once('zoomend', e => {
-        Object.keys(this.tracks).forEach((trackId) => {
-          const track = this.tracks[trackId]
-          if (track instanceof L.Polyline) {
-            this.map.addLayer(track)
-            if (track.tail && track.tail instanceof L.Polyline) {
-              this.map.addLayer(track.tail)
-            }
-            if (track.overview && track.overview instanceof L.Polyline) {
-              this.map.addLayer(track.overview)
-            }
-          }
+        disabledLayout.forEach((layer) => {
+          this.map.addLayer(layer)
         })
       })
 
@@ -292,7 +291,8 @@ export default {
       const position = [this.messages[id][this.messages[id].length - 1]['position.latitude'], this.messages[id][this.messages[id].length - 1]['position.longitude']],
         name = currentDevice.name || `#${id}`
       this.initMarker(id, name, position)
-      this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), { color: this.markers[id].color }).addTo(this.map)
+      this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), { weight: 5, color: this.markers[id].color }).addTo(this.map)
+      this.tracks[id].addEventListener('click', (e) => this.showMessageByTrackClick(e, id, this.tracks[id]))
       if (parseInt(id) === this.selected) {
         const bounding = this.tracks[id].getBounds()
         this.map.fitBounds(bounding)
@@ -335,7 +335,8 @@ export default {
         this.initMarker(id, name, position)
       }
       if (!(this.tracks[id] instanceof L.Polyline)) {
-        this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), { color: this.markers[id] ? this.markers[id].color : this.getColorById(id) }).addTo(this.map)
+        this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), { weight: 4, color: this.markers[id] ? this.markers[id].color : this.getColorById(id) }).addTo(this.map)
+        this.tracks[id].addEventListener('click', (e) => this.showMessageByTrackClick(e, id, this.tracks[id]))
       }
       this.markers[id].setLatLng(currentArrPos[currentArrPos.length - 1]).update()
       this.markers[id].accuracy.setRadius(this.getAccuracyParams(this.messages[id][this.messages[id].length - 1]).accuracy)
@@ -403,11 +404,21 @@ export default {
         this.$q.notify({ message: 'No Position!', color: 'warning' })
       }
     },
-    generateFlag ({ id, status }) {
+    generateFlag (props) {
+      let { id, status } = props || {}
+      let color = id ? this.getColorById(id) : '#e53935',
+        icon = 'map-marker-star-outline'
+      if (status === 'start') {
+        color = colors.getBrand('primary')
+        icon = 'map-marker-outline'
+      } else if (status === 'stop') {
+        color = colors.getBrand('positive')
+        icon = 'map-marker-check'
+      }
       return L.divIcon({
         className: `my-flag-icon flag-${status}-${id}`,
         iconSize: new L.Point(35, 35),
-        html: `<i aria-hidden="true" style="color: ${status === 'start' ? colors.getBrand('primary') : colors.getBrand('positive')};" class="my-flag-icon__inner mdi mdi-${status === 'start' ? 'map-marker-outline' : 'map-marker-check'}"></i>`
+        html: `<i aria-hidden="true" style="color: ${color};" class="my-flag-icon__inner mdi mdi-${icon}"></i>`
       })
     },
     addFlags (id) {
@@ -491,33 +502,17 @@ export default {
     viewOnMapHandler (content) {
       if (content['position.latitude'] && content['position.longitude']) {
         const position = [content['position.latitude'], content['position.longitude']],
-          icon = L.divIcon({
-            className: 'my-highlight-icon',
-            iconSize: new L.Point(40, 40),
-            html: '<div class="my-highlight-icon__innner"></div>'
-          }),
-          marker = L.marker(position, {
-            icon: icon
-          }),
           currentZoom = this.map.getZoom()
-        this.flyToWithHideTracks(position, currentZoom > 12 ? currentZoom : 12)
-        this.map.once('moveend', () => {
-          marker.addTo(this.map)
-          const markerElement = document.querySelector('.my-highlight-icon__innner')
-          animate.start({
-            from: 20,
-            to: 40,
-            duration: 500,
-            apply (pos) {
-              markerElement.style.height = `${pos}px`
-              markerElement.style.width = `${pos}px`
-              markerElement.style.transform = `translate(${(40 - pos) / 2}px, ${(40 - pos) / 2}px)`
-            },
-            done () {
-              marker.remove()
-            }
+        if (this.map.messagePoint) { this.map.messagePoint.remove() }
+        this.map.messagePoint = L.marker(position, {
+          icon: L.divIcon({
+            className: `my-round-marker-wrapper`,
+            iconSize: new L.Point(10, 10),
+            html: `<div class="my-round-marker"></div>`
           })
         })
+        this.map.messagePoint.addTo(this.map)
+        this.flyToWithHideTracks(position, currentZoom > 12 ? currentZoom : 12)
       } else {
         this.$q.notify({
           message: 'No position',
@@ -609,6 +604,7 @@ export default {
         if (!this.tracks[id].tail || !(this.tracks[id].tail instanceof L.Polyline)) {
           this.tracks[id].tail = L.polyline(tail, this.tracks[id].options)
           this.tracks[id].tail.addTo(this.map)
+          this.tracks[id].tail.addEventListener('click', (e) => this.showMessageByTrackClick(e, id, this.tracks[id].tail))
           return true
         }
         if (this.player.tailInterval) { clearTimeout(this.player.tailInterval) }
@@ -659,6 +655,7 @@ export default {
       }
       const line = L.polyline(latlngs, { snakingSpeed: 20 * this.player.speed, color: this.tracks[id].options.color })
       this.tracks[id].overview = line
+      this.tracks[id].overview.addEventListener('click', (e) => this.showMessageByTrackClick(e, id, this.tracks[id].overview))
       line.addTo(this.map).snakeIn()
       line.on('snake', () => {
         const points = line.getLatLngs()
@@ -682,6 +679,7 @@ export default {
       }
       if (this.tracks[id] && this.tracks[id] instanceof L.Polyline) {
         this.tracks[id].addTo(this.map)
+        this.tracks[id].addEventListener('click', (e) => this.showMessageByTrackClick(e, id, this.tracks[id]))
       }
       const message = this.messages[id].slice(-1)[0]
       this.player.currentMsgIndex = null
@@ -728,6 +726,37 @@ export default {
           name: { name: 'messages', lsNamespace: `${this.$store.state.storeName}.cols` },
           errorHandler: (err) => { this.$store.commit('reqFailed', err) }
         }))
+    },
+    showMessageByTrackClick (e, id, track) {
+      e.originalEvent.view.L.DomEvent.stopPropagation(e)
+      const messages = this.messages[id]
+      const position = L.GeometryUtil.closest(this.map, track, e.latlng)
+      const indexes = messages.reduce((res, message, index) => {
+        const lat = message['position.latitude']
+        const lng = message['position.longitude']
+        const nextMessage = messages[index + 1]
+        if (!nextMessage) { return res }
+        const nextLat = nextMessage['position.latitude']
+        const nextLng = nextMessage['position.longitude']
+        const isPosBetweenLat = (lat >= position.lat && nextLat <= position.lat) || (lat <= position.lat && nextLat >= position.lat)
+        const isPosBetweenLng = (lng >= position.lng && nextLng <= position.lng) || (lng <= position.lng && nextLng >= position.lng)
+        if (isPosBetweenLat && isPosBetweenLng) {
+          const distance = L.GeometryUtil.distance(this.map, position, {lat, lng})
+          const nextDistance = L.GeometryUtil.distance(this.map, position, {lat: nextLat, lng: nextLng})
+          const closestMessageIndex = distance > nextDistance ? index + 1 : index
+          res.push(closestMessageIndex)
+        }
+        return res
+      }, [])
+      const lastMessage = messages[indexes.slice(-1)[0]] || {}
+      this.viewOnMapHandler(lastMessage)
+      this.$store.commit(`messages/${id}/setSelected`, indexes)
+    },
+    mapClickHandler (e) {
+      if (this.map.messagePoint) { this.map.messagePoint.remove() }
+      this.activeDevicesID.forEach((id) => {
+        this.$store.commit(`messages/${id}/clearSelected`)
+      })
     }
   },
   watch: {
@@ -916,11 +945,26 @@ export default {
     opacity .5
     height 20px
     width 20px
-  .my-highlight-icon__innner
-    height 20px
-    width 20px
-    background-color blue
-    opacity .5
-    transform translate(10px, 10px)
+  .my-round-marker
+    height 10px
     border-radius 50%
+    background-color $red-7
+    transform scale(1)
+    box-shadow 0 0 0 0 rgba(255, 82, 82, 1)
+    animation pulse 2s infinite
+
+  @keyframes pulse {
+    0% {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 0 rgba(255, 82, 82, 0.7);
+    }
+    70% {
+      transform: scale(1);
+      box-shadow: 0 0 0 10px rgba(255, 82, 82, 0);
+    }
+    100% {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 0 rgba(255, 82, 82, 0);
+    }
+  }
 </style>
