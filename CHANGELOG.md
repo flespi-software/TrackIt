@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.4.2] - 2021-07-26
+[update] deps
 ### [1.4.1] - 2021-07-23
 [feature] show message by track click
 ### [1.4.0] - 2021-06-15
