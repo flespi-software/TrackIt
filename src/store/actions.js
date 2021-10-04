@@ -28,7 +28,7 @@ async function checkConnection ({ state, commit }) {
 
 async function getLastUpdatePosition ({ commit, state }, selector) {
   let from = new Date().setHours(0, 0, 0, 0),
-    to = from + 86399999
+    to = from + 86399999.999
   if (state.token) {
     const items = selector || state.activeDevicesID.join(',')
     let initTime
@@ -52,7 +52,7 @@ async function getLastUpdatePosition ({ commit, state }, selector) {
       initTime = Date.now()
     }
     from = new Date(initTime).setHours(0, 0, 0, 0)
-    to = from + 86399999
+    to = from + 86399999.999
   }
   return [from, to]
 }

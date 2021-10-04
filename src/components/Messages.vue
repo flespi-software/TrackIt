@@ -103,7 +103,8 @@ export default {
         return this.$store.state.messages[this.moduleName].from
       },
       set (val) {
-        val ? this.$store.commit(`messages/${this.moduleName}/setFrom`, val) : this.$store.commit(`messages/${this.moduleName}/setFrom`, 0)
+        val = val || 0
+        this.$store.commit(`messages/${this.moduleName}/setFrom`, val)
       }
     },
     to: {
@@ -111,7 +112,8 @@ export default {
         return this.$store.state.messages[this.moduleName].to
       },
       set (val) {
-        val ? this.$store.commit(`messages/${this.moduleName}/setTo`, val) : this.$store.commit(`messages/${this.moduleName}/setTo`, 0)
+        val = val || 0
+        this.$store.commit(`messages/${this.moduleName}/setTo`, val)
       }
     },
     dateRange () {
@@ -130,7 +132,8 @@ export default {
         return this.$store.state.messages[this.moduleName].limit
       },
       set (val) {
-        val ? this.$store.commit(`messages/${this.moduleName}/setLimit`, val) : this.$store.commit(`messages/${this.moduleName}/setLimit`, 0)
+        val = val || 0
+        this.$store.commit(`messages/${this.moduleName}/setLimit`, val)
       }
     },
     selected: {
