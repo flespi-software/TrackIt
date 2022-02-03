@@ -76,7 +76,10 @@ async function getInitDataByDeviceId ({ commit, state }, id) {
     message[paramName] = telemetry[paramName].value
     return message
   }, {})
-  initMessage['x-flespi-inited-by-telemetry'] = true
+  Object.defineProperty(initMessage, 'x-flespi-inited-by-telemetry', {
+    value: true,
+    enumerable: false
+  })
   commit(`messages/${id}/setHistoryMessages`, [initMessage])
 }
 

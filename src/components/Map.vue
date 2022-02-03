@@ -86,7 +86,10 @@ export default {
         return this.activeDevicesID.reduce((result, id) => {
           result[id] = state.messages[id].messages.reduce((result, message, index) => {
             if (!!message['position.latitude'] && !!message['position.longitude']) {
-              message['x-flespi-message-index'] = index
+              Object.defineProperty(message, 'x-flespi-message-index', {
+                value: index,
+                enumerable: false
+              })
               result.push(message)
             }
             return result

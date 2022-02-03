@@ -225,13 +225,6 @@ export default {
     actionHandler ({ index, type, content }) {
       switch (type) {
         case 'view': {
-          content = Object.keys(content).reduce((result, key) => {
-            if (key === 'uuid' || key.indexOf('x-flespi') !== -1) {
-              return result
-            }
-            result[key] = content[key]
-            return result
-          }, {})
           this.viewMessagesHandler({ index, content })
           break
         }

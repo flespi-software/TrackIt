@@ -1,6 +1,6 @@
 <template>
   <div
-    @click="itemClickHandler(index, clearItem)"
+    @click="itemClickHandler(index, item)"
     class="cursor-pointer"
     :class="{'missed-items': item['x-flespi-status'], 'bg-white-opasity': selected, 'item--telemetry-inited': item['x-flespi-inited-by-telemetry']}"
     :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, borderBottom: item.delimiter ? 'solid 1px #f40' : '', color: selected ? '#333' : ''}"
@@ -53,7 +53,6 @@ export default {
       }
       Object.keys(this.item).forEach((propName) => {
         if (!vals[propName]) {
-          if (propName.indexOf('x-flespi') !== -1) { return false }
           if (propName.indexOf('image.bin.') !== -1) {
             vals.etc.value += `${propName}: <binary image>`
           } else {
@@ -62,15 +61,6 @@ export default {
         }
       })
       return vals
-    },
-    clearItem () {
-      return Object.keys(this.item).reduce((result, key) => {
-        if (key === 'uuid' || key.indexOf('x-flespi') !== -1) {
-          return result
-        }
-        result[key] = this.item[key]
-        return result
-      }, {})
     }
   },
   methods: {
