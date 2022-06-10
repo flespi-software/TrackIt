@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.4.5] - 2022-06-10
+[remove] prod-local settings
 ### [1.4.4] - 2022-02-03
 [rebase] indexing messages
 ### [1.4.3] - 2021-10-04
