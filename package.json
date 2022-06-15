@@ -1,6 +1,6 @@
 {
   "name": "track-it",
-  "version": "1.4.4",
+  "version": "1.4.6",
   "description": "A simple application based on flespi.io and built with Quasar and Leaflet.js. Allows tracking different devices on the map, viewing telemetry messages for these devices.",
   "productName": "TrackIt!",
   "capacitorId": "",
@@ -11,7 +11,7 @@
     "dev": "quasar dev -m spa",
     "dev_local": "env NODE_LOCAL=local quasar dev -m spa",
     "build": "quasar build -m spa",
-    "deploy": "rm -rf dist && npm run build && rm -rf deploy && mkdir deploy && cp -R dist/spa/* misc LICENSE package.json deploy && cp README.md deploy/README.md && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rhttps://git.gurtam.net/flespi/frontend/TrackIt.git && rm -rf deploy && git push github gh-pages"
+    "deploy": "rm -rf dist && npm run build && rm -rf deploy && mkdir deploy && cp -R dist/spa/* misc LICENSE package.json deploy && cp README.md deploy/README.md && node_modules/git-directory-deploy/bin/git-directory-deploy.sh -ddeploy -bgh-pages -rgit@git.gurtam.net:flespi/frontend/TrackIt.git && rm -rf deploy && git push github gh-pages"
   },
   "dependencies": {
     "@quasar/extras": "^1.5.2",
