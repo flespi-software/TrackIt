@@ -43,7 +43,7 @@ import Queue from './Queue.vue'
 import ColorModal from './ColorModal'
 import { mapState } from 'vuex'
 import devicesMessagesModule from 'qvirtualscroll/src/store/modules/devicesMessages'
-import { colors } from 'quasar'
+import { colors, debounce } from 'quasar'
 import animate from '../mixins/animate'
 import getIconHTML from '../assets/getIconHTML.js'
 import { getFromStore, setToStore } from '../mixins/store'
@@ -160,29 +160,40 @@ export default {
     },
     flyToWithHideTracks (position, zoom) {
       const disabledLayout = []
+      let isFlying = false
+      console.log(position);
+      console.trace();
       this.map.once('zoomstart', e => {
-        Object.keys(this.tracks).forEach((trackId) => {
-          const track = this.tracks[trackId]
-          if (track instanceof L.Polyline) {
-            if (track.tail && track.tail instanceof L.Polyline && this.map.hasLayer(track.tail)) {
-              this.map.removeLayer(track.tail)
-              disabledLayout.push(track.tail)
+        console.log(2);
+        const fromZoom = e.target._zoom
+        if (fromZoom !== zoom) {
+          isFlying = true
+          Object.keys(this.tracks).forEach((trackId) => {
+            const track = this.tracks[trackId]
+            if (track instanceof L.Polyline) {
+              if (track.tail && track.tail instanceof L.Polyline && this.map.hasLayer(track.tail)) {
+                this.map.removeLayer(track.tail)
+                disabledLayout.push(track.tail)
+              }
+              if (track.overview && track.overview instanceof L.Polyline && this.map.hasLayer(track.overview)) {
+                this.map.removeLayer(track.overview)
+                disabledLayout.push(track.overview)
+              }
+              if (track.overview && this.map.hasLayer(track.overview)) {
+                this.map.removeLayer(track)
+                disabledLayout.push(track)
+              }
             }
-            if (track.overview && track.overview instanceof L.Polyline && this.map.hasLayer(track.overview)) {
-              this.map.removeLayer(track.overview)
-              disabledLayout.push(track.overview)
-            }
-            if (this.map.hasLayer(track.overview)) {
-              this.map.removeLayer(track)
-              disabledLayout.push(track)
-            }
-          }
-        })
+          })
+        }
       })
       this.map.once('zoomend', e => {
-        disabledLayout.forEach((layer) => {
-          this.map.addLayer(layer)
-        })
+        console.log(3);
+        if (isFlying) {
+          disabledLayout.forEach((layer) => {
+            this.map.addLayer(layer)
+          })
+        }
       })
 
       this.map.flyTo(position, zoom)
@@ -303,13 +314,14 @@ export default {
     },
     updateDeviceOnMap (id) {
       const currentArrPos = this.getLatLngArrByDevice(id),
-        markerWatchedPos = this.deviceIdForWatch && this.markers[this.deviceIdForWatch] && this.markers[this.deviceIdForWatch] instanceof L.Marker ? this.markers[this.deviceIdForWatch].getLatLng() : {},
+        markerWatchedPos = this.deviceIdForWatch && this.deviceIdForWatch === id && this.markers[this.deviceIdForWatch] && this.markers[this.deviceIdForWatch] instanceof L.Marker ? this.markers[this.deviceIdForWatch].getLatLng() : {},
         isWatchedPosChanged = this.deviceIdForWatch && this.messages[this.deviceIdForWatch] && this.messages[this.deviceIdForWatch].length &&
           markerWatchedPos.lat && markerWatchedPos.lat !== this.messages[this.deviceIdForWatch][this.messages[this.deviceIdForWatch].length - 1]['position.latitude'] &&
           markerWatchedPos.lng && markerWatchedPos.lng !== this.messages[this.deviceIdForWatch][this.messages[this.deviceIdForWatch].length - 1]['position.longitude']
       if (isWatchedPosChanged) {
+        console.log(id)
         const position = currentArrPos[currentArrPos.length - 1]
-        this.flyToWithHideTracks(position, this.flyToZoom)
+        position && this.flyToWithHideTracks(position, this.flyToZoom)
       }
       /* if messages is empty clear marker and line */
       if (!currentArrPos.length) {
@@ -330,25 +342,25 @@ export default {
           color: this.markers[id].color || undefined,
           id: id
         }
-        return false
-      }
-      if (!(this.markers[id] instanceof L.Marker)) {
-        const name = this.activeDevices.filter(device => device.id === parseInt(id))[0].name || `#${id}`,
-          position = [this.messages[id][this.messages[id].length - 1]['position.latitude'], this.messages[id][this.messages[id].length - 1]['position.longitude']]
-        this.initMarker(id, name, position)
-      }
-      if (!(this.tracks[id] instanceof L.Polyline)) {
-        this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), { weight: 4, color: this.markers[id] ? this.markers[id].color : this.getColorById(id) }).addTo(this.map)
-        this.tracks[id].addEventListener('click', (e) => this.showMessageByTrackClick(e, id, this.tracks[id]))
-      }
-      this.markers[id].setLatLng(currentArrPos[currentArrPos.length - 1]).update()
-      this.markers[id].accuracy.setRadius(this.getAccuracyParams(this.messages[id][this.messages[id].length - 1]).accuracy)
-      this.markers[id].accuracy.setLatLng(currentArrPos[currentArrPos.length - 1])
-      this.markers[id].setOpacity(1)
-      this.tracks[id].setLatLngs(currentArrPos)
-      if (parseInt(id) === this.selected && !this.$store.state.messages[id].realtimeEnabled) {
-        const bounding = this.tracks[id].getBounds()
-        this.map.fitBounds(bounding)
+      } else {
+        if (!(this.markers[id] instanceof L.Marker)) {
+          const name = this.activeDevices.filter(device => device.id === parseInt(id))[0].name || `#${id}`,
+            position = [this.messages[id][this.messages[id].length - 1]['position.latitude'], this.messages[id][this.messages[id].length - 1]['position.longitude']]
+          this.initMarker(id, name, position)
+        }
+        if (!(this.tracks[id] instanceof L.Polyline)) {
+          this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), { weight: 4, color: this.markers[id] ? this.markers[id].color : this.getColorById(id) }).addTo(this.map)
+          this.tracks[id].addEventListener('click', (e) => this.showMessageByTrackClick(e, id, this.tracks[id]))
+        }
+        this.markers[id].setLatLng(currentArrPos[currentArrPos.length - 1]).update()
+        this.markers[id].accuracy.setRadius(this.getAccuracyParams(this.messages[id][this.messages[id].length - 1]).accuracy)
+        this.markers[id].accuracy.setLatLng(currentArrPos[currentArrPos.length - 1])
+        this.markers[id].setOpacity(1)
+        this.tracks[id].setLatLngs(currentArrPos)
+        if (parseInt(id) === this.selected && !this.$store.state.messages[id].realtimeEnabled) {
+          const bounding = this.tracks[id].getBounds()
+          this.map.fitBounds(bounding)
+        }
       }
     },
     getLatLngArrByDevice (id) {
@@ -615,22 +627,26 @@ export default {
       }
     },
     playerTimePlay ({ id }) {
-      this.tracks[id].remove()
-      this.player.status = 'play'
+      if (this.tracks[id] && this.tracks[id] instanceof L.Polyline) {
+        this.tracks[id].remove()
+        this.player.status = 'play'
+      }
     },
     playerTimeStop ({ id }) {
-      if (this.tracks[id].tail) {
-        this.tracks[id].tail.remove()
-        delete this.tracks[id].tail
+      if (this.tracks[id] && this.tracks[id] instanceof L.Polyline) {
+        if (this.tracks[id].tail) {
+          this.tracks[id].tail.remove()
+          delete this.tracks[id].tail
+        }
+        const realtimeEnabled = this.$store.state.messages[id].realtimeEnabled
+        const msgIndex = realtimeEnabled ? this.messages[id].length - 1 : 0
+        const message = this.messages[id][msgIndex]
+        this.$nextTick(() => { this.player.currentMsgIndex = msgIndex ? null : 0 })
+        this.player.status = 'stop'
+        this.tracks[id].addTo(this.map)
+        const lastPos = [message['position.latitude'], message['position.longitude']]
+        this.updateMarker(id, lastPos, message['position.direction'])
       }
-      const realtimeEnabled = this.$store.state.messages[id].realtimeEnabled
-      const msgIndex = realtimeEnabled ? this.messages[id].length - 1 : 0
-      const message = this.messages[id][msgIndex]
-      this.$nextTick(() => { this.player.currentMsgIndex = msgIndex ? null : 0 })
-      this.player.status = 'stop'
-      this.tracks[id].addTo(this.map)
-      const lastPos = [message['position.latitude'], message['position.longitude']]
-      this.updateMarker(id, lastPos, message['position.direction'])
     },
     playerTimePause ({ id }) {
       this.player.status = 'pause'
@@ -760,41 +776,45 @@ export default {
       this.activeDevicesID.forEach((id) => {
         this.$store.commit(`messages/${id}/clearSelected`)
       })
+    },
+    updateOrInitDevice (id, hasMessages, isPresent) {
+      if (hasMessages) {
+        if (!this.activeDevices.filter(device => device.id === parseInt(id))[0].telemetry && !this.markers[id]) {
+          this.initDeviceOnMap(id)
+        } else {
+          this.updateDeviceOnMap(id)
+        }
+        return false
+      }
+      if (isPresent) {
+        this.updateDeviceOnMap(id)
+      } else {
+        this.initDeviceOnMap(id)
+      }
+    },
+    updateStateByMessages (messages) {
+      if (this.player.status === 'play' || this.player.status === 'pause') { return false }
+      const keyArr = Object.keys(messages),
+        oldKeyArr = Object.keys(this.markers)
+      if (!keyArr.length) {
+        Object.keys(this.markers).forEach(id => {
+          this.removeMarker(id)
+        })
+        return false
+      }
+      if (keyArr.length < oldKeyArr.length) {
+        const removeDeviceId = oldKeyArr.filter(key => !keyArr.includes(key))[0]
+        this.removeMarker(removeDeviceId)
+        return false
+      }
+      keyArr.forEach(id => this.updateOrInitDevice(id, !messages[id].length, oldKeyArr.includes(id)))
     }
   },
   watch: {
     messages: {
       deep: true,
       handler (messages) {
-        if (this.player.status === 'play' || this.player.status === 'pause') { return false }
-        const keyArr = Object.keys(messages),
-          oldKeyArr = Object.keys(this.markers)
-        if (!keyArr.length) {
-          Object.keys(this.markers).forEach(id => {
-            this.removeMarker(id)
-          })
-          return false
-        }
-        if (keyArr.length < oldKeyArr.length) {
-          const removeDeviceId = oldKeyArr.filter(key => !keyArr.includes(key))[0]
-          this.removeMarker(removeDeviceId)
-          return false
-        }
-        keyArr.forEach(id => {
-          if (!messages[id].length) {
-            if (!this.activeDevices.filter(device => device.id === parseInt(id))[0].telemetry && !this.markers[id]) {
-              this.initDeviceOnMap(id)
-            } else {
-              this.updateDeviceOnMap(id)
-            }
-            return false
-          }
-          if (oldKeyArr.includes(id)) {
-            this.updateDeviceOnMap(id)
-          } else {
-            this.initDeviceOnMap(id)
-          }
-        })
+       this.debouncedUpdateStateByMessages(messages)
       }
     },
     activeDevices (newVal) {
@@ -870,6 +890,7 @@ export default {
     }
   },
   created () {
+    this.debouncedUpdateStateByMessages = debounce(this.updateStateByMessages, 100)
     if (this.deviceIdForWatch) {
       this.needInitWatchingDevice = true
     }

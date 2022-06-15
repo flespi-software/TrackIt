@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.4.6] - 2022-06-15
+[update] packages
+[rebase] update devices on map
+[rebase] map redraw
 ### [1.4.5] - 2022-06-10
 [remove] prod-local settings
 ### [1.4.4] - 2022-02-03
