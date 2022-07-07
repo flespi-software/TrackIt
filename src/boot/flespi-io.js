@@ -18,18 +18,20 @@ if (DEV && LOCAL) {
 }
 
 const mqttSettings = { protocolVersion: 5, wsOptions: { objectMode: false, perMessageDeflate: true } }
+const clientId = `trackit-${version}${DEV ? '-dev' : ''}-${Math.random().toString(16).substr(2, 8)}`
 const connectionConfig = {
   socketConfig: {
     server: socket,
-    clientId: `trackit-${version}${DEV ? '-dev' : ''}-${Math.random().toString(16).substr(2, 8)}`,
+    clientId,
     mqttSettings
   },
-  httpConfig: rest ? { server: rest } : undefined
+  httpConfig: { server: rest? rest : undefined, flespiApp: clientId }
 }
 
 export default ({ Vue, store }) => {
   Vue.prototype.$authHost = rest || 'https://flespi.io'
   Vue.prototype.$flespiServer = rest || 'https://flespi.io'
+  Vue.prototype.$flespiApp = clientId
   Vue.use(VueConnection, connectionConfig)
   Vue.connector.socket.on('error', (error) => {
     store.commit('reqFailed', error)

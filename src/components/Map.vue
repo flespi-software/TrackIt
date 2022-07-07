@@ -660,11 +660,11 @@ export default {
       }
       this.player.status = 'play'
       this.tracks[id].remove()
-      const latlngs = this.messages[id].map(message => ({
+      const latlngs = this.messages[id].map((message, index) => ({
         lat: message['position.latitude'],
         lng: message['position.longitude'],
         dir: message['position.direction'],
-        index: message['x-flespi-message-index']
+        index
       }))
       if (latlngs.length < 2) {
         this.tracks[id].addTo(this.map)

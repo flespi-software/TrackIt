@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.4.7] - 2022-07-07
+[feature] flespiApp setting
 ### [1.4.6] - 2022-06-15
 [update] packages
 [rebase] update devices on map
