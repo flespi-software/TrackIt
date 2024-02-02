@@ -1,5 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.4.8] - 2022-01-02
+[update] packages 
 ### [1.4.7] - 2022-07-07
 [feature] flespiApp setting
 ### [1.4.6] - 2022-06-15
