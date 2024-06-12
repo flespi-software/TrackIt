@@ -19,8 +19,8 @@
 
 ## Prerequisites:
 
-- [Node.js](https://nodejs.org/en/) (>=6.x)
-- npm version 3+ and [Git](https://git-scm.com/).
+- [Node.js](https://nodejs.org/en/) (>=18.x)
+- [npm](https://www.npmjs.com/) version 10+ and [Git](https://git-scm.com/).
 
 ## Used API resurces:
 
