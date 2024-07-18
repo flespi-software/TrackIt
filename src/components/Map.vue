@@ -85,7 +85,7 @@ export default {
       messages (state) {
         return this.activeDevicesID.reduce((result, id) => {
           result[id] = state.messages[id].messages.reduce((result, message, index) => {
-            if (!!message['position.latitude'] && !!message['position.longitude']) {
+            if (!!message['position.latitude'] && !!message['position.longitude'] && (!message.hasOwnProperty('position.valid') || (message.hasOwnProperty('position.valid') && message['position.valid'] === true))) {
               Object.defineProperty(message, 'x-flespi-message-index', {
                 value: index,
                 enumerable: false
@@ -127,13 +127,15 @@ export default {
   methods: {
     initMap () {
       if (!this.map) {
+        let osm = L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { minZoom: 3, noWrap: true })
         this.map = L.map('map', {
           center: [51.50853, -0.12574],
           zoom: 3,
           maxBounds: [
             [90, -180],
             [-90, 180]
-          ]
+          ],
+          layers: [osm]
         })
         this.map.addEventListener('zoom', e => {
           if (!e.flyTo) {
@@ -141,7 +143,21 @@ export default {
           }
         })
         this.map.addEventListener('click', this.mapClickHandler)
-        L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { minZoom: 3, noWrap: true }).addTo(this.map)
+        let satellite = L.tileLayer('//server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { minZoom: 3, noWrap: true, attribution: '© ArcGIS' })
+        let opentopo = L.tileLayer('//{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { minZoom: 3, maxZoom: 19, attribution: 'Map data: © OpenStreetMap contributors, SRTM | Map style: © OpenTopoMap (CC-BY-SA)', noWrap: true})
+        let osmtransp = L.tileLayer.wms('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          layers: 'semitransparent',
+          transparent: 'true',
+          format: 'image/png',
+          maxZoom: 21,
+          opacity: 0.5
+        })
+        var baseMaps = {
+          'OpenStreetMap': osm,
+          'Satellite': satellite,
+          'OpenTopoMap': opentopo
+        }
+        L.control.layers(baseMaps, { 'OpenStreetMaps (0.5)': osmtransp }).addTo(this.map)
         L.control.polylineMeasure({
           position: 'topleft',
           showBearings: false,
@@ -922,6 +938,12 @@ export default {
 </script>
 
 <style lang="stylus">
+  .leaflet-control-layers
+    top 110px
+    .leaflet-control-layers-toggle
+      width 24px
+      height 24px
+      background-size 20px
   .leaflet-container.crosshair-cursor-enabled
     cursor crosshair
   .leaflet-control.leaflet-bar
