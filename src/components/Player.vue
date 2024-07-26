@@ -1,63 +1,118 @@
 <template>
-  <div style="display: flex; background-color: #424242; width: 100%">
-    <q-btn :disable="max <= min" class="text-white" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat>
-      x{{currentSpeed}}
-      <q-menu ref="currentSpeedPopover" anchor="top left" style="background-color: #424242">
-        <div class="column">
-          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="changeSpeed(100)">x100</q-btn>
-          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="changeSpeed(70)">x70</q-btn>
-          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="changeSpeed(50)">x50</q-btn>
-          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="changeSpeed(30)">x30</q-btn>
-          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="changeSpeed(10)">x10</q-btn>
-          <q-btn class="text-white bg-grey-9 no-border-radius full-width" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="changeSpeed(1)">x1</q-btn>
-        </div>
-      </q-menu>
-      <q-tooltip v-if="$q.platform.is.desktop">currentSpeed</q-tooltip>
-    </q-btn>
-    <q-btn
-      :color="currentStatus === 'play' ? 'blue' : 'white'"
-      :disable="max <= min" class="text-white"
-      :dense="$q.platform.is.mobile"
-      :size="$q.platform.is.desktop ? '1.4rem' : 'md'"
-      :icon="currentStatus === 'play' ? repeatFlag ? 'mdi-repeat' : 'mdi-pause' : 'mdi-play'"
-      flat
-      @click="playClickHandler"
-      @click.ctrl="playRepeatClickHandler"
-      v-touch-hold.noMouse="playRepeatClickHandler"
-    >
-      <q-tooltip v-if="$q.platform.is.desktop">Play/Pause (Ctrl+Click to repeat)</q-tooltip>
-      <q-tooltip v-if="$q.platform.is.mobile">Play/Pause (Touch hold to repeat)</q-tooltip>
-    </q-btn>
-    <q-btn
-      color="white" class="text-white"
-      :disable="max <= min"
-      :dense="$q.platform.is.mobile"
-      :size="$q.platform.is.desktop ? '1.4rem' : 'md'"
-      icon="mdi-stop"
-      flat
-      @click="stop"
-    >
-      <q-tooltip v-if="$q.platform.is.desktop">Stop</q-tooltip>
-    </q-btn>
-    <q-btn :disable="max <= min || mode === 'data'" class="text-white" icon="mdi-skip-previous" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="$emit('player-prev')">
-      <q-tooltip v-if="$q.platform.is.desktop">Prev message</q-tooltip>
-    </q-btn>
-    <div class="player">
-      <div class="player__main">
-        <div class="player__container" style="transform: translate3d(0,0,0)" ref="playerContainer">
-          <q-range v-if="max > min && mode === 'time'" color="white" v-model="range" :min="min" :max="max" :step="1"/>
-          <div class="player__line cursor-pointer" :class="{disabled: max <= min  || mode === 'data'}" @click="clickLineHandler">
-            <div class="line line__disabled line__disabled--left" :style="{width: `${(100 * (rangeMin - min)) / (max - min)}%`}"></div>
-            <div class="line line__active" :style="{left: `${mode === 'time' ? current : 0}%`, width: `${100 - (mode === 'time' ? current : 0) - 100 / max * (max - rangeMax)}%`}"></div>
-            <div class="line line__disabled line__disabled--right" :style="{width: `${100 / (max - min) * (max - rangeMax)}%`}"></div>
+  <div class="row"
+    style="background-color: #424242;"
+    :style="{height: needShowMessages ? 'auto' : '100%'}"
+  >
+    <div class="col-12 col-md-auto">
+      <q-btn
+        icon="dvr"
+        :color="needShowMessages ? 'blue' : 'white'"
+        :size="$q.platform.is.desktop ? '1rem' : 'md'"
+        round
+        flat
+        @click="$emit('switch-show-messages')"
+      >
+        <q-tooltip v-if="$q.platform.is.desktop">Messages</q-tooltip>
+      </q-btn>
+      <q-btn
+        :icon="mode === 'time' ? 'mdi-map-clock-outline' : 'mdi-map-marker-distance'"
+        :disable="max <= min || status === 'play'"
+        color="white"
+        :size="$q.platform.is.desktop ? '1rem' : 'md'"
+        round
+        flat
+        @click="$emit('switch-player-mode')"
+      >
+        <q-tooltip v-if="$q.platform.is.desktop">Change mode (Time/Data)</q-tooltip>
+      </q-btn>
+
+      <q-btn :disable="max <= min" class="text-white" :size="$q.platform.is.desktop ? '1rem' : 'md'" flat>
+        x{{currentSpeed}}
+        <q-menu ref="currentSpeedPopover" anchor="top left" style="background-color: #424242">
+          <div class="column">
+            <q-btn 
+              v-for="speed in [100, 70, 50, 30, 10, 1]"
+              :key="speed"
+              class="text-white bg-grey-9 no-border-radius full-width" 
+              :size="$q.platform.is.desktop ? '1rem' : 'md'" 
+              flat 
+              @click="changeSpeed(speed)"
+            >
+              x{{speed}}
+            </q-btn>
           </div>
-          <div :style="{left: `${mode === 'time' ? current : 0}%`}" v-touch-pan.horizontal.mouse="dragPlayerControl" class="player__control cursor-pointer" :class="{'player__control--mobile': $q.platform.is.mobile, disabled: max <= min || mode === 'data'}"></div>
+        </q-menu>
+        <q-tooltip v-if="$q.platform.is.desktop">currentSpeed</q-tooltip>
+      </q-btn>
+      <q-btn
+        :color="currentStatus === 'play' ? 'blue' : 'white'"
+        :disable="max <= min" class="text-white"
+        :size="$q.platform.is.desktop ? '1rem' : 'md'"
+        :icon="currentStatus === 'play' ? repeatFlag ? 'mdi-repeat' : 'mdi-pause' : 'mdi-play'"
+        round
+        flat
+        @click="playClickHandler"
+        @click.ctrl="playRepeatClickHandler"
+        v-touch-hold.noMouse="playRepeatClickHandler"
+      >
+        <q-tooltip v-if="$q.platform.is.desktop">Play/Pause (Ctrl+Click to repeat)</q-tooltip>
+        <q-tooltip v-if="$q.platform.is.mobile">Play/Pause (Touch hold to repeat)</q-tooltip>
+      </q-btn>
+      <q-btn
+        color="white" class="text-white"
+        :disable="max <= min"
+        :size="$q.platform.is.desktop ? '1rem' : 'md'"
+        icon="mdi-stop"
+        round
+        flat
+        @click="stop"
+      >
+        <q-tooltip v-if="$q.platform.is.desktop">Stop</q-tooltip>
+      </q-btn>
+    </div>
+
+    <div class="col-12 col-md relative-position">
+      <q-btn 
+        :disable="max <= min || mode === 'data'" 
+        class="absolute-left text-white" 
+        icon="mdi-skip-previous" 
+        :size="$q.platform.is.desktop ? '1rem' : 'md'" 
+        round 
+        flat 
+        @click="$emit('player-prev')"
+      >
+        <q-tooltip v-if="$q.platform.is.desktop">Prev message</q-tooltip>
+      </q-btn>
+      <div class="player">
+        <div class="player__main">
+          <div class="player__container" style="transform: translate3d(0,0,0)" ref="playerContainer">
+            <q-range v-if="max > min && mode === 'time'" color="white" v-model="range" :min="min" :max="max" :step="1"/>
+            <div class="player__line cursor-pointer" :class="{disabled: max <= min  || mode === 'data'}" @click="clickLineHandler">
+              <div class="line line__disabled line__disabled--left" :style="{width: `${(100 * (rangeMin - min)) / (max - min)}%`}"></div>
+              <div class="line line__active" :style="{left: `${mode === 'time' ? current : 0}%`, width: `${100 - (mode === 'time' ? current : 0) - (max > 0 ? 100 / max * (max - rangeMax) : 0)}%`}"></div>
+              <div class="line line__disabled line__disabled--right" :style="{width: `${100 / (max - min) * (max - rangeMax)}%`}"></div>
+            </div>
+            <div
+              :style="{left: `${mode === 'time' ? current : 0}%`}" 
+              v-touch-pan.horizontal.mouse="dragPlayerControl" 
+              class="player__control cursor-pointer" 
+              :class="{'player__control--mobile': $q.platform.is.mobile, 'player__control--disabled': max <= min || mode === 'data', disabled: max <= min || mode === 'data'}"
+            ></div>
+          </div>
         </div>
       </div>
+      <q-btn 
+        :disable="max <= min || mode === 'data'" 
+        class="absolute-right text-white" 
+        icon="mdi-skip-next" 
+        :size="$q.platform.is.desktop ? '1rem' : 'md'" 
+        round 
+        flat 
+        @click="$emit('player-next')"
+      >
+        <q-tooltip v-if="$q.platform.is.desktop">Next message</q-tooltip>
+      </q-btn>
     </div>
-    <q-btn :disable="max <= min || mode === 'data'" class="text-white" icon="mdi-skip-next" :size="$q.platform.is.desktop ? '1.4rem' : 'md'" :dense="$q.platform.is.mobile" flat @click="$emit('player-next')">
-      <q-tooltip v-if="$q.platform.is.desktop">Next message</q-tooltip>
-    </q-btn>
   </div>
 </template>
 
@@ -72,7 +127,8 @@ export default {
     'value',
     'status',
     'speed',
-    'mode'
+    'mode',
+    'needShowMessages'
   ],
   data () {
     return {
@@ -302,7 +358,8 @@ export default {
     border-radius none
   .player
     width 100%
-    padding 0 17px
+    height 46px
+    padding 0 68px
     overflow hidden
     .player__main
       height calc(100% - 18px)
@@ -346,6 +403,8 @@ export default {
             width 16px
             height 16px
             top 50%
+          &--disabled 
+            background-color rgba(100,100,100,.8)
       .q-slider
         height 7px
         top 20px

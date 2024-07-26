@@ -113,13 +113,22 @@ export default {
     },
     mapHeight () {
       let value = '100%'
+      // if no devices are selected - map fills all screen height
       if (!this.activeDevices.length) { return value }
-      if (this.params.needShowMessages && this.params.needShowPlayer) {
-        value = 'calc(100% - 113px)'
-      } else if (this.params.needShowMessages && !this.params.needShowPlayer) {
-        value = 'calc(100% - 48px)'
-      } else if (!this.params.needShowMessages && this.params.needShowPlayer) {
-        value = 'calc(100% - 65px)'
+      // if one device is selected - there isn't panel with devices' names tabs
+      if (this.activeDevices.length === 1) {
+        if (this.params.needShowPlayer) {
+          value = 'calc(100% - 48px)'
+        }
+        return value;
+      }
+      // if nore than one device is selected - there is panel with devices' names tabs
+      if (this.params.needShowPlayer) {
+        value = 'calc(100% - 95px)'
+      } else { 
+        if (this.params.needShowMessages) {
+          value = 'calc(100% - 48px)'
+        }
       }
       return value
     }

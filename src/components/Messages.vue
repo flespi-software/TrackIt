@@ -22,7 +22,7 @@
       <div class="no-messages text-center" slot="empty">
         <div class="text-white" style="font-size: 3rem;">
           <div>No messages</div>
-          <div style="font-size: 1.5rem;">or position is empty</div>
+          <div style="font-size: 1.5rem;">and the last position is unknown</div>
         </div>
       </div>
     </virtual-scroll-list>

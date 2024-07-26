@@ -1,60 +1,38 @@
 <template>
-  <div :style="[{height: height, position: 'relative'}]">
-    <template v-if="needShowMessages">
-      <div :style="{height: needShowPlayer ? 'calc(100% - 65px)' : '100%'}" class="table__wrapper">
-        <messages
-          style="height: 100%;"
-          :messages="messages"
-          :item="device"
-          :activeDeviceId="id"
-          :limit="0"
-          :date="date"
-          :activeMessagesIds="activeMessagesIndexes"
-          @view="viewMessageHandler"
-          @view-on-map="viewOnMapHandler"
-        ></messages>
-      </div>
-    </template>
-    <div
-      style="display: flex; background-color: #424242;"
-      :style="{height: needShowMessages ? '65px' : '100%'}"
-      v-if="needShowPlayer"
-    >
-      <q-btn
-        icon="dvr"
-        :color="needShowMessages ? 'blue' : 'white'"
-        :dense="$q.platform.is.mobile"
-        :size="$q.platform.is.desktop ? '1.4rem' : 'md'"
-        flat
-        @click="messagesFlag = !messagesFlag, $emit('change-need-show-messages', messagesFlag)"
-      >
-        <q-tooltip v-if="$q.platform.is.desktop">Messages</q-tooltip>
-      </q-btn>
-      <q-btn
-        :icon="player.mode === 'time' ? 'mdi-map-clock-outline' : 'mdi-map-marker-distance'"
-        :disable="player.status === 'play'"
-        color="white"
-        :dense="$q.platform.is.mobile"
-        :size="$q.platform.is.desktop ? '1.4rem' : 'md'"
-        flat
-        @click="playerMode = playerMode === 'data' ? 'time' : 'data', $emit('player-mode', {mode: playerMode, id})"
-      >
-        <q-tooltip v-if="$q.platform.is.desktop">Change mode (Time/Data)</q-tooltip>
-      </q-btn>
+  <div :style="[{height: height}]">
+    <div v-if="needShowMessages" :style="{height: needShowPlayer ? `calc(100% - ${playerHeight}px)` : '100%'}" class="table__wrapper">
+      <messages
+        style="height: 100%;"
+        :messages="messages"
+        :item="device"
+        :activeDeviceId="id"
+        :limit="0"
+        :date="date"
+        :activeMessagesIds="activeMessagesIndexes"
+        @view="viewMessageHandler"
+        @view-on-map="viewOnMapHandler"
+      ></messages>
+    </div>
+    <div>
+      <q-resize-observer @resize="onResizePayer" ref="playerResize"/>
       <player
         ref="player"
         v-model="playerValue"
+        v-if="needShowPlayer"
         :min="timeRange.min"
         :max="timeRange.max"
         :status="player.status"
         :speed="player.speed"
         :mode="player.mode"
+        :needShowMessages="needShowMessages"
         @player-next="playerNextHandler"
         @player-prev="playerPrevHandler"
         @player-play="playerPlayHandler"
         @player-pause="playerPauseHandler"
         @player-stop="playerStopHandler"
         @player-speed="playerSpeedHandler"
+        @switch-show-messages="switchShowMessages"
+        @switch-player-mode="switchPlayerMode"
       />
     </div>
   </div>
@@ -79,6 +57,7 @@ export default {
       playerMode: this.player.mode || 'time',
       playerValue: 0,
       playerStatus: 'stop',
+      playerHeight: 0,
       activeMessagesIndexes: [],
       messagesFlag: this.needShowMessages
     }
@@ -107,25 +86,20 @@ export default {
       }, {})
     },
     height () {
-      if (this.messages.length) {
-        if (this.needShowMessages && !this.needShowPlayer) {
-          return '20vh'
-        } else if (!this.needShowMessages && this.needShowPlayer) {
-          return '65px'
-        } else {
-          return '30vh'
-        }
+      if (this.needShowMessages && this.needShowPlayer) {
+        return `calc(22vh + ${this.playerHeight}px)`
+      } else if (this.needShowMessages && !this.needShowPlayer) {
+        return '22vh'
+      } else if (!this.needShowMessages && this.needShowPlayer) {
+        return `${this.playerHeight}px`
       } else {
-        if (this.needShowMessages && this.needShowPlayer) {
-          return '30vh'
-        } else if (this.needShowMessages && !this.needShowPlayer) {
-          return '20vh'
-        } else if (!this.needShowMessages && this.needShowPlayer) {
-          return '65px'
-        } else {
-          return '0vh'
-        }
+        return '0vh'
       }
+    }
+  },
+  mounted() {
+    if (this.$refs.playerResize) {
+      this.$refs.playerResize.trigger()
     }
   },
   methods: {
@@ -203,6 +177,17 @@ export default {
     },
     viewOnMapHandler (content) {
       this.$emit('view-on-map', content)
+    },
+    switchShowMessages () {
+      this.messagesFlag = !this.messagesFlag
+      this.$emit('change-need-show-messages', this.messagesFlag)
+    },
+    switchPlayerMode() {
+      this.playerMode = this.playerMode === 'data' ? 'time' : 'data'
+      this.$emit('player-mode', {mode: this.playerMode, id: this.id})
+    },
+    onResizePayer(size) {
+      this.playerHeight = size.height
     }
   },
   watch: {

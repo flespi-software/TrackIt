@@ -2,7 +2,7 @@
   <div id="queue" class="absolute-bottom-left absolute-bottom-right">
     <q-tab-panels v-model="selected" animated style="background: rgba(0, 0, 0, .5)">
       <q-tab-panel
-          class="no-padding"
+          class="no-padding no-scroll"
           :name="deviceID.toString()"
           v-for="(deviceID) in activeDevicesID"
           :key="`tab-panel-${deviceID}`"
@@ -28,9 +28,9 @@
         </q-tab-panel>
     </q-tab-panels>
     <q-tabs v-if="devices.length > 1" v-model="selected" align="left" class="bg-grey-9" dark indicator-color="white">
-      <q-tab v-for="(deviceID) in activeDevicesID" :key="`tab-${deviceID}`" :name="deviceID.toString()" @click="messages[deviceID].length && markers[deviceID] && markers[deviceID]._icon ? changeTabColorHandler(deviceID) : ''">
+      <q-tab v-for="(deviceID) in activeDevicesID" :key="`tab-${deviceID}`" :name="deviceID.toString()">
         <div class="text-white">
-          <div v-if="messages[deviceID].length && markers[deviceID] && markers[deviceID]._icon" :style="{backgroundColor: markers[deviceID].color}" class="color-view q-mr-xs" @click.stop="changeColorHandler(deviceID)"></div>
+          <div v-if="messages[deviceID].length && markers[deviceID]" :style="{backgroundColor: markers[deviceID].color}" class="color-view q-mr-xs" @click.stop="changeColorHandler(deviceID)"></div>
           {{getNameById(deviceID)}}
         </div>
       </q-tab>
@@ -90,11 +90,6 @@ export default {
       this.currentColorId = id
       this.currentColorModel = this.markers[id].color
       this.$refs.colorModal.show()
-    },
-    changeTabColorHandler (id) {
-      if (id.toString() === this.selected) {
-        this.changeColorHandler(id)
-      }
     }
   },
   created () {

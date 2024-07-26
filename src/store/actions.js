@@ -59,23 +59,35 @@ async function getLastUpdatePosition ({ commit, state }, selector) {
 
 async function getInitDataByDeviceId ({ commit, state }, id) {
   if (!state.token) { return }
-  const telemetryResp = await Vue.connector.gw.getDevicesTelemetry(id, 'all'),
+  const telemetryResp = await Vue.connector.gw.getDevicesTelemetry(id, 'position,ident'),
     telemetryRespData = telemetryResp.data
   if (telemetryRespData.errors) {
     postMessage.errors.forEach((error) => {
       commit('addError', error.reason)
     })
   }
-  const telemetry = telemetryRespData && telemetryRespData.result[0] && telemetryRespData.result[0].telemetry ? telemetryRespData.result[0].telemetry : {},
+  const telemetry = telemetryRespData && 
+                    telemetryRespData.result[0] && 
+                    telemetryRespData.result[0].telemetry &&
+                    telemetryRespData.result[0].telemetry.position &&
+                    telemetryRespData.result[0].telemetry.position.value ? telemetryRespData.result[0].telemetry.position.value : {},
     telemetryFields = Object.keys(telemetry)
-  if (!telemetryFields.length) {
+  if (!telemetryFields.length || (telemetry['valid'] !== undefined && telemetry['valid'] === false)) {
+    // no position in device's telemetry or position is invalid
     return false
   }
   const initMessage = telemetryFields.reduce((message, paramName) => {
-    if (paramName === 'position') { return message }
-    message[paramName] = telemetry[paramName].value
+    message['position.' + paramName] = telemetry[paramName]
     return message
   }, {})
+  // add timestamp and ident to the contracted init message
+  if (telemetryRespData.result[0].telemetry.position.ts ) {
+    initMessage.timestamp = telemetryRespData.result[0].telemetry.position.ts
+  }
+  if (telemetryRespData.result[0].telemetry.ident && telemetryRespData.result[0].telemetry.ident.value) {
+    initMessage.ident = telemetryRespData.result[0].telemetry.ident.value
+  }
+    
   Object.defineProperty(initMessage, 'x-flespi-inited-by-telemetry', {
     value: true,
     enumerable: false

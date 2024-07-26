@@ -74,7 +74,7 @@ export default {
     },
     dateRangeModalSave () {
       let [from, to] = this.dateModel
-      to += 0.999
+      to += 999 // ms
       this.$emit('save', [from ,to])
       this.dateRangeModalClose()
     },
@@ -82,15 +82,15 @@ export default {
       return date.formatDate(timestamp, 'DD/MM/YYYY HH:mm:ss')
     },
     prevHandler () {
-      const delta = this.dateModel[1] - this.dateModel[0],
-        newTo = this.dateModel[0] - 0.001,
+      const delta = Math.floor(this.dateModel[1]) - Math.floor(this.dateModel[0]),
+        newTo = Math.floor(this.dateModel[0]) - 1, // ms
         newFrom = newTo - delta
       this.dateModel = [newFrom, newTo]
       this.$emit('save', this.dateModel)
     },
     nextHandler () {
-      const delta = this.dateModel[1] - this.dateModel[0],
-        newFrom = this.dateModel[1] + 0.001,
+      const delta = Math.floor(this.dateModel[1]) - Math.floor(this.dateModel[0]),
+        newFrom = Math.floor(this.dateModel[1]) + 1, // ms
         newTo = newFrom + delta
       this.dateModel = [newFrom, newTo]
       this.$emit('save', this.dateModel)
