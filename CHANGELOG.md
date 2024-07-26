@@ -1,5 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+### [1.4.10] - 2024-07-26
+[fix] color picker opening
+
+[fix] track player layout for small windows
+
 ### [1.4.8] - 2022-01-02
 [update] packages 
 ### [1.4.7] - 2022-07-07
