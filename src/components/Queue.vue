@@ -48,6 +48,7 @@ export default {
     'messages',
     'activeDevicesID',
     'devices',
+    'deviceIdForWatch',
     'telemetryDeviceId',
     'date',
     'needShowMessages',
@@ -57,7 +58,7 @@ export default {
   ],
   data () {
     return {
-      selected: this.activeDevicesID.length ? this.activeDevicesID[0].toString() : '',
+      selected: null,
       telemetryOfActiveDevices: this.devices.filter(device => this.activeDevicesID.includes(device.id)).reduce((res, device) => {
         res[device.id] = device.telemetry ? device.telemetry : null
         return res
@@ -94,7 +95,10 @@ export default {
   },
   created () {
     if (this.activeDevicesID.length) {
-      this.$emit('change-selected', parseInt(this.activeDevicesID[0]))
+      this.$emit('queue-created')
+    }
+    if (this.deviceIdForWatch) {
+      this.selected = this.deviceIdForWatch.toString()
     }
   },
   watch: {
@@ -116,10 +120,15 @@ export default {
         this.selected = ''
       }
       if ((!this.selected || !newVal.includes(parseInt(this.selected))) && newVal.length) {
-        this.selected = newVal[0].toString()
+        this.selected = newVal[newVal.length - 1].toString()
       }
     },
     telemetryDeviceId (id) {
+      if (id) {
+        this.selected = id.toString()
+      }
+    },
+    deviceIdForWatch (id) {
       if (id) {
         this.selected = id.toString()
       }
@@ -150,14 +159,6 @@ export default {
       opacity 0.7
     .q-tabs__arrow
       color white
-    // .q-tabs
-    //   height 100%
-    //   .q-tab-label
-    //     max-width 100px
-    //     overflow hidden
-    //     text-overflow ellipsis
-    //   .q-tab-panel
-    //     background-color rgba(0,0,0,.5)
   .color-modal
     .q-color-inputs
       display none

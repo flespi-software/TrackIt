@@ -1,5 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
+
+### [1.4.11] - 2024-08-13
+[feature] telemetry on/off button moved out from the right drawer; telemetry of the selected device is displayed automatically
+
 ### [1.4.10] - 2024-07-26
 [fix] color picker opening
 

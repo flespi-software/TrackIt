@@ -11,6 +11,7 @@
       :needShowMessages="params.needShowMessages"
       :needShowPlayer="params.needShowPlayer"
       :messages="allMessages"
+      :deviceIdForWatch="deviceIdForWatch"
       :telemetryDeviceId="telemetryDeviceId"
       :date="date"
       :markers="markers"
@@ -22,7 +23,8 @@
       @player-speed="playerSpeedChangeHandler"
       @player-mode="playerModeChange"
       @change-need-show-messages="(flag) => {$emit('change-need-show-messages', flag)}"
-      @change-selected="(active) => { selected = active }"
+      @change-selected="changeSelectedDeviceHandler"
+      @queue-created="queueCreatedHandler"
       @update-color="updateColorHandler"
       @view-on-map="viewOnMapHandler"
     />
@@ -63,11 +65,12 @@ export default {
     return {
       map: null,
       flyToZoom: 15,
+      isFlying: null,
       markers: {},
       tracks: {},
       telemetryDeviceId: -1,
-      activeDeviceID: 0,
       activeDevicesID: [],
+      devicesInitStatus: {},
       selected: null,
       currentColorModel: '#fff',
       currentColorId: 0,
@@ -190,6 +193,7 @@ export default {
       console.trace();
       this.map.once('zoomstart', e => {
         console.log(2);
+        this.isFlying = true
         const fromZoom = e.target._zoom
         if (fromZoom !== zoom) {
           isFlying = true
@@ -213,6 +217,7 @@ export default {
         }
       })
       this.map.once('zoomend', e => {
+        this.isFlying = false
         console.log(3);
         if (isFlying) {
           disabledLayout.forEach((layer) => {
@@ -425,10 +430,14 @@ export default {
       if (this.messages[id] && this.messages[id].length) {
         currentPos = [this.messages[id][this.messages[id].length - 1]['position.latitude'], this.messages[id][this.messages[id].length - 1]['position.longitude']]
       }
-      if (currentPos.length) {
+      if (currentPos && currentPos.length) {
         this.flyToWithHideTracks(currentPos, this.flyToZoom)
       } else {
-        this.$q.notify({ message: 'No Position!', color: 'warning' })
+        this.$q.notify({ 
+          message: 'No Position!', 
+          color: 'warning',
+          timeout: 500
+        })
       }
     },
     centerOnDevice (id) {
@@ -441,7 +450,11 @@ export default {
       if (currentPos.length) {
         this.map.setView(currentPos, 14, { animation: false })
       } else {
-        this.$q.notify({ message: 'No Position!', color: 'warning' })
+        this.$q.notify({ 
+          message: 'No Position!', 
+          color: 'warning',
+          timeout: 500
+        })
       }
     },
     generateFlag (props) {
@@ -513,6 +526,8 @@ export default {
           /* try to init device by telemetry */
           await this.$store.dispatch('getInitDataByDeviceId', id)
         }
+        // device initialization is completed - device is initialized either from messages or from telemetry
+        this.devicesInitStatus[id] = true
       }
     },
     async initDevice (id) {
@@ -529,15 +544,12 @@ export default {
           this.$store.dispatch(`messages/${id}/getMissedMessages`)
         }
       })
-      if (this.needInitWatchingDevice && id === this.deviceIdForWatch) {
+      if (id === this.deviceIdForWatch && this.devicesInitStatus[id] === true) {
         this.telemetryDeviceId = parseInt(id)
         this.$emit('update-telemetry-device-id', this.telemetryDeviceId)
         this.centerOnDevice(id)
       }
       this.$q.loading.hide()
-    },
-    initActiveDeviceID (id) {
-      this.activeDeviceID = id || 0
     },
     viewOnMapHandler (content) {
       if (content['position.latitude'] && content['position.longitude']) {
@@ -761,6 +773,14 @@ export default {
       this.markers[id].setIcon(this.generateIcon(id, this.markers[id].options.title, color))
       this.setColorById(id, color)
     },
+    changeSelectedDeviceHandler (id) {
+      this.selected = id
+      this.telemetryDeviceId = id
+      this.$emit('update-telemetry-device-id', this.telemetryDeviceId)
+    },
+    queueCreatedHandler () {
+      this.$emit('queue-created')
+    },
     registerModule (id) {
       this.$store.registerModule(
         ['messages', id],
@@ -832,7 +852,7 @@ export default {
         this.removeMarker(removeDeviceId)
         return false
       }
-      keyArr.forEach(id => this.updateOrInitDevice(id, !messages[id].length, oldKeyArr.includes(id)))
+      keyArr.forEach(id => this.updateOrInitDevice(id, messages[id].length > 0, oldKeyArr.includes(id)))
     }
   },
   watch: {
@@ -844,9 +864,6 @@ export default {
     },
     activeDevices (newVal) {
       const activeDevicesID = newVal.map((device) => device.id)
-      if (!this.activeDeviceID) {
-        activeDevicesID.forEach((id) => { this.initActiveDeviceID(id) })
-      }
       const currentDevicesID = Object.keys(this.messages).map(id => parseInt(id)),
         modifyType = currentDevicesID.length > activeDevicesID.length ? 'remove' : 'add'
       activeDevicesID.forEach((id) => {
@@ -867,12 +884,16 @@ export default {
               this.$store.commit(`messages/${id}/clear`)
             })
           }
+          removedDevicesID.forEach((id) => this.devicesInitStatus[id] = null)
           break
         }
         case 'add': {
           const addedDeviceID = activeDevicesID.filter(id => !currentDevicesID.includes(id))
           if (addedDeviceID) {
-            addedDeviceID.forEach((id) => { this.initDevice(id) })
+            addedDeviceID.forEach((id) => { 
+              this.devicesInitStatus[id] = false
+              this.initDevice(id) 
+            })
           }
           break
         }
@@ -882,7 +903,7 @@ export default {
       }
     },
     deviceIdForWatch (id) {
-      if (id) {
+      if (id && this.devicesInitStatus[id] === true) {
         this.flyToDevice(id)
       }
     },
@@ -908,7 +929,7 @@ export default {
       }
     },
     selected (active) {
-      if (this.tracks[active] && this.tracks[active] instanceof L.Polyline) {
+      if (!this.isFlying && this.tracks[active] && this.tracks[active] instanceof L.Polyline) {
         const bounding = this.tracks[active].getBounds()
         this.map.fitBounds(bounding)
       }
@@ -916,13 +937,11 @@ export default {
   },
   created () {
     this.debouncedUpdateStateByMessages = debounce(this.updateStateByMessages, 100)
-    if (this.deviceIdForWatch) {
-      this.needInitWatchingDevice = true
-    }
     this.activeDevicesID = this.activeDevices.map((device) => device.id)
     this.activeDevicesID.forEach((id) => {
       this.registerModule(id)
       this.$store.commit(`messages/${id}/setSortBy`, 'timestamp')
+      this.devicesInitStatus[id] = false
       this.initDevice(id)
     })
     Vue.connector.socket.on('offline', () => {

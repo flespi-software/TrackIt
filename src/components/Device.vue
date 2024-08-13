@@ -12,7 +12,11 @@
     </q-item-section>
     <q-item-section side class="text-center">
       <q-item-label>
-        <q-icon :class="[isDeviceWatched && activeDevicesID.includes(device.id) ? 'icon__send-active' : 'text-grey-5']" size="1.5rem" name="gps_fixed" @click.stop.native="watchDeviceHandler">
+        <q-icon 
+          :class="[isDeviceWatched && activeDevicesID.includes(device.id) ? 'icon__send-active' : 'text-grey-5']" 
+          size="1.5rem" 
+          name="gps_fixed" 
+          @click.stop.native="watchDeviceHandler">
           <q-tooltip v-model="watchTooltip" v-if="device.messages_ttl">Show on map</q-tooltip>
         </q-icon>
       </q-item-label>
@@ -60,7 +64,9 @@ export default {
       if (!this.activeDevicesID.includes(this.device.id)) {
         this.setActiveDevice()
       }
-      setTimeout(() => { this.isDeviceWatched ? this.$emit('update-watch-by-id', null) : this.$emit('update-watch-by-id', this.device.id) }, 500)
+      if (!this.isDeviceWatched) {
+        setTimeout(() => { this.$emit('update-watch-by-id', this.device.id) }, 500)
+      }
       setTimeout(() => { this.watchTooltip = false }, 500)
     }
   }

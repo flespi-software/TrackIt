@@ -20,3 +20,4 @@ yarn-error.log*
 *.ntvs*
 *.njsproj
 *.sln
+*.code-workspace

@@ -1,12 +1,22 @@
 <template>
   <q-layout ref="layout" view="hHh LpR lFf">
     <q-drawer v-if="isInit && needShowList" side="left" :no-swipe-open="$q.platform.is.desktop" :no-swipe-close="$q.platform.is.desktop" v-model="side_left" :breakpoint="576" behavior="mobile">
-      <device-list v-show="devices.length" @update-watch-by-id="setWatchToDeviceID" :deviceIdForWatch="deviceIdForWatch" :activeDevicesID="activeDevicesID" :devices="devices" @click-hide="side_left = false"/>
+      <device-list 
+        v-show="devices.length" 
+        :deviceIdForWatch="deviceIdForWatch" 
+        :activeDevicesID="activeDevicesID" 
+        :devices="devices" 
+        @update-watch-by-id="setWatchToDeviceID"
+        @click-hide="side_left = false"/>
     </q-drawer>
     <q-drawer side="right" no-swipe-open no-swipe-close :content-class="{'bg-grey-9':telemetrySettings.inverted}" v-model="side_right">
       <div style="position: relative; height: 100vh; overflow: hidden;">
         <q-item>
-          <q-item-section avatar><q-icon :color="telemetrySettings.inverted ? 'white' : ''" size="1.8rem" name="developer_board"/></q-item-section>
+          <q-item-section avatar>
+            <q-btn flat round small @click="telemetryButtonClickHandler">
+              <q-icon :color="telemetrySettings.inverted ? 'white' : ''" size="1.8rem" name="mdi-chevron-right"/>
+            </q-btn>
+          </q-item-section>
           <q-item-section>
             <q-item-label header class="ellipsis text-bold q-pa-none" :class="{'text-white': telemetrySettings.inverted}">Telemetry</q-item-label>
             <q-item-label v-if="deviceIdForTelemetry" caption class="ellipsis" :class="{'text-white': telemetrySettings.inverted}"><small>{{deviceForTelemetry.name || `#${deviceForTelemetry.id}`}}</small></q-item-label>
@@ -24,9 +34,6 @@
           </q-item-section>
         </q-item>
         <q-telemetry class="scroll" style="height: calc(100% - 128px)" v-if="deviceIdForTelemetry" :propHistoryFlag="telemetryConfig.propHistoryFlag" :device="deviceForTelemetry" :inverted="telemetrySettings.inverted" :search="telemetrySearch" />
-        <div v-else class="text-bold text-center q-mt-sm" :class="{'text-white': telemetrySettings.inverted}">
-          Select one by clicking on its <q-icon name="mdi-car-sports" size="1.2rem"/> marker
-        </div>
       </div>
     </q-drawer>
     <q-page-container>
@@ -82,22 +89,28 @@
             <q-btn dense style="pointer-events: auto" @click="openURL('https://flespi.io')" color="red-5" label="flespi.io"/>
           </div>
         </div>
-        <a v-if="$q.platform.is.desktop" href="https://github.com/flespi-software/TrackIt/" class="floated github" target="_blank"><q-btn flat round color="bg-grey-9"><img style="height: 30px;" src="GitHub-Mark-32px.png" alt="GitHub"><q-tooltip>Show on GitHub</q-tooltip></q-btn></a>
+        <a v-if="$q.platform.is.desktop" href="https://github.com/flespi-software/TrackIt/" class="floated github" target="_blank">
+          <q-btn flat round color="bg-grey-9" @click='this.side_right'>
+            <img style="height: 30px;" src="GitHub-Mark-32px.png" alt="GitHub">
+            <q-tooltip>Show on GitHub</q-tooltip>
+          </q-btn>
+        </a>
+        <q-btn small round flat size="md" class="floated telemetry" @click="telemetryButtonClickHandler">
+          <q-icon name="developer_board" />
+          <q-tooltip>Show/hide device telemetry</q-tooltip>
+        </q-btn>
         <q-btn small round flat size="md" class="floated options">
           <q-icon color="bg-grey-9" name="more_vert" />
           <q-menu ref="popover-menu">
             <q-list link separator class="scroll" style="min-width: 200px">
               <q-item>
-                <q-toggle @input="menuChangeHandler" :disabled="!devices.length" v-model="params.needShowMessages" icon="dvr" label="Messages" />
+                <q-toggle @input="paramsChangeHandler" :disabled="!devices.length" v-model="params.needShowMessages" icon="dvr" label="Messages" />
               </q-item>
               <q-item>
-                <q-toggle @input="menuChangeHandler" v-model="params.needShowPlayer" :disable="!devices.length" icon="mdi-play" label="Player" />
-              </q-item>
-              <q-item>
-                <q-toggle v-close-popup @input="menuChangeHandler" :disabled="!devices.length" v-model="params.needShowTelemetry" icon="av_timer" label="Telemetry" />
+                <q-toggle @input="paramsChangeHandler" v-model="params.needShowPlayer" :disable="!devices.length" icon="mdi-play" label="Player" />
               </q-item>
               <q-item v-if="!needHideNamesInMenu">
-                <q-toggle @input="menuChangeHandler" :disabled="!devices.length" v-model="params.needShowNamesOnMap" icon="pin_drop" label="Names" />
+                <q-toggle @input="paramsChangeHandler" :disabled="!devices.length" v-model="params.needShowNamesOnMap" icon="pin_drop" label="Names" />
               </q-item>
               <q-item class="within-iframe-hide" @click="exitHandler" clickable>
                 <q-item-section avatar class="q-pl-md">
@@ -112,6 +125,7 @@
         </q-btn>
         <map-component
           @update-telemetry-device-id="updateTelemetryDeviceId"
+          @queue-created="queueCreatedHandler"
           :activeDevices="activeDevices"
           :deviceIdForWatch="deviceIdForWatch"
           :params="params"
@@ -236,22 +250,26 @@ export default {
       this.updateTelemetryDeviceId(id)
       this.deviceIdForWatch = id
     },
-    menuChangeHandler (val) {
+    paramsChangeHandler (val) {
       setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'params', value: this.params })
+    },
+    telemetryButtonClickHandler() {
+      // open/close right drawer
+      this.side_right = !this.side_right
+      // update params.needShowTelemetry accordingly and save to local storage 
+      this.$set(this.params, 'needShowTelemetry', this.side_right)
+      this.paramsChangeHandler()
     },
     telemetrySettingsChangeHandler () {
       this.$set(this.telemetrySettings, 'inverted', !this.telemetrySettings.inverted)
-      setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'telemertySettings', value: this.telemetrySettings })
+      setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'telemetrySettings', value: this.telemetrySettings })
     },
     updateTelemetryDeviceId (id) {
-      if (this.deviceIdForTelemetry === id) {
-        this.setWatchToDeviceID(null)
-        return false
-      }
       const devicesById = this.devices.filter(device => device.id === id)
       if (devicesById.length) {
         this.deviceIdForTelemetry = id
         this.deviceIdForWatch = id
+        setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'selected', value: {id: id} })
         if (this.params.needShowTelemetry && this.deviceIdForTelemetry && this.activeDevicesID.includes(this.deviceIdForTelemetry)) {
           setTimeout(() => {
             if (id === this.deviceIdForWatch && this.$q.platform.is.mobile) {
@@ -262,6 +280,9 @@ export default {
       } else {
         this.deviceIdForTelemetry = null
       }
+    },
+    queueCreatedHandler () {
+      this.selectedDeviceIdProcess()
     },
     formatDate (timestamp) {
       return date.formatDate(timestamp, 'DD/MM/YYYY')
@@ -275,6 +296,12 @@ export default {
       const telemetrySettings = getFromStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'telemetrySettings' })
       if (telemetrySettings) {
         this.$set(this, 'telemetrySettings', Object.assign(this.telemetrySettings, telemetrySettings))
+      }
+    },
+    selectedDeviceIdProcess () {
+      const selectedDevice = getFromStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'selected'})
+      if (selectedDevice && selectedDevice.id) {
+        this.deviceIdForWatch = selectedDevice.id
       }
     },
     connectProcess () {
@@ -315,7 +342,7 @@ export default {
         } else if (names === 'false') {
           this.$set(this.params, 'needShowNamesOnMap', false)
         }
-        this.menuChangeHandler()
+        this.paramsChangeHandler()
       }
       if (devices) {
         const active = devices.split(',').map(id => +id)
@@ -339,13 +366,21 @@ export default {
     hasDevicesInit (val) {
       if (val) {
         this.$q.loading.hide()
-        // if (this.devices.length) {
-        //   this.side_left = true
-        // }
       } else {
         this.$q.loading.show()
       }
     },
+    activeDevicesID (newVal) {
+      if (!newVal.length) {
+        // the last device was unset, and there are no active devices left
+        this.deviceIdForTelemetry = null
+        this.deviceIdForWatch = null
+        setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'selected', value: {id: null} })
+      } else if (newVal.length === 1) {
+        // first active device was added to the active devices list
+        this.setWatchToDeviceID(newVal[0])
+      }
+    }, 
     deviceIdForWatch (id) {
       if (id) {
         this.side_left = false
@@ -356,12 +391,6 @@ export default {
         this.side_left = false
         this.side_right = false
       }
-      // else if (devices.length && !prev.length) {
-      //   this.side_left = true
-      // }
-    },
-    'params.needShowTelemetry': function (value) {
-      this.side_right = value
     }
   },
   created () {
@@ -379,10 +408,6 @@ export default {
     this.poolDevices().then(callback => { this.unsubscribeDevices = callback })
     if (this.activeDevicesID.length) {
       this.$router.push(`/devices/${this.activeDevicesID.join(',')}`)
-      // watching current device if it one
-      if (this.activeDevicesID.length === 1) {
-        this.deviceIdForWatch = this.activeDevicesID[0]
-      }
     }
     this.paramsProcess()
   },
@@ -409,6 +434,9 @@ export default {
       top 5px
       left 10px
     &.github
+      top 5px
+      right 100px
+    &.telemetry
       top 5px
       right 50px
     &.notifications
