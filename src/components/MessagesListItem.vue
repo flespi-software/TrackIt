@@ -2,7 +2,7 @@
   <div
     @click="itemClickHandler(index, item)"
     class="cursor-pointer"
-    :class="{'missed-items': item['x-flespi-status'], 'bg-white-opasity': selected, 'item--telemetry-inited': item['x-flespi-inited-by-telemetry']}"
+    :class="{'missed-items': item['x-flespi-status'], 'bg-white-opasity': selected, 'item--telemetry-inited': item['x-flespi-inited-by-telemetry'], 'item--invalid-position': item['position.valid'] === false}"
     :style="{height: `${itemHeight}px`, width: `${rowWidth}px`, borderBottom: item.delimiter ? 'solid 1px #f40' : '', color: selected ? '#333' : ''}"
   >
     <template v-for="(prop, k) in cols">
@@ -93,7 +93,9 @@ export default {
   .bg-white-opasity
     background-color rgba(255, 255, 255, .7)!important
   .item--telemetry-inited
-    background-color rgba(111, 101, 19, 0.7)!important
+    background-color rgba(161, 202, 230, 0.7)!important
+  .item--invalid-position
+    color rgba(211, 86, 117, 0.9)!important
   .list__item
     display inline-block
     min-height 19px

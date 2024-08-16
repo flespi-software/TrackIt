@@ -104,13 +104,24 @@
           <q-menu ref="popover-menu">
             <q-list link separator class="scroll" style="min-width: 200px">
               <q-item>
-                <q-toggle @input="paramsChangeHandler" :disabled="!devices.length" v-model="params.needShowMessages" icon="dvr" label="Messages" />
+                <q-toggle @input="paramsChangeHandler" :disabled="!devices.length" v-model="params.needShowMessages" icon="dvr" label="Messages">
+                  <q-tooltip>Show messages grid</q-tooltip>
+                </q-toggle>
               </q-item>
               <q-item>
-                <q-toggle @input="paramsChangeHandler" v-model="params.needShowPlayer" :disable="!devices.length" icon="mdi-play" label="Player" />
+                <q-toggle @input="paramsChangeHandler" :disable="!devices.length"  v-model="params.needShowPlayer" icon="mdi-play" label="Player">
+                  <q-tooltip>Show track player</q-tooltip>
+                </q-toggle>
               </q-item>
               <q-item v-if="!needHideNamesInMenu">
-                <q-toggle @input="paramsChangeHandler" :disabled="!devices.length" v-model="params.needShowNamesOnMap" icon="pin_drop" label="Names" />
+                <q-toggle @input="paramsChangeHandler" :disabled="!devices.length" v-model="params.needShowNamesOnMap" icon="pin_drop" label="Names">
+                  <q-tooltip>Display cars' names on the map</q-tooltip>
+                </q-toggle>
+              </q-item>
+              <q-item>
+                <q-toggle  @input="paramsChangeHandler" :disabled="!devices.length" v-model="params.needShowInvalidPositionMessages" icon="mdi-map-marker-off" label="Invalid Positions">
+                  <q-tooltip>Use messages with position.valid=false to display cars' positions on the map</q-tooltip>
+                </q-toggle>
               </q-item>
               <q-item class="within-iframe-hide" @click="exitHandler" clickable>
                 <q-item-section avatar class="q-pl-md">
@@ -159,6 +170,7 @@ export default {
       params: {
         needShowMessages: false,
         needShowTelemetry: false,
+        needShowInvalidPositionMessages: false,
         needShowNamesOnMap: true,
         needShowPlayer: true
       },

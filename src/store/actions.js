@@ -57,7 +57,7 @@ async function getLastUpdatePosition ({ commit, state }, selector) {
   return [from, to]
 }
 
-async function getInitDataByDeviceId ({ commit, state }, id) {
+async function getInitDataByDeviceId ({ commit, state }, [ id, showInvalidPositionMessages ] ) {
   if (!state.token) { return }
   const telemetryResp = await Vue.connector.gw.getDevicesTelemetry(id, 'position,ident'),
     telemetryRespData = telemetryResp.data
@@ -72,8 +72,12 @@ async function getInitDataByDeviceId ({ commit, state }, id) {
                     telemetryRespData.result[0].telemetry.position &&
                     telemetryRespData.result[0].telemetry.position.value ? telemetryRespData.result[0].telemetry.position.value : {},
     telemetryFields = Object.keys(telemetry)
-  if (!telemetryFields.length || (telemetry['valid'] !== undefined && telemetry['valid'] === false)) {
-    // no position in device's telemetry or position is invalid
+  if (!telemetryFields.length) {
+    // no position in device's telemetry
+    return false
+  }
+  if (!showInvalidPositionMessages && telemetry['valid'] !== undefined && telemetry['valid'] === false) {
+    // user doesn't want to see messages with invalid position, then filter out telemetry with position.valid=false
     return false
   }
   const initMessage = telemetryFields.reduce((message, paramName) => {

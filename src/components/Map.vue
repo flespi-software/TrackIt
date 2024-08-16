@@ -88,12 +88,26 @@ export default {
       messages (state) {
         return this.activeDevicesID.reduce((result, id) => {
           result[id] = state.messages[id].messages.reduce((result, message, index) => {
-            if (!!message['position.latitude'] && !!message['position.longitude'] && (!message.hasOwnProperty('position.valid') || (message.hasOwnProperty('position.valid') && message['position.valid'] === true))) {
-              Object.defineProperty(message, 'x-flespi-message-index', {
-                value: index,
-                enumerable: false
-              })
-              result.push(message)
+            if (!!message['position.latitude'] && !!message['position.longitude']) {
+              // pass message to the map only if it has position.latitude and position.longitude
+              if (!this.params.needShowInvalidPositionMessages) {
+                // don't pass messages with position.valid=false to the map
+                if (!message.hasOwnProperty('position.valid') || (message.hasOwnProperty('position.valid') && message['position.valid'] === true)) {
+                  // pass messages to the map disregarding pasition.valid parameter
+                  Object.defineProperty(message, 'x-flespi-message-index', {
+                    value: index,
+                    enumerable: false
+                  })
+                  result.push(message)
+                }
+              } else {
+                // pass messages to the map disregarding pasition.valid parameter
+                Object.defineProperty(message, 'x-flespi-message-index', {
+                  value: index,
+                  enumerable: false
+                })
+                result.push(message)
+              }
             }
             return result
           }, [])
@@ -524,7 +538,7 @@ export default {
         this.addFlags(id)
         if (!this.$store.state.messages[id].messages.length) {
           /* try to init device by telemetry */
-          await this.$store.dispatch('getInitDataByDeviceId', id)
+          await this.$store.dispatch('getInitDataByDeviceId', [id, this.params.needShowInvalidPositionMessages])
         }
         // device initialization is completed - device is initialized either from messages or from telemetry
         this.devicesInitStatus[id] = true
@@ -916,6 +930,15 @@ export default {
           this.markers[id].remove()
           this.map.removeLayer(this.markers[id].accuracy)
           this.initMarker(id, name, position)
+        }
+      })
+    },
+    'params.needShowInvalidPositionMessages' : function () {
+      this.activeDevicesID.forEach(async (id) => {
+        // reinit device data, as now device may have last position from telemetry
+        await this.getDeviceData(id)
+        if (id === this.deviceIdForWatch) {
+          this.centerOnDevice(id)
         }
       })
     },
