@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+### [1.4.12] - 2024-08-16
+[feature] Invalid Positions toggle added, which allows to enable positioning of the car on the map by the messages with position.valid=false. Messages with position.valid=true are displayed in red purple in the messages grid.
+
 ### [1.4.11] - 2024-08-13
 [feature] telemetry on/off button moved out from the right drawer; telemetry of the selected device is displayed automatically
 
