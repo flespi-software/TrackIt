@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+### [1.4.13] - 2024-08-22
+[update] leaflet and related packages
+
+[fix] fixed rendering of the track on the map when clicking messages in the grid
+
 ### [1.4.12] - 2024-08-16
 [feature] Invalid Positions toggle added, which allows to enable positioning of the car on the map by the messages with position.valid=false. Messages with position.valid=true are displayed in red purple in the messages grid.
 

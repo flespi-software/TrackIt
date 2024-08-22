@@ -23,7 +23,7 @@
             <q-item-label v-else caption class="ellipsis" :class="{'text-white': telemetrySettings.inverted}"><small>No selected device</small></q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-btn :color="telemetrySettings.inverted ? 'white' : 'grey'" flat class="text-grey" icon="filter_b_and_w" @click="telemetrySettingsChangeHandler">
+            <q-btn round :color="telemetrySettings.inverted ? 'white' : 'grey'" flat class="text-grey" icon="filter_b_and_w" @click="telemetrySettingsChangeHandler">
               <q-tooltip>Inverted</q-tooltip>
             </q-btn>
           </q-item-section>
@@ -38,7 +38,7 @@
     </q-drawer>
     <q-page-container>
       <q-page>
-        <q-btn @click="side_left = !side_left" small round flat color="bg-grey-9" size="md" v-if="devices.length && needShowList" class="floated menu">
+        <q-btn @click="side_left = !side_left" small round flat color="bg-grey-9" size="md" v-if="devices.length && needShowList" class="floated menu white-background">
           <q-icon name="menu" />
         </q-btn>
         <div class="floated label">
@@ -89,37 +89,37 @@
             <q-btn dense style="pointer-events: auto" @click="openURL('https://flespi.io')" color="red-5" label="flespi.io"/>
           </div>
         </div>
-        <a v-if="$q.platform.is.desktop" href="https://github.com/flespi-software/TrackIt/" class="floated github" target="_blank">
-          <q-btn flat round color="bg-grey-9" @click='this.side_right'>
+        <a v-if="$q.platform.is.desktop" href="https://github.com/flespi-software/TrackIt/" target="_blank">
+          <q-btn flat round color="bg-grey-9" @click='this.side_right' class="floated github white-background">
             <img style="height: 30px;" src="GitHub-Mark-32px.png" alt="GitHub">
             <q-tooltip>Show on GitHub</q-tooltip>
           </q-btn>
         </a>
-        <q-btn small round flat size="md" class="floated telemetry" @click="telemetryButtonClickHandler">
+        <q-btn small round flat size="md" class="floated telemetry white-background" @click="telemetryButtonClickHandler">
           <q-icon name="developer_board" />
           <q-tooltip>Show/hide device telemetry</q-tooltip>
         </q-btn>
-        <q-btn small round flat size="md" class="floated options">
+        <q-btn small round flat size="md" class="floated options white-background">
           <q-icon color="bg-grey-9" name="more_vert" />
           <q-menu ref="popover-menu">
             <q-list link separator class="scroll" style="min-width: 200px">
-              <q-item>
+              <q-item dense>
                 <q-toggle @input="paramsChangeHandler" :disabled="!devices.length" v-model="params.needShowMessages" icon="dvr" label="Messages">
                   <q-tooltip>Show messages grid</q-tooltip>
                 </q-toggle>
               </q-item>
-              <q-item>
+              <q-item dense>
                 <q-toggle @input="paramsChangeHandler" :disable="!devices.length"  v-model="params.needShowPlayer" icon="mdi-play" label="Player">
                   <q-tooltip>Show track player</q-tooltip>
                 </q-toggle>
               </q-item>
-              <q-item v-if="!needHideNamesInMenu">
+              <q-item dense v-if="!needHideNamesInMenu">
                 <q-toggle @input="paramsChangeHandler" :disabled="!devices.length" v-model="params.needShowNamesOnMap" icon="pin_drop" label="Names">
                   <q-tooltip>Display cars' names on the map</q-tooltip>
                 </q-toggle>
               </q-item>
-              <q-item>
-                <q-toggle  @input="paramsChangeHandler" :disabled="!devices.length" v-model="params.needShowInvalidPositionMessages" icon="mdi-map-marker-off" label="Invalid Positions">
+              <q-item dense>
+                <q-toggle  @input="paramsChangeHandler" :disabled="!devices.length" v-model="params.needShowInvalidPositionMessages" icon="mdi-map-marker-off" label="Drow invalid">
                   <q-tooltip>Use messages with position.valid=false to display cars' positions on the map</q-tooltip>
                 </q-toggle>
               </q-item>
@@ -450,7 +450,7 @@ export default {
       right 100px
     &.telemetry
       top 5px
-      right 50px
+      right 55px
     &.notifications
       top 5px
       right 100px
@@ -475,6 +475,8 @@ export default {
         opacity .5
         font-weight bolder
         text-transform uppercase
+    &.white-background
+      background rgba(255,255,255,0.3)
   .error-page
     height 100vh
     .error-code

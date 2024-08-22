@@ -203,10 +203,7 @@ export default {
     flyToWithHideTracks (position, zoom) {
       const disabledLayout = []
       let isFlying = false
-      console.log(position);
-      console.trace();
       this.map.once('zoomstart', e => {
-        console.log(2);
         this.isFlying = true
         const fromZoom = e.target._zoom
         if (fromZoom !== zoom) {
@@ -232,7 +229,6 @@ export default {
       })
       this.map.once('zoomend', e => {
         this.isFlying = false
-        console.log(3);
         if (isFlying) {
           disabledLayout.forEach((layer) => {
             this.map.addLayer(layer)
@@ -578,7 +574,7 @@ export default {
           })
         })
         this.map.messagePoint.addTo(this.map)
-        this.flyToWithHideTracks(position, currentZoom > 12 ? currentZoom : 12)
+        this.map.setView(position, currentZoom > 12 ? currentZoom : 12, { animation: false })
       } else {
         this.$q.notify({
           message: 'No position',
