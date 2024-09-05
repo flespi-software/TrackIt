@@ -30,7 +30,7 @@
         </q-item>
         <q-item v-if="deviceIdForTelemetry">
           <q-item-section>
-            <q-input type="text" label="Search" v-model="telemetrySearch" :dark="telemetrySettings.inverted" :color="telemetrySettings.inverted ? 'white' : 'grey'" outlined hide-bottom-space class="q-mb-xs"/>
+            <q-input dense type="text" label="Search" v-model="telemetrySearch" :dark="telemetrySettings.inverted" :color="telemetrySettings.inverted ? 'white' : 'grey'" outlined hide-bottom-space class="q-mb-xs"/>
           </q-item-section>
         </q-item>
         <q-telemetry class="scroll" style="height: calc(100% - 128px)" v-if="deviceIdForTelemetry" :propHistoryFlag="telemetryConfig.propHistoryFlag" :device="deviceForTelemetry" :inverted="telemetrySettings.inverted" :search="telemetrySearch" />
@@ -50,7 +50,7 @@
             </div>
           </div>
         </div>
-        <q-btn v-if="errors.length" @click="clearNotificationCounter" small flat round color="bg-grey-9" size="md" icon="notifications" class="floated notifications">
+        <q-btn v-if="errors.length" @click="clearNotificationCounter" small flat round color="bg-grey-9" size="md" icon="notifications" class="floated notifications white-background">
           <q-chip v-if="newNotificationCounter" color="red" class="absolute-top-right q-pa-xs text-white" style="font-size: .6rem;">{{newNotificationCounter}}</q-chip>
           <q-menu fit ref="popoverError">
             <q-list no-border style="max-height: 200px" link separator class="scroll">
@@ -97,18 +97,18 @@
         </a>
         <q-btn small round flat size="md" class="floated telemetry white-background" @click="telemetryButtonClickHandler">
           <q-icon name="developer_board" />
-          <q-tooltip>Show/hide device telemetry</q-tooltip>
+          <q-tooltip>Device telemetry</q-tooltip>
         </q-btn>
         <q-btn small round flat size="md" class="floated options white-background">
           <q-icon color="bg-grey-9" name="more_vert" />
           <q-menu ref="popover-menu">
             <q-list link separator class="scroll" style="min-width: 200px">
-              <q-item dense>
+              <q-item dense v-if="!needHideMessagesInMenu">
                 <q-toggle @input="paramsChangeHandler" :disabled="!devices.length" v-model="params.needShowMessages" icon="dvr" label="Messages">
                   <q-tooltip>Show messages grid</q-tooltip>
                 </q-toggle>
               </q-item>
-              <q-item dense>
+              <q-item dense v-if="!needHidePlayerInMenu">
                 <q-toggle @input="paramsChangeHandler" :disable="!devices.length"  v-model="params.needShowPlayer" icon="mdi-play" label="Player">
                   <q-tooltip>Show track player</q-tooltip>
                 </q-toggle>
@@ -118,7 +118,7 @@
                   <q-tooltip>Display cars' names on the map</q-tooltip>
                 </q-toggle>
               </q-item>
-              <q-item dense>
+              <q-item dense v-if="!needHideInvalidInMenu">
                 <q-toggle  @input="paramsChangeHandler" :disabled="!devices.length" v-model="params.needShowInvalidPositionMessages" icon="mdi-map-marker-off" label="Drow invalid">
                   <q-tooltip>Use messages with position.valid=false to display cars' positions on the map</q-tooltip>
                 </q-toggle>
@@ -167,6 +167,9 @@ export default {
       deviceIdForTelemetry: null,
       needShowList: true,
       needHideNamesInMenu: false,
+      needHidePlayerInMenu: false,
+      needHideMessagesInMenu: false,
+      needHideInvalidInMenu: false,
       params: {
         needShowMessages: false,
         needShowTelemetry: false,
@@ -246,7 +249,6 @@ export default {
       'setDevicesInit',
       'unsetDevicesInit',
       'setActiveDevice',
-      'reqFailed',
       'clearNotificationCounter',
       'clearErrors'
     ]),
@@ -336,6 +338,9 @@ export default {
         to = this.$route.query.to,
         hidelist = this.$route.query.hidelist || getFromStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'hidelist' }),
         names = this.$route.query.names || getFromStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'names' }),
+        player = this.$route.query.player || getFromStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'player' }),
+        messages = this.$route.query.messages || getFromStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'messages' }),
+        invalid = this.$route.query.invalid || getFromStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'invalid' }),
         devices = this.$route.params.devices
       if (from && to) {
         this.date = [from * 1000, to * 1000]
@@ -353,6 +358,36 @@ export default {
           this.$set(this.params, 'needShowNamesOnMap', true)
         } else if (names === 'false') {
           this.$set(this.params, 'needShowNamesOnMap', false)
+        }
+        this.paramsChangeHandler()
+      }
+      if (player) {
+        this.needHidePlayerInMenu = true
+        setToStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'player', value: player })
+        if (player === 'true') {
+          this.$set(this.params, 'needShowPlayer', true)
+        } else if (player === 'false') {
+          this.$set(this.params, 'needShowPlayer', false)
+        }
+        this.paramsChangeHandler()
+      }
+      if (messages) {
+        this.needHideMessagesInMenu = true
+        setToStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'messages', value: messages })
+        if (messages === 'true') {
+          this.$set(this.params, 'needShowMessages', true)
+        } else if (messages === 'false') {
+          this.$set(this.params, 'needShowMessages', false)
+        }
+        this.paramsChangeHandler()
+      }
+      if (invalid) {
+        this.needHideInvalidInMenu = true
+        setToStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'invalid', value: invalid })
+        if (invalid === 'true') {
+          this.$set(this.params, 'needShowInvalidPositionMessages', true)
+        } else if (invalid === 'false') {
+          this.$set(this.params, 'needShowInvalidPositionMessages', false)
         }
         this.paramsChangeHandler()
       }
@@ -453,7 +488,7 @@ export default {
       right 55px
     &.notifications
       top 5px
-      right 100px
+      right 145px
     &.options
       top 5px
       right 10px

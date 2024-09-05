@@ -61,7 +61,6 @@ const config = {
 export default {
   props: [
     'mode',
-    'item',
     'activeDeviceId',
     'limit',
     'messages',

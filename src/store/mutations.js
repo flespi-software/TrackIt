@@ -152,7 +152,7 @@ function clearToken (state) {
   Vue.set(state, 'token', '')
 }
 function setActiveDevice (state, id) {
-  if (state.activeDevicesID.includes(id) || (state.hasDevicesInit && !state.devices.filter(device => device.id === id)[0].messages_ttl)) {
+  if (state.activeDevicesID.includes(id)) {
     return
   }
   state.activeDevicesID.push(id)

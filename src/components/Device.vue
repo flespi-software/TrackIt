@@ -1,6 +1,10 @@
 <template>
-  <q-item :highlight="$q.platform.is.desktop" :class="[model ? 'device-item__active': '', device.messages_ttl ? '' : 'disabled']" clickable @click="deviceClickHandler">
-    <q-tooltip v-if="!device.messages_ttl">You should set messages ttl more than 0</q-tooltip>
+  <q-item 
+    :highlight="$q.platform.is.desktop" 
+    :class="[model ? 'device-item__active': '', device['x-flespi-no-access'] ? 'inactive-device' : '']" 
+    clickable
+    @click="deviceClickHandler">
+    <q-tooltip v-if="device['x-flespi-no-access']">Device has no access to messages and telemetry</q-tooltip>
     <q-item-section avatar :class="[model ? 'text-green-2': '']" class="flex flex-center">
       <q-icon name="developer_board" />
       <small>#{{device.id}}</small>
@@ -17,7 +21,7 @@
           size="1.5rem" 
           name="gps_fixed" 
           @click.stop.native="watchDeviceHandler">
-          <q-tooltip v-model="watchTooltip" v-if="device.messages_ttl">Show on map</q-tooltip>
+          <q-tooltip v-model="watchTooltip">Show on map</q-tooltip>
         </q-icon>
       </q-item-label>
     </q-item-section>
@@ -50,17 +54,12 @@ export default {
       }
     },
     setActiveDevice () {
-      if (this.device.messages_ttl) {
-        this.$store.commit('setActiveDevice', this.device.id)
-      }
+      this.$store.commit('setActiveDevice', this.device.id)
     },
     unsetActiveDevice () {
       this.$store.commit('unsetActiveDevice', this.device.id)
     },
     watchDeviceHandler () {
-      if (!this.device.messages_ttl) {
-        return false
-      }
       if (!this.activeDevicesID.includes(this.device.id)) {
         this.setActiveDevice()
       }
@@ -78,4 +77,6 @@ export default {
     background-color $grey-7
   .icon__send-active
     color white
+  .inactive-device
+    box-shadow inset 0 0 10px #f40
 </style>

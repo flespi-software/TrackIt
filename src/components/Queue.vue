@@ -12,7 +12,6 @@
             :id="deviceID"
             :messages="messages[deviceID]"
             :date="date"
-            :device="devices[deviceID]"
             :needShowMessages="needShowMessages"
             :needShowPlayer="needShowPlayer"
             :player="player"
@@ -28,9 +27,11 @@
         </q-tab-panel>
     </q-tab-panels>
     <q-tabs v-if="devices.length > 1" v-model="selected" align="left" class="bg-grey-9" dark indicator-color="white">
-      <q-tab v-for="(deviceID) in activeDevicesID" :key="`tab-${deviceID}`" :name="deviceID.toString()">
+      <q-tab v-for="(deviceID) in activeDevicesID" :key="`tab-${deviceID}`" :name="deviceID.toString()" :class="{'inactive-device': checkDeviceInactive(deviceID)}">
+        <q-tooltip v-if="deviceTabTooltips[deviceID]">{{deviceTabTooltips[deviceID]}}</q-tooltip>
         <div class="text-white">
           <div v-if="messages[deviceID].length && markers[deviceID]" :style="{backgroundColor: markers[deviceID].color}" class="color-view q-mr-xs" @click.stop="changeColorHandler(deviceID)"></div>
+          <div v-else :style="{backgroundColor: '#909090'}" class="color-view q-mr-xs"></div>
           {{getNameById(deviceID)}}
         </div>
       </q-tab>
@@ -59,6 +60,7 @@ export default {
   data () {
     return {
       selected: null,
+      deviceTabTooltips: {},
       telemetryOfActiveDevices: this.devices.filter(device => this.activeDevicesID.includes(device.id)).reduce((res, device) => {
         res[device.id] = device.telemetry ? device.telemetry : null
         return res
@@ -80,6 +82,16 @@ export default {
   methods: {
     getNameById (id) {
       return this.devices.filter(device => device.id === id)[0].name || `<#${id}>`
+    },
+    checkDeviceInactive (id) {
+      /* check if this device is inactive to highlight its tab */
+      const device = this.devices.filter(device => device.id === id)[0]
+      if (device && device['x-flespi-no-access']) {
+        /* the device doesn't have access to messages and telemetry */
+        this.deviceTabTooltips[id] = 'Device has no access to messages and telemetry'
+        return true
+      }
+      return false
     },
     playHandler (data) {
       this.$emit('player-value', data)
@@ -150,6 +162,8 @@ export default {
       height 12px
       border solid white 2px
       border-radius 50%
+    .inactive-device
+      box-shadow inset 0 0 10px #f40
     .table__wrapper
       overflow auto
       font-size 80%

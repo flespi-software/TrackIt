@@ -4,7 +4,6 @@
       <messages
         style="height: 100%;"
         :messages="messages"
-        :item="device"
         :activeDeviceId="id"
         :limit="0"
         :date="date"
@@ -14,7 +13,7 @@
       ></messages>
     </div>
     <div>
-      <q-resize-observer @resize="onResizePayer" ref="playerResize"/>
+      <q-resize-observer @resize="onResizePlayer" ref="playerResize"/>
       <player
         ref="player"
         v-model="playerValue"
@@ -182,11 +181,11 @@ export default {
       this.messagesFlag = !this.messagesFlag
       this.$emit('change-need-show-messages', this.messagesFlag)
     },
-    switchPlayerMode() {
+    switchPlayerMode () {
       this.playerMode = this.playerMode === 'data' ? 'time' : 'data'
       this.$emit('player-mode', {mode: this.playerMode, id: this.id})
     },
-    onResizePayer(size) {
+    onResizePlayer (size) {
       this.playerHeight = size.height
     }
   },

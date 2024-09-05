@@ -1,12 +1,12 @@
 <template>
   <q-list separator class="bg-grey-9 text-white">
-    <q-item-label ref="header" style="height: 138px; line-height: 58px!important;">
+    <q-item-label ref="header" style="height: 110px; line-height: 58px!important;">
       <big>
         <q-icon name="mdi-arrow-left" size="1.8rem" class="cursor-pointer" style="margin-right: 15px" @click.native="$emit('click-hide')"/>
         Devices
       </big>
       <div class="q-px-sm">
-        <q-input v-model="filter" dark color="white" outlined label="Filter" hide-bottom-space></q-input>
+        <q-input v-model="filter" dense dark color="white" outlined label="Filter" hide-bottom-space></q-input>
       </div>
     </q-item-label>
     <VirtualList
@@ -85,8 +85,8 @@ export default {
       this.$emit('update-watch-by-id', id)
     },
     onResize (height) {
-      this.height = height - 138
-      this.itemsCount = Math.ceil((height - 138) / 68)
+      this.height = height - 110
+      this.itemsCount = Math.ceil((height - 110) / 68)
     }
   },
   watch: {

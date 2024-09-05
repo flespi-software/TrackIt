@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+### [1.5.0] - 2024-09-05
+[feature] updating device on map by telemetry, if there is no access to device's messages
+
 ### [1.4.13] - 2024-08-22
 [update] leaflet and related packages
 
