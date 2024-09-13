@@ -5,7 +5,7 @@
   >
     <div class="col-12 col-md-auto">
       <q-btn
-        icon="dvr"
+        icon="mdi-mail"
         :color="needShowMessages ? 'blue' : 'white'"
         :size="$q.platform.is.desktop ? '1rem' : 'md'"
         round

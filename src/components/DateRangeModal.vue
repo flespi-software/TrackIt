@@ -1,6 +1,6 @@
 <template>
   <div class="q-v-date-range-picker" style="min-width: 180px">
-    <q-btn :color="theme.bgColor" flat dense @click="prevHandler" icon="keyboard_arrow_left">
+    <q-btn :color="theme.bgColor" flat dense @click="prevHandler" icon="mdi-chevron-left">
       <q-tooltip>Previous time range</q-tooltip>
     </q-btn>
     <q-btn @click="dateRangeToggle" flat :color="theme.bgColor" style="min-width: 124px; font-size: .8rem; line-height: .8rem;" class="q-pa-none">
@@ -11,7 +11,7 @@
       </div>
       <q-tooltip>Change time</q-tooltip>
     </q-btn>
-    <q-btn :color="theme.bgColor" flat dense @click="nextHandler" icon="keyboard_arrow_right">
+    <q-btn :color="theme.bgColor" flat dense @click="nextHandler" icon="mdi-chevron-right">
       <q-tooltip>Next time range</q-tooltip>
     </q-btn>
     <q-dialog ref="dateRangePickerModal" content-class="modal-date-range">

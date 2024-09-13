@@ -1,32 +1,81 @@
 <template>
-  <q-layout ref="layout" view="hHh LpR lFf">
-    <q-drawer v-if="isInit && needShowList" side="left" :no-swipe-open="$q.platform.is.desktop" :no-swipe-close="$q.platform.is.desktop" v-model="side_left" :breakpoint="576" behavior="mobile">
+  <q-layout ref="layout" view="hHh LpR lFf" @click.stop="layoutCkickHandler">
+    <q-drawer 
+      v-if="isInit && needShowList" 
+      id="left_drawer"
+      v-model="devicesListSettings.opened" 
+      side="left"
+      :no-swipe-open="$q.platform.is.desktop" 
+      :no-swipe-close="$q.platform.is.desktop"
+      :breakpoint="576"
+      :overlay="!devicesListSettings.pinned"
+    >
       <device-list 
         v-show="devices.length" 
         :deviceIdForWatch="deviceIdForWatch" 
         :activeDevicesID="activeDevicesID" 
-        :devices="devices" 
-        @update-watch-by-id="setWatchToDeviceID"
-        @click-hide="side_left = false"/>
+        :devices="devices"
+        :devicesListPinned="devicesListSettings.pinned"
+        @show-on-map-in-devices-list-click="showOnMapClickHandler"
+        @device-in-devices-list-ckick="deviceInListClickHandler"
+        @click-hide="devicesListOpenedHandler(false)"
+        @devices-list-pinned="devicesListPinnedHandler"
+      />
     </q-drawer>
-    <q-drawer side="right" no-swipe-open no-swipe-close :content-class="{'bg-grey-9':telemetrySettings.inverted}" v-model="side_right">
+    <q-drawer 
+      v-model="telemetrySettings.opened"
+      side="right" 
+      no-swipe-open 
+      no-swipe-close 
+      :content-class="{'bg-grey-9':telemetrySettings.inverted}"  
+    >
       <div style="position: relative; height: 100vh; overflow: hidden;">
         <q-item>
           <q-item-section avatar>
-            <q-btn flat round small @click="telemetryButtonClickHandler">
-              <q-icon :color="telemetrySettings.inverted ? 'white' : ''" size="1.8rem" name="mdi-chevron-right"/>
-            </q-btn>
+            <q-btn 
+              flat 
+              round 
+              small 
+              icon="mdi-chevron-right"
+              :color="telemetrySettings.inverted ? 'white' : ''"
+              @click="telemetryButtonClickHandler"
+            />
           </q-item-section>
           <q-item-section>
-            <q-item-label header class="ellipsis text-bold q-pa-none" :class="{'text-white': telemetrySettings.inverted}">Telemetry</q-item-label>
-            <q-item-label v-if="deviceIdForTelemetry" caption class="ellipsis" :class="{'text-white': telemetrySettings.inverted}"><small>{{deviceForTelemetry.name || `#${deviceForTelemetry.id}`}}</small></q-item-label>
-            <q-item-label v-else caption class="ellipsis" :class="{'text-white': telemetrySettings.inverted}"><small>No selected device</small></q-item-label>
+            <q-item-label header class="ellipsis text-bold q-pa-none" style="font-size: 1.3rem" :class="{'text-white': telemetrySettings.inverted}">Telemetry</q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-btn round :color="telemetrySettings.inverted ? 'white' : 'grey'" flat class="text-grey" icon="filter_b_and_w" @click="telemetrySettingsChangeHandler">
+            <q-btn 
+              round 
+              flat
+              icon="mdi-image-filter-black-white"
+              class="text-grey"
+              :color="telemetrySettings.inverted ? 'white' : 'grey'"
+              @click="telemetryInvertedHandler"
+            >
               <q-tooltip>Inverted</q-tooltip>
             </q-btn>
           </q-item-section>
+        </q-item>
+        <q-item v-if="deviceIdForTelemetry">
+          <q-item-section avatar class="flex flex-center" :class="{'text-grey-4': telemetrySettings.inverted}">
+            <q-icon name="mdi-developer-board" />
+            <small>#{{deviceForTelemetry.id}}</small>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label class="ellipsis q-pa-none" :class="{'text-grey-4': telemetrySettings.inverted}" header>{{deviceForTelemetry.name || '&lt;noname&gt;'}}
+              <q-tooltip>{{deviceForTelemetry.name || '&lt;noname&gt;'}}</q-tooltip>
+            </q-item-label>
+            <q-item-label class="ellipsis" :class="{'text-grey-4': telemetrySettings.inverted}" caption>
+              <q-icon name="mdi-label-outline" /> {{deviceForTelemetry.configuration && deviceForTelemetry.configuration.ident ? deviceForTelemetry.configuration.ident : '&lt;no ident&gt;'}}
+            </q-item-label>
+            <q-item-label  :class="{'text-grey-4': telemetrySettings.inverted}" caption>
+              <q-icon name="mdi-phone" /> {{deviceForTelemetry.configuration && deviceForTelemetry.configuration.phone ? deviceForTelemetry.configuration.phone : '&lt;no phone&gt;'}}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item v-else>
+          <q-item-label header class="ellipsis text-bold" :class="{'text-white': telemetrySettings.inverted}" style="width: 100%; text-align: center">No selected device</q-item-label>
         </q-item>
         <q-item v-if="deviceIdForTelemetry">
           <q-item-section>
@@ -38,9 +87,17 @@
     </q-drawer>
     <q-page-container>
       <q-page>
-        <q-btn @click="side_left = !side_left" small round flat color="bg-grey-9" size="md" v-if="devices.length && needShowList" class="floated menu white-background">
-          <q-icon name="menu" />
-        </q-btn>
+        <q-btn 
+          v-if="devices.length && needShowList" 
+          small 
+          round 
+          flat
+          color="bg-grey-9" 
+          size="md"
+          class="floated menu white-background"
+          icon="mdi-menu"
+          @click.stop="devicesListOpenedHandler(!devicesListSettings.opened)"
+        />
         <div class="floated label">
           <img src="track-it-logo.png" alt="Track it!" style="height: 40px; margin-top: 3px; display: inline-block">
           <div class="q-toolbar-title" style="color: rgb(51, 51, 51); display: inline-block">
@@ -50,7 +107,7 @@
             </div>
           </div>
         </div>
-        <q-btn v-if="errors.length" @click="clearNotificationCounter" small flat round color="bg-grey-9" size="md" icon="notifications" class="floated notifications white-background">
+        <q-btn v-if="errors.length" @click="clearNotificationCounter" small flat round color="bg-grey-9" size="md" icon="mdi-bell" class="floated notifications white-background">
           <q-chip v-if="newNotificationCounter" color="red" class="absolute-top-right q-pa-xs text-white" style="font-size: .6rem;">{{newNotificationCounter}}</q-chip>
           <q-menu fit ref="popoverError">
             <q-list no-border style="max-height: 200px" link separator class="scroll">
@@ -77,7 +134,13 @@
         <div v-if="!activeDevicesID.length && devices.length" class="floated no-devices">
           <span class="no-devices__message">You have no selected devices</span>
           <div style="margin-top: 15px;">
-            <q-btn icon="menu" style="pointer-events: auto" @click="side_left = !side_left" color="black" size="md">
+            <q-btn 
+              icon="mdi-menu" 
+              style="pointer-events: auto" 
+              color="black" 
+              size="md"
+              @click.stop="devicesListOpenedHandler(!devicesListSettings.opened)" 
+            >
               select devices
             </q-btn>
           </div>
@@ -90,21 +153,19 @@
           </div>
         </div>
         <a v-if="$q.platform.is.desktop" href="https://github.com/flespi-software/TrackIt/" target="_blank">
-          <q-btn flat round color="bg-grey-9" @click='this.side_right' class="floated github white-background">
+          <q-btn flat round color="bg-grey-9" class="floated github white-background">
             <img style="height: 30px;" src="GitHub-Mark-32px.png" alt="GitHub">
             <q-tooltip>Show on GitHub</q-tooltip>
           </q-btn>
         </a>
-        <q-btn small round flat size="md" class="floated telemetry white-background" @click="telemetryButtonClickHandler">
-          <q-icon name="developer_board" />
+        <q-btn small round flat size="md" class="floated telemetry white-background" @click="telemetryButtonClickHandler" icon="mdi-list-box-outline">
           <q-tooltip>Device telemetry</q-tooltip>
         </q-btn>
-        <q-btn small round flat size="md" class="floated options white-background">
-          <q-icon color="bg-grey-9" name="more_vert" />
+        <q-btn small round flat size="md" class="floated options white-background" color="bg-grey-9" icon="mdi-dots-vertical">
           <q-menu ref="popover-menu">
             <q-list link separator class="scroll" style="min-width: 200px">
               <q-item dense v-if="!needHideMessagesInMenu">
-                <q-toggle @input="paramsChangeHandler" :disabled="!devices.length" v-model="params.needShowMessages" icon="dvr" label="Messages">
+                <q-toggle @input="paramsChangeHandler" :disabled="!devices.length" v-model="params.needShowMessages" icon="mdi-mail" label="Messages">
                   <q-tooltip>Show messages grid</q-tooltip>
                 </q-toggle>
               </q-item>
@@ -114,7 +175,7 @@
                 </q-toggle>
               </q-item>
               <q-item dense v-if="!needHideNamesInMenu">
-                <q-toggle @input="paramsChangeHandler" :disabled="!devices.length" v-model="params.needShowNamesOnMap" icon="pin_drop" label="Names">
+                <q-toggle @input="paramsChangeHandler" :disabled="!devices.length" v-model="params.needShowNamesOnMap" icon="mdi-map-marker-radius-outline" label="Names">
                   <q-tooltip>Display cars' names on the map</q-tooltip>
                 </q-toggle>
               </q-item>
@@ -125,7 +186,7 @@
               </q-item>
               <q-item class="within-iframe-hide" @click="exitHandler" clickable>
                 <q-item-section avatar class="q-pl-md">
-                  <q-icon name="exit_to_app" />
+                  <q-icon name="mdi-exit-to-app" />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>Exit</q-item-label>
@@ -172,15 +233,17 @@ export default {
       needHideInvalidInMenu: false,
       params: {
         needShowMessages: false,
-        needShowTelemetry: false,
         needShowInvalidPositionMessages: false,
         needShowNamesOnMap: true,
         needShowPlayer: true
       },
-      side_left: false,
-      side_right: false,
+      devicesListSettings: {
+        opened: false,      // current status of the left drawer: opened/closed
+        pinned: false       // state of the left drawer: is it pinned (to prevent automatical closing) or not
+      },
       telemetrySettings: {
-        inverted: true
+        inverted: true,
+        opened: false
       },
       telemetrySearch: '',
       telemetryConfig: {
@@ -260,21 +323,56 @@ export default {
       this.clearCurrentRegion()
       this.$router.push('/login')
     },
-    setWatchToDeviceID (id) {
-      this.updateTelemetryDeviceId(id)
-      this.deviceIdForWatch = id
+    layoutCkickHandler (event) {
+      /* will close left drawer if user clicked outside the drawer */
+      /* this immitates mobile behavior - automatic closing of the left drawer if it isn't pinned */
+      if (!this.devicesListSettings.opened) {
+        /* left drawer is already closed, nothing to do here */
+        return
+      }
+      if (!event.target.closest('#left_drawer') && !this.devicesListSettings.pinned) {
+        /* click outside of the unpinned left drawer - close it */
+        this.devicesListOpenedHandler(false)
+      }
+    },
+    devicesListPinnedHandler (pinned) {
+      /* 'device-list-pinned' event handler */
+      /* the event is generated by pin button inside DeviceList component */
+      this.devicesListSettings.pinned = pinned
+      setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'devicesListSettings', value: this.devicesListSettings })
+    },
+    devicesListOpenedHandler (state) {
+      /* open-close the left drawer handler */
+      this.devicesListSettings.opened = state
+      setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'devicesListSettings', value: this.devicesListSettings })
+    },
+    showOnMapClickHandler (id) {
+      /* user clicked 'Show on map' button for this device in the devices list (in the left drawer) */
+      if (id) {
+        this.updateTelemetryDeviceId(id)
+        this.deviceIdForWatch = id
+      }
+      if (this.$q.platform.is.mobile || !this.devicesListSettings.pinned) {
+        /* close devices list when device is selected, unless left drawer is pinned */
+        this.devicesListOpenedHandler(false)
+      }
+    },
+    deviceInListClickHandler () {
+      if (this.$q.platform.is.mobile || !this.devicesListSettings.pinned) {
+        /* close devices list when device is selected, unless left drawer is pinned */
+        this.devicesListOpenedHandler(false)
+      }
     },
     paramsChangeHandler (val) {
       setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'params', value: this.params })
     },
     telemetryButtonClickHandler() {
-      // open/close right drawer
-      this.side_right = !this.side_right
-      // update params.needShowTelemetry accordingly and save to local storage 
-      this.$set(this.params, 'needShowTelemetry', this.side_right)
-      this.paramsChangeHandler()
+      /* right drawer with telemetry open/close handler */
+      this.$set(this.telemetrySettings, 'opened', !this.telemetrySettings.opened)
+      setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'telemetrySettings', value: this.telemetrySettings })
     },
-    telemetrySettingsChangeHandler () {
+    telemetryInvertedHandler () {
+      /* telementry inverted button handler*/
       this.$set(this.telemetrySettings, 'inverted', !this.telemetrySettings.inverted)
       setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'telemetrySettings', value: this.telemetrySettings })
     },
@@ -284,7 +382,7 @@ export default {
         this.deviceIdForTelemetry = id
         this.deviceIdForWatch = id
         setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'selected', value: {id: id} })
-        if (this.params.needShowTelemetry && this.deviceIdForTelemetry && this.activeDevicesID.includes(this.deviceIdForTelemetry)) {
+        if (this.telemetrySettings.opened && this.deviceIdForTelemetry && this.activeDevicesID.includes(this.deviceIdForTelemetry)) {
           setTimeout(() => {
             if (id === this.deviceIdForWatch && this.$q.platform.is.mobile) {
               return false
@@ -301,15 +399,21 @@ export default {
     formatDate (timestamp) {
       return date.formatDate(timestamp, 'DD/MM/YYYY')
     },
-    paramsProcess () {
+    initUserSelectionsFromLS () {
+      /* init drop-down menu params from local storage */
       const params = getFromStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'params' })
       if (params) {
         this.$set(this, 'params', Object.assign(this.params, params))
-        this.side_right = params.needShowTelemetry
       }
+      /* init right drawer (telemetry) settings from localstorage */
       const telemetrySettings = getFromStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'telemetrySettings' })
       if (telemetrySettings) {
         this.$set(this, 'telemetrySettings', Object.assign(this.telemetrySettings, telemetrySettings))
+      }
+      /* init left drawer (devices list) settings from localstorage */
+      const devicesListSettings = getFromStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'devicesListSettings' })
+      if (devicesListSettings) {
+        this.$set(this, 'devicesListSettings', Object.assign(this.devicesListSettings, devicesListSettings))
       }
     },
     selectedDeviceIdProcess () {
@@ -425,18 +529,13 @@ export default {
         setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'selected', value: {id: null} })
       } else if (newVal.length === 1) {
         // first active device was added to the active devices list
-        this.setWatchToDeviceID(newVal[0])
+        this.updateTelemetryDeviceId(newVal[0])
+        this.deviceIdForWatch = newVal[0]
       }
     }, 
-    deviceIdForWatch (id) {
-      if (id) {
-        this.side_left = false
-      }
-    },
     devices (devices, prev) {
       if (!devices.length) {
-        this.side_left = false
-        this.side_right = false
+        this.telemetrySettings.opened = false
       }
     }
   },
@@ -456,7 +555,7 @@ export default {
     if (this.activeDevicesID.length) {
       this.$router.push(`/devices/${this.activeDevicesID.join(',')}`)
     }
-    this.paramsProcess()
+    this.initUserSelectionsFromLS()
   },
   destroyed () {
     this.unsubscribeDevices && this.unsubscribeDevices()

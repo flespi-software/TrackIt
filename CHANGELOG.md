@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+### [1.5.1] - 2024-09-12
+[feature] pin button for left drawer with the list of devices
+
 ### [1.5.0] - 2024-09-05
 [feature] updating device on map by telemetry, if there is no access to device's messages
 
