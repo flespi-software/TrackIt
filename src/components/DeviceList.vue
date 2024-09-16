@@ -2,26 +2,27 @@
   <q-list separator class="bg-grey-9 text-white">
     <q-item ref="header" style="height: 60px; line-height: 58px!important;">
       <q-item-section avatar>
-        <q-btn 
-          flat 
-          round 
-          small 
-          icon="mdi-arrow-left" 
+        <q-btn
+          flat
+          round
+          small
+          icon="mdi-arrow-left"
           style="margin-right: 15px"
-          @click.native="$emit('click-hide')" 
+          @click.native="$emit('click-hide')"
         />
       </q-item-section>
       <q-item-section>
         <q-item-label header class="text-bold text-white q-pa-none" style="font-size: 1.3rem">Devices</q-item-label>
       </q-item-section>
       <q-item-section side>
-        <q-btn 
+        <q-btn
           v-if="$q.platform.is.desktop"
-          round 
-          flat 
-          icon="mdi-pin" 
-          class="text-grey" 
-          :class="{'pinned': devicesListPinned}" 
+          round
+          flat
+          small
+          :icon="devicesListPinned ? 'mdi-pin' : 'mdi-pin-outline'"
+          class="text-grey"
+          :class="{'unpinned': !devicesListPinned}"
           @click="$emit('devices-list-pinned', !devicesListPinned)"
         >
           <q-tooltip v-if="devicesListPinned">Unpin devices list</q-tooltip>
@@ -41,13 +42,15 @@
       :remain="itemsCount"
       :style="{height: `${height}px`}"
     >
-      <device 
-        v-for="device in filteredDevices" 
-        :key="device.id" 
-        :device="device" 
-        :activeDevicesID="activeDevicesID" 
-        :isDeviceWatched="deviceIdForWatch === device.id" 
-        @show-on-map-in-devices-list-click="$emit('show-on-map-in-devices-list-click', device.id)"
+      <device
+        v-for="device in filteredDevices"
+        :key="device.id"
+        :device="device"
+        :activeDevicesID="activeDevicesID"
+        :isSelected="selectedDeviceId === device.id"
+        :isFollowed="selectedDeviceId === device.id && isFollowed === true"
+        @select-device="$emit('select-device', device.id)"
+        @follow-selected-device="$emit('follow-selected-device', !isFollowed)"
         @device-in-devices-list-ckick="$emit('device-in-devices-list-ckick')"
       />
     </VirtualList>
@@ -71,7 +74,8 @@ export default {
   props: [
     'devices',
     'activeDevicesID',
-    'deviceIdForWatch',
+    'selectedDeviceId',
+    'isFollowed',
     'devicesListPinned'
   ],
   components: {
@@ -134,6 +138,6 @@ export default {
 </script>
 
 <style lang="stylus">
-  .pinned
-    box-shadow inset 0 0 7px #fff
+  .unpinned
+    transform rotate(45deg);
 </style>

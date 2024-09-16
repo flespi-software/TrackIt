@@ -1,11 +1,11 @@
 <template>
-  <q-item 
-    :highlight="$q.platform.is.desktop" 
-    :class="[model ? 'device-item__active': '', device['x-flespi-no-access'] ? 'inactive-device' : '']" 
+  <q-item
+    :highlight="$q.platform.is.desktop"
+    :class="[isSelected ? 'device-item__selected' : (isActive ? 'device-item__active': ''), device['x-flespi-no-access'] ? 'no-access-device' : '']"
     clickable
     @click="deviceClickHandler">
     <q-tooltip v-if="device['x-flespi-no-access']">Device has no access to messages and telemetry</q-tooltip>
-    <q-item-section avatar :class="[model ? 'text-green-2': '']" class="flex flex-center">
+    <q-item-section avatar :class="[isActive ? 'text-green-2': '']" class="flex flex-center">
       <q-icon name="mdi-developer-board" />
       <small>#{{device.id}}</small>
     </q-item-section>
@@ -16,12 +16,14 @@
     </q-item-section>
     <q-item-section side class="text-center">
       <q-item-label>
-        <q-icon 
-          :class="[isDeviceWatched && activeDevicesID.includes(device.id) ? 'icon__send-active' : 'text-grey-5']" 
-          size="1.5rem" 
-          name="mdi-crosshairs-gps" 
-          @click.stop.native="showOnMapHandler">
-          <q-tooltip v-model="watchTooltip">Show on map</q-tooltip>
+        <q-icon
+          :class="[isFollowed ? 'icon__send-followed' : 'text-grey-5']"
+          size="1.5rem"
+          :name="isFollowed ? 'mdi-crosshairs-gps' : 'mdi-crosshairs'"
+          @click.stop.native="showOnMapButtonHandler">
+          <q-tooltip v-if="!isSelected" v-model="displayTooltip">Show device on map</q-tooltip>
+          <q-tooltip v-else-if="!isFollowed" v-model="displayTooltip">Follow device on map</q-tooltip>
+          <q-tooltip v-else v-model="displayTooltip">Stop following device</q-tooltip>
         </q-icon>
       </q-item-label>
     </q-item-section>
@@ -33,15 +35,16 @@ export default {
   props: [
     'device',
     'activeDevicesID',
-    'isDeviceWatched'
+    'isSelected',
+    'isFollowed'
   ],
   data () {
     return {
-      watchTooltip: false
+      displayTooltip: false
     }
   },
   computed: {
-    model () {
+    isActive () {
       return this.activeDevicesID.includes(this.device.id)
     }
   },
@@ -60,14 +63,28 @@ export default {
     unsetActiveDevice () {
       this.$store.commit('unsetActiveDevice', this.device.id)
     },
-    showOnMapHandler () {
-      if (!this.activeDevicesID.includes(this.device.id)) {
+    showOnMapButtonHandler () {
+      if (!this.isActive) {
+        /* user clicked 'Show on map' button for inactive device */
+        /* add device to the list of active devices */
         this.setActiveDevice()
+        /* and throw event to MyLayout that new device is seleted */
+        setTimeout(() => { this.$emit('select-device', this.device.id) }, 500)
+
+      } else if (!this.isSelected) {
+        /* user clicked 'Show on map' button for active, but not previously selected device */
+        /* throw event to MyLayout that new device is seleted */
+        setTimeout(() => { this.$emit('select-device', this.device.id) }, 500)
+
+      } else {
+        /* user clicked 'Show on Map' button for selected device */
+        /* if device is not followed, then throw event to MyLayout to start following the device */
+        /* otherwise throw event to MyLayout to stop following the device */
+        setTimeout(() => { this.$emit('follow-selected-device', !this.isFollowed) }, 500)
+
       }
-      if (!this.isDeviceWatched) {
-        setTimeout(() => { this.$emit('show-on-map-in-devices-list-click', this.device.id) }, 500)
-      }
-      setTimeout(() => { this.watchTooltip = false }, 500)
+      /* cleanup tooltip */
+      setTimeout(() => { this.displayTooltip = false }, 500)
     }
   }
 }
@@ -75,9 +92,11 @@ export default {
 
 <style lang="stylus">
   .device-item__active
+    background-color $grey-8
+  .device-item__selected
     background-color $grey-7
-  .icon__send-active
+  .icon__send-followed
     color white
-  .inactive-device
+  .no-access-device
     box-shadow inset 0 0 10px #f40
 </style>

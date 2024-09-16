@@ -1,41 +1,43 @@
 <template>
   <q-layout ref="layout" view="hHh LpR lFf" @click.stop="layoutCkickHandler">
-    <q-drawer 
-      v-if="isInit && needShowList" 
+    <q-drawer
+      v-if="isInit && needShowList"
       id="left_drawer"
-      v-model="devicesListSettings.opened" 
+      v-model="devicesListSettings.opened"
       side="left"
-      :no-swipe-open="$q.platform.is.desktop" 
+      :no-swipe-open="$q.platform.is.desktop"
       :no-swipe-close="$q.platform.is.desktop"
       :breakpoint="576"
       :overlay="!devicesListSettings.pinned"
     >
-      <device-list 
-        v-show="devices.length" 
-        :deviceIdForWatch="deviceIdForWatch" 
-        :activeDevicesID="activeDevicesID" 
+      <device-list
+        v-show="devices.length"
+        :selectedDeviceId="selectedDevice.id"
+        :isFollowed="selectedDevice.follow"
+        :activeDevicesID="activeDevicesID"
         :devices="devices"
         :devicesListPinned="devicesListSettings.pinned"
-        @show-on-map-in-devices-list-click="showOnMapClickHandler"
+        @select-device="selectDeviceInListHandler"
+        @follow-selected-device="followSelectedDeviceHandler"
         @device-in-devices-list-ckick="deviceInListClickHandler"
         @click-hide="devicesListOpenedHandler(false)"
         @devices-list-pinned="devicesListPinnedHandler"
       />
     </q-drawer>
-    <q-drawer 
+    <q-drawer
       v-model="telemetrySettings.opened"
-      side="right" 
-      no-swipe-open 
-      no-swipe-close 
-      :content-class="{'bg-grey-9':telemetrySettings.inverted}"  
+      side="right"
+      no-swipe-open
+      no-swipe-close
+      :content-class="{'bg-grey-9':telemetrySettings.inverted}"
     >
       <div style="position: relative; height: 100vh; overflow: hidden;">
         <q-item>
           <q-item-section avatar>
-            <q-btn 
-              flat 
-              round 
-              small 
+            <q-btn
+              flat
+              round
+              small
               icon="mdi-chevron-right"
               :color="telemetrySettings.inverted ? 'white' : ''"
               @click="telemetryButtonClickHandler"
@@ -45,8 +47,8 @@
             <q-item-label header class="ellipsis text-bold q-pa-none" style="font-size: 1.3rem" :class="{'text-white': telemetrySettings.inverted}">Telemetry</q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-btn 
-              round 
+            <q-btn
+              round
               flat
               icon="mdi-image-filter-black-white"
               class="text-grey"
@@ -87,12 +89,12 @@
     </q-drawer>
     <q-page-container>
       <q-page>
-        <q-btn 
-          v-if="devices.length && needShowList" 
-          small 
-          round 
+        <q-btn
+          v-if="devices.length && needShowList"
+          small
+          round
           flat
-          color="bg-grey-9" 
+          color="bg-grey-9"
           size="md"
           class="floated menu white-background"
           icon="mdi-menu"
@@ -134,12 +136,12 @@
         <div v-if="!activeDevicesID.length && devices.length" class="floated no-devices">
           <span class="no-devices__message">You have no selected devices</span>
           <div style="margin-top: 15px;">
-            <q-btn 
-              icon="mdi-menu" 
-              style="pointer-events: auto" 
-              color="black" 
+            <q-btn
+              icon="mdi-menu"
+              style="pointer-events: auto"
+              color="black"
               size="md"
-              @click.stop="devicesListOpenedHandler(!devicesListSettings.opened)" 
+              @click.stop="devicesListOpenedHandler(!devicesListSettings.opened)"
             >
               select devices
             </q-btn>
@@ -199,7 +201,8 @@
           @update-telemetry-device-id="updateTelemetryDeviceId"
           @queue-created="queueCreatedHandler"
           :activeDevices="activeDevices"
-          :deviceIdForWatch="deviceIdForWatch"
+          :selectedDeviceId="selectedDevice.id"
+          :isSelectedDeviceFollowed="selectedDevice.follow"
           :params="params"
           :date="date"
           @change-need-show-messages="(value) => { params.needShowMessages = value }"
@@ -212,7 +215,6 @@
 <script>
 import Vue from 'vue'
 import { mapState, mapMutations, mapActions } from 'vuex'
-// import { VueFlatPickr } from 'datetimerangepicker'
 import DateRangeModal from '../components/DateRangeModal'
 import { QTelemetry, telemetryVuexModule } from 'qtelemetry'
 import MapComponent from '../components/Map.vue'
@@ -224,7 +226,10 @@ import { getFromStore, setToStore } from '../mixins/store'
 export default {
   data () {
     return {
-      deviceIdForWatch: null,
+      selectedDevice: {
+        id: null,
+        follow: false
+      },
       deviceIdForTelemetry: null,
       needShowList: true,
       needHideNamesInMenu: false,
@@ -346,16 +351,41 @@ export default {
       this.devicesListSettings.opened = state
       setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'devicesListSettings', value: this.devicesListSettings })
     },
-    showOnMapClickHandler (id) {
+    updateSelectedDevice (id, follow) {
+      /* update selected device id and and its follow property */
+      this.selectedDevice.id = id
+      if (follow !== undefined) {
+        /* if follow property is given explicitly - then update selected device and sync to localstorage */
+        this.selectedDevice.follow = follow
+        setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'selected', value: this.selectedDevice })
+        return false
+      }
+
+      /* if follow property is not given - try to get it from localstorage */
+      const storedSelectedDevice = getFromStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'selected'})
+      if (!storedSelectedDevice || !storedSelectedDevice.id || storedSelectedDevice.id !== id || storedSelectedDevice.follow == undefined) {
+        /* no such property in the localstorage - set it to false and save to localstorage  */
+        this.selectedDevice.follow = false
+        setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'selected', value: this.selectedDevice })
+        return false
+      }
+
+      /* just init follow property of the given device from localstorage */
+      this.selectedDevice.follow = storedSelectedDevice.follow
+    },
+    selectDeviceInListHandler (id) {
       /* user clicked 'Show on map' button for this device in the devices list (in the left drawer) */
       if (id) {
         this.updateTelemetryDeviceId(id)
-        this.deviceIdForWatch = id
+        this.updateSelectedDevice(id, true)
       }
       if (this.$q.platform.is.mobile || !this.devicesListSettings.pinned) {
         /* close devices list when device is selected, unless left drawer is pinned */
         this.devicesListOpenedHandler(false)
       }
+    },
+    followSelectedDeviceHandler (state) {
+      this.updateSelectedDevice(this.selectedDevice.id, state)
     },
     deviceInListClickHandler () {
       if (this.$q.platform.is.mobile || !this.devicesListSettings.pinned) {
@@ -380,11 +410,10 @@ export default {
       const devicesById = this.devices.filter(device => device.id === id)
       if (devicesById.length) {
         this.deviceIdForTelemetry = id
-        this.deviceIdForWatch = id
-        setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'selected', value: {id: id} })
+        this.updateSelectedDevice(id)
         if (this.telemetrySettings.opened && this.deviceIdForTelemetry && this.activeDevicesID.includes(this.deviceIdForTelemetry)) {
           setTimeout(() => {
-            if (id === this.deviceIdForWatch && this.$q.platform.is.mobile) {
+            if (id === this.selectedDevice.id && this.$q.platform.is.mobile) {
               return false
             }
           }, 0)
@@ -394,7 +423,11 @@ export default {
       }
     },
     queueCreatedHandler () {
-      this.selectedDeviceIdProcess()
+      const storedSelectedDevice = getFromStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'selected'})
+      if (storedSelectedDevice && storedSelectedDevice.id) {
+        this.selectedDevice.id = storedSelectedDevice.id
+        this.selectedDevice.follow = storedSelectedDevice.follow ? storedSelectedDevice.follow : false
+      }
     },
     formatDate (timestamp) {
       return date.formatDate(timestamp, 'DD/MM/YYYY')
@@ -414,12 +447,6 @@ export default {
       const devicesListSettings = getFromStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'devicesListSettings' })
       if (devicesListSettings) {
         this.$set(this, 'devicesListSettings', Object.assign(this.devicesListSettings, devicesListSettings))
-      }
-    },
-    selectedDeviceIdProcess () {
-      const selectedDevice = getFromStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'selected'})
-      if (selectedDevice && selectedDevice.id) {
-        this.deviceIdForWatch = selectedDevice.id
       }
     },
     connectProcess () {
@@ -523,16 +550,14 @@ export default {
     },
     activeDevicesID (newVal) {
       if (!newVal.length) {
-        // the last device was unset, and there are no active devices left
+        /* the last device was unset, and there are no active devices left */
         this.deviceIdForTelemetry = null
-        this.deviceIdForWatch = null
-        setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'selected', value: {id: null} })
+        this.updateSelectedDevice(null, false)
       } else if (newVal.length === 1) {
-        // first active device was added to the active devices list
+        /* first active device was added to the active devices list */
         this.updateTelemetryDeviceId(newVal[0])
-        this.deviceIdForWatch = newVal[0]
       }
-    }, 
+    },
     devices (devices, prev) {
       if (!devices.length) {
         this.telemetrySettings.opened = false

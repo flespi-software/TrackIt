@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+### [1.5.2] - 2024-09-16
+[fix] follow device on map feature fixed
+
 ### [1.5.1] - 2024-09-12
 [feature] pin button for left drawer with the list of devices
 
@@ -24,7 +27,7 @@ All notable changes to this project will be documented in this file.
 [fix] track player layout for small windows
 
 ### [1.4.8] - 2022-01-02
-[update] packages 
+[update] packages
 ### [1.4.7] - 2022-07-07
 [feature] flespiApp setting
 ### [1.4.6] - 2022-06-15

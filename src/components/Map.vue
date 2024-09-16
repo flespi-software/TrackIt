@@ -11,7 +11,7 @@
       :needShowMessages="params.needShowMessages"
       :needShowPlayer="params.needShowPlayer"
       :messages="allMessages"
-      :deviceIdForWatch="deviceIdForWatch"
+      :selectedDeviceId="selectedDeviceId"
       :telemetryDeviceId="telemetryDeviceId"
       :date="date"
       :markers="markers"
@@ -46,7 +46,6 @@ import ColorModal from './ColorModal'
 import { mapState } from 'vuex'
 import devicesMessagesModule from 'qvirtualscroll/src/store/modules/devicesMessages'
 import { colors, debounce } from 'quasar'
-import animate from '../mixins/animate'
 import getIconHTML from '../assets/getIconHTML.js'
 import { getFromStore, setToStore } from '../mixins/store'
 
@@ -56,7 +55,8 @@ export default {
   name: 'Map',
   props: [
     'params',
-    'deviceIdForWatch',
+    'selectedDeviceId',
+    'isSelectedDeviceFollowed',
     'activeDevices',
     'delay',
     'date'
@@ -143,7 +143,7 @@ export default {
       // if nore than one device is selected - there is panel with devices' names tabs
       if (this.params.needShowPlayer) {
         value = 'calc(100% - 95px)'
-      } else { 
+      } else {
           value = 'calc(100% - 48px)'
       }
       return value
@@ -309,7 +309,7 @@ export default {
       this.markers[id].accuracy.addTo(this.map)
       this.markers[id].addEventListener('add', e => {
         this.updateMarkerDirection(id, direction)
-        if (this.messages[id] && this.messages[id].length && this.deviceIdForWatch === parseInt(id)) {
+        if (this.messages[id] && this.messages[id].length && this.selectedDeviceId === parseInt(id)) {
           // selected logic
         }
       })
@@ -369,14 +369,14 @@ export default {
       if (currentPos && currentPos.length) {
         this.flyToWithHideTracks(currentPos, this.flyToZoom)
       } else {
-        this.$q.notify({ 
-          message: 'No Position!', 
+        this.$q.notify({
+          message: 'No Position!',
           color: 'warning',
           timeout: this.params.needShowMessages ? 500 : 2000
         })
       }
     },
-    centerOnDevice (id) {
+    centerOnDevice (id, zoom) {
       const devicesById = this.activeDevices.filter(device => device.id === id),
         currentDevice = devicesById.length ? devicesById[0] : null
       let currentPos = currentDevice && []
@@ -384,10 +384,10 @@ export default {
         currentPos = [this.messages[id][this.messages[id].length - 1]['position.latitude'], this.messages[id][this.messages[id].length - 1]['position.longitude']]
       }
       if (currentPos.length) {
-        this.map.setView(currentPos, 14, { animation: false })
+        this.map.setView(currentPos, zoom ? zoom : 14, { animation: false })
       } else {
-        this.$q.notify({ 
-          message: 'No Position!', 
+        this.$q.notify({
+          message: 'No Position!',
           color: 'warning',
           timeout: this.params.needShowMessages ? 500 : 2000
         })
@@ -496,7 +496,7 @@ export default {
           this.$store.dispatch(`messages/${id}/getMissedMessages`)
         }
       })
-      if (id === this.deviceIdForWatch && this.devicesState[id].initStatus === true) {
+      if (id === this.selectedDeviceId && this.devicesState[id].initStatus === true) {
         this.telemetryDeviceId = parseInt(id)
         this.$emit('update-telemetry-device-id', this.telemetryDeviceId)
         this.centerOnDevice(id)
@@ -745,7 +745,7 @@ export default {
           Vue,
           LocalStorage: this.$q.localStorage,
           name: { name: 'messages', lsNamespace: `${this.$store.state.storeName}.cols` },
-          errorHandler: (err) => { 
+          errorHandler: (err) => {
             if (err.response && err.response.status && err.response.status === 403) {
               this.devicesState[id].messagesAccess = false
             } else {
@@ -800,7 +800,7 @@ export default {
           this.tracks[id] = {}
         }
         return false
-      } 
+      }
 
       /* now device has messages, either normal flespi messages, or synthetic 'x-flespi-inited-by-telemetry' message */
 
@@ -813,7 +813,7 @@ export default {
         /* init track */
         this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), { weight: 4, color: this.markers[id] ? this.markers[id].color : this.getColorById(id) }).addTo(this.map)
         this.tracks[id].addEventListener('click', (e) => this.showMessageByTrackClick(e, id, this.tracks[id]))
-        
+
         if (Number.parseInt(id) === this.selected) { // here typeof id is string
           if (this.messages[id].length > 1) {
             /* device has a bunch of messages - initially show the whole track on map */
@@ -832,14 +832,16 @@ export default {
         return false
       }
 
-      const currentArrPos = this.getLatLngArrByDevice(id),
-        markerWatchedPos = this.deviceIdForWatch && this.deviceIdForWatch == id && this.markers[this.deviceIdForWatch] && this.markers[this.deviceIdForWatch] instanceof L.Marker ? this.markers[this.deviceIdForWatch].getLatLng() : {},
-        isWatchedPosChanged = this.deviceIdForWatch && this.messages[this.deviceIdForWatch] && this.messages[this.deviceIdForWatch].length &&
-          markerWatchedPos.lat && markerWatchedPos.lat !== this.messages[this.deviceIdForWatch][this.messages[this.deviceIdForWatch].length - 1]['position.latitude'] &&
-          markerWatchedPos.lng && markerWatchedPos.lng !== this.messages[this.deviceIdForWatch][this.messages[this.deviceIdForWatch].length - 1]['position.longitude']
-      if (isWatchedPosChanged) {
-        const position = currentArrPos[currentArrPos.length - 1]
-        position && this.flyToWithHideTracks(position, this.flyToZoom)
+      const currentArrPos = this.getLatLngArrByDevice(id)
+      if (this.isSelectedDeviceFollowed) {
+        const markerWatchedPos = this.selectedDeviceId && this.selectedDeviceId == id && this.markers[this.selectedDeviceId] && this.markers[this.selectedDeviceId] instanceof L.Marker ? this.markers[this.selectedDeviceId].getLatLng() : {},
+          isWatchedPosChanged = this.selectedDeviceId && this.messages[this.selectedDeviceId] && this.messages[this.selectedDeviceId].length &&
+            markerWatchedPos.lat && markerWatchedPos.lat !== this.messages[this.selectedDeviceId][this.messages[this.selectedDeviceId].length - 1]['position.latitude'] &&
+            markerWatchedPos.lng && markerWatchedPos.lng !== this.messages[this.selectedDeviceId][this.messages[this.selectedDeviceId].length - 1]['position.longitude']
+        if (isWatchedPosChanged) {
+          const position = currentArrPos[currentArrPos.length - 1]
+          position && this.centerOnDevice(this.selectedDeviceId, this.map.getZoom())
+        }
       }
       /* if positions are empty clear marker and line */
       if (!currentArrPos.length) {
@@ -884,7 +886,7 @@ export default {
         this.removeMarker(removeDeviceId)
         return false
       }
-      keyArr.forEach(id => this.updateOrInitDevice(id)) 
+      keyArr.forEach(id => this.updateOrInitDevice(id))
     },
     updateStateByTelemetry (telemetry) {
       /* this method is triggered by watch telemetry: telemetry has updated */
@@ -923,7 +925,7 @@ export default {
 
       if (!this.params.needShowInvalidPositionMessages) {
         /* check if position.valid=false parameter has the same timestamp as the latest position, and skip it */
-        if (telemetry.telemetry['position.valid'] && telemetry.telemetry['position.valid'].value === false && 
+        if (telemetry.telemetry['position.valid'] && telemetry.telemetry['position.valid'].value === false &&
             (Math.abs(Number.parseFloat(telemetry.telemetry['position.valid'].ts - latTs) < 0.1))) {
           return false
         }
@@ -934,7 +936,7 @@ export default {
       this.messages[id][0]['position.latitude'] = lat
       this.messages[id][0]['position.longitude'] = lon
       this.messages[id][0]['timestamp'] = latTs
-      
+
       /* add other position parameters if they have the same simestamp as lat&lon, otherwise - clean them up */
       const positionParams =      [ 'direction', 'speed',  'altitude', 'valid',    'satellites', 'hdop',   'pdop'   ]
       const positionParamsType =  [ 'number',    'number', 'number',   'boolean',  'number',     'number', 'number' ]
@@ -967,13 +969,16 @@ export default {
 
       /* update marker and track on the map */
       if (this.markers[id] instanceof L.Marker) {
-        const direction = (telemetry.telemetry['position.direction'] && (Math.abs(Number.parseFloat(telemetry.telemetry['position.direction'].ts)) - latTs) < 0.1) ? 
+        const direction = (telemetry.telemetry['position.direction'] && (Math.abs(Number.parseFloat(telemetry.telemetry['position.direction'].ts)) - latTs) < 0.1) ?
                           Number.parseInt(telemetry.telemetry['position.direction'].value) : 0
         this.updateMarkerDirection(id, direction)
         this.markers[id].setLatLng([lat, lon]).update()
       }
       if (this.tracks[id] instanceof L.Polyline) {
         this.tracks[id].setLatLngs(this.devicesState[id].telemetryTail)
+      }
+      if (this.isSelectedDeviceFollowed) {
+        this.centerOnDevice(this.selectedDeviceId, this.map.getZoom())
       }
     }
   },
@@ -986,7 +991,7 @@ export default {
     },
     telemetry: {
       deep: true,
-      handler (telemetry) { 
+      handler (telemetry) {
         if (this.devicesState[telemetry.deviceId] && this.devicesState[telemetry.deviceId].messagesAccess) {
           /* this device is positioned by messages, no need to draw its position by telemetry */
           return false
@@ -1022,9 +1027,9 @@ export default {
         case 'add': {
           const addedDeviceID = activeDevicesID.filter(id => !currentDevicesID.includes(id))
           if (addedDeviceID) {
-            addedDeviceID.forEach((id) => { 
+            addedDeviceID.forEach((id) => {
               this.devicesState[id].initStatus = false
-              this.initDevice(id) 
+              this.initDevice(id)
             })
           }
           break
@@ -1034,9 +1039,16 @@ export default {
         L.DomUtil.removeClass(this.map._container, 'crosshair-cursor-enabled')
       }
     },
-    deviceIdForWatch (id) {
+    selectedDeviceId (id) {
       if (id && this.devicesState[id] && this.devicesState[id].initStatus === true) {
         this.flyToDevice(id)
+      }
+    },
+    isSelectedDeviceFollowed (state) {
+      if (state === true) {
+        /* user enabled following the selected device on map */
+        /* center on device */
+        this.centerOnDevice(this.selectedDeviceId, this.map.getZoom())
       }
     },
     'params.needShowNamesOnMap': function (needShowNamesOnMap) {
@@ -1055,7 +1067,7 @@ export default {
       this.activeDevicesID.forEach(async (id) => {
         // reinit device data, as now device may have last position from telemetry
         await this.getDeviceData(id)
-        if (id === this.deviceIdForWatch) {
+        if (id === this.selectedDeviceId) {
           this.centerOnDevice(id)
         }
       })

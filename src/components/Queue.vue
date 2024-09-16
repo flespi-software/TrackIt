@@ -49,7 +49,7 @@ export default {
     'messages',
     'activeDevicesID',
     'devices',
-    'deviceIdForWatch',
+    'selectedDeviceId',
     'telemetryDeviceId',
     'date',
     'needShowMessages',
@@ -109,8 +109,8 @@ export default {
     if (this.activeDevicesID.length) {
       this.$emit('queue-created')
     }
-    if (this.deviceIdForWatch) {
-      this.selected = this.deviceIdForWatch.toString()
+    if (this.selectedDeviceId) {
+      this.selected = this.selectedDeviceId.toString()
     }
   },
   watch: {
@@ -140,7 +140,7 @@ export default {
         this.selected = id.toString()
       }
     },
-    deviceIdForWatch (id) {
+    selectedDeviceId (id) {
       if (id) {
         this.selected = id.toString()
       }
