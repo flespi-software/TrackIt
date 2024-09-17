@@ -1,5 +1,5 @@
 <template>
-  <q-list separator class="bg-grey-9 text-white">
+  <q-list dark class="bg-grey-9 text-white">
     <q-item ref="header" style="height: 60px; line-height: 58px!important;">
       <q-item-section avatar>
         <q-btn
@@ -44,6 +44,7 @@
     >
       <device
         v-for="device in filteredDevices"
+        class="with-separator"
         :key="device.id"
         :device="device"
         :activeDevicesID="activeDevicesID"
@@ -140,4 +141,6 @@ export default {
 <style lang="stylus">
   .unpinned
     transform rotate(45deg);
+  .with-separator
+    border-top 1px solid #666
 </style>

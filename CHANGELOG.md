@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+### [1.5.3] - 2024-09-17
+[feature] new appearance of the devices list
+
 ### [1.5.2] - 2024-09-16
 [fix] follow device on map feature fixed
 

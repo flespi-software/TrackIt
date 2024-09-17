@@ -1045,9 +1045,9 @@ export default {
       }
     },
     isSelectedDeviceFollowed (state) {
-      if (state === true) {
+      if (state === true && this.devicesState[this.selectedDeviceId].initStatus === true) {
         /* user enabled following the selected device on map */
-        /* center on device */
+        /* center on device, if device is already initialized */
         this.centerOnDevice(this.selectedDeviceId, this.map.getZoom())
       }
     },

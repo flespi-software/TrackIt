@@ -59,10 +59,17 @@
             </q-btn>
           </q-item-section>
         </q-item>
-        <q-item v-if="deviceIdForTelemetry">
-          <q-item-section avatar class="flex flex-center" :class="{'text-grey-4': telemetrySettings.inverted}">
-            <q-icon name="mdi-developer-board" />
-            <small>#{{deviceForTelemetry.id}}</small>
+        <q-item style="border-top: 1px solid #ddd; min-height: 71px;" v-if="deviceIdForTelemetry">
+          <div
+            class="text-center absolute-top-left bg-grey-4 text-bold text-grey-9"
+            style="font-size:10px;min-width:55px;padding:0 3px;z-index:1;border-radius:0 0 3px 0;">
+            #{{deviceForTelemetry.id}}
+          </div>
+          <q-item-section side :class="{'text-grey-4': telemetrySettings.inverted}">
+            <q-icon
+              size="1.7rem"
+              name="mdi-developer-board"
+            />
           </q-item-section>
           <q-item-section>
             <q-item-label class="ellipsis q-pa-none" :class="{'text-grey-4': telemetrySettings.inverted}" header>{{deviceForTelemetry.name || '&lt;noname&gt;'}}
@@ -71,7 +78,7 @@
             <q-item-label class="ellipsis" :class="{'text-grey-4': telemetrySettings.inverted}" caption>
               <q-icon name="mdi-label-outline" /> {{deviceForTelemetry.configuration && deviceForTelemetry.configuration.ident ? deviceForTelemetry.configuration.ident : '&lt;no ident&gt;'}}
             </q-item-label>
-            <q-item-label  :class="{'text-grey-4': telemetrySettings.inverted}" caption>
+            <q-item-label v-if="deviceForTelemetry.configuration && deviceForTelemetry.configuration.phone" :class="{'text-grey-4': telemetrySettings.inverted}" caption>
               <q-icon name="mdi-phone" /> {{deviceForTelemetry.configuration && deviceForTelemetry.configuration.phone ? deviceForTelemetry.configuration.phone : '&lt;no phone&gt;'}}
             </q-item-label>
           </q-item-section>

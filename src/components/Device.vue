@@ -2,17 +2,27 @@
   <q-item
     :highlight="$q.platform.is.desktop"
     :class="[isSelected ? 'device-item__selected' : (isActive ? 'device-item__active': ''), device['x-flespi-no-access'] ? 'no-access-device' : '']"
+    style="min-height: 71px;"
     clickable
     @click="deviceClickHandler">
     <q-tooltip v-if="device['x-flespi-no-access']">Device has no access to messages and telemetry</q-tooltip>
-    <q-item-section avatar :class="[isActive ? 'text-green-2': '']" class="flex flex-center">
-      <q-icon name="mdi-developer-board" />
-      <small>#{{device.id}}</small>
+    <div
+      class="text-center absolute-top-left bg-grey-3 text-bold text-grey-9"
+      style="font-size:10px;min-width:55px;padding:0 3px;z-index:1;border-radius:0 0 3px 0;">
+      #{{device.id}}
+    </div>
+    <q-item-section side :class="[isActive ? 'text-green-2': '']">
+      <q-icon
+        size="1.7rem"
+        name="mdi-developer-board"
+      />
     </q-item-section>
     <q-item-section>
-      <q-item-label class="ellipsis q-pa-none text-white" header>{{device.name || '&lt;noname&gt;'}}</q-item-label>
-      <q-item-label class="ellipsis text-grey-3 full-width" caption><q-icon name="mdi-label-outline" /> {{device.configuration && device.configuration.ident ? device.configuration.ident : '&lt;no ident&gt;'}}</q-item-label>
-      <q-item-label caption class="text-grey-3"><q-icon name="mdi-phone" /> {{device.configuration && device.configuration.phone ? device.configuration.phone : '&lt;no phone&gt;'}}</q-item-label>
+      <q-item-label class="ellipsis q-pa-none" header>{{device.name || '&lt;noname&gt;'}}</q-item-label>
+      <q-item-label class="ellipsis full-width" caption><q-icon name="mdi-label-outline" /> {{device.configuration && device.configuration.ident ? device.configuration.ident : '&lt;no ident&gt;'}}</q-item-label>
+      <q-item-label v-if="device.configuration && device.configuration.phone" caption>
+        <q-icon name="mdi-phone" /> {{device.configuration && device.configuration.phone ? device.configuration.phone : '&lt;no phone&gt;'}}
+      </q-item-label>
     </q-item-section>
     <q-item-section side class="text-center">
       <q-item-label>
