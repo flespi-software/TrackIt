@@ -41,6 +41,8 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style lang="stylus" scoped>
+  .color-modal
+    .q-color-inputs
+      display none
 </style>

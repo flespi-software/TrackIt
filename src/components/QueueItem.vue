@@ -46,7 +46,6 @@ export default {
     'id',
     'messages',
     'date',
-    'device',
     'needShowMessages',
     'needShowPlayer',
     'player'

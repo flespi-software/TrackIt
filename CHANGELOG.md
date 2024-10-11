@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+### [2.0.0] - 2024-10-11
+[feature] active devices are displayed at the top of devices list in the left drawer; tabs at the bottom of the page are removed
+
 ### [1.5.3] - 2024-09-17
 [feature] new appearance of the devices list
 

@@ -6,7 +6,6 @@
     <queue
       ref="queue"
       v-if="Object.keys(messages).length && activeDevicesID.length"
-      :devices="activeDevices"
       :activeDevicesID="activeDevicesID"
       :needShowMessages="params.needShowMessages"
       :needShowPlayer="params.needShowPlayer"
@@ -14,7 +13,6 @@
       :selectedDeviceId="selectedDeviceId"
       :telemetryDeviceId="telemetryDeviceId"
       :date="date"
-      :markers="markers"
       :player="player"
       @player-value="data => playProcess(data, 'value')"
       @player-play="data => playProcess(data, 'play')"
@@ -23,7 +21,6 @@
       @player-speed="playerSpeedChangeHandler"
       @player-mode="playerModeChange"
       @change-need-show-messages="(flag) => {$emit('change-need-show-messages', flag)}"
-      @change-selected="changeSelectedDeviceHandler"
       @queue-created="queueCreatedHandler"
       @update-color="updateColorHandler"
       @view-on-map="viewOnMapHandler"
@@ -55,6 +52,7 @@ export default {
   name: 'Map',
   props: [
     'params',
+    'devicesColors',
     'selectedDeviceId',
     'isSelectedDeviceFollowed',
     'activeDevices',
@@ -133,18 +131,9 @@ export default {
       let value = '100%'
       // if no devices are selected - map fills all screen height
       if (!this.activeDevices.length) { return value }
-      // if one device is selected - there isn't panel with devices' names tabs
-      if (this.activeDevices.length === 1) {
-        if (this.params.needShowPlayer) {
-          value = 'calc(100% - 48px)'
-        }
-        return value;
-      }
       // if nore than one device is selected - there is panel with devices' names tabs
       if (this.params.needShowPlayer) {
-        value = 'calc(100% - 95px)'
-      } else {
-          value = 'calc(100% - 48px)'
+        value = 'calc(100% - 48px)'
       }
       return value
     }
@@ -244,30 +233,6 @@ export default {
         html: getIconHTML(name, color, this.params.needShowNamesOnMap)
       })
     },
-    getColor () {
-      const letters = '0123456789ABCDEF'
-      let color = `#${letters[Math.floor(Math.random() * 5)]}`
-      for (let i = 0; i < 5; i++) {
-        color += letters[Math.floor(Math.random() * 15)]
-      }
-      return color
-    },
-    getColorById (id) {
-      let savedColors = getFromStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'colors' })
-      if (!savedColors) { savedColors = {} }
-      if (!savedColors[id]) {
-        savedColors[id] = this.getColor()
-      }
-      setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'colors', value: savedColors })
-      return savedColors[id]
-    },
-    setColorById (id, color) {
-      let savedColors = getFromStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'colors' })
-      if (!savedColors) { savedColors = {} }
-      savedColors[id] = color
-      setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'colors', value: savedColors })
-      return savedColors[id]
-    },
     getAccuracyParams (message) {
       const position = [message['position.latitude'], message['position.longitude']],
         accuracy = message['position.hdop'] || message['position.pdop'] || 0,
@@ -296,7 +261,7 @@ export default {
     },
     initMarker (id, name, position) {
       const direction = this.messages[id][this.messages[id].length - 1]['position.direction'] ? this.messages[id][this.messages[id].length - 1]['position.direction'] : 0,
-        currentColor = this.tracks[id] && this.tracks[id].options ? this.tracks[id].options.color : this.markers[id] ? this.markers[id].color : this.getColorById(id)
+        currentColor = this.tracks[id] && this.tracks[id].options ? this.tracks[id].options.color : this.markers[id] ? this.markers[id].color : this.devicesColors[id]
       this.markers[id] = L.marker(position, {
         icon: this.generateIcon(id, name, currentColor),
         draggable: false,
@@ -395,7 +360,7 @@ export default {
     },
     generateFlag (props) {
       let { id, status } = props || {}
-      let color = id ? this.getColorById(id) : '#e53935',
+      let color = id ? this.devicesColors[id] : '#e53935',
         icon = 'map-marker-star-outline'
       if (status === 'start') {
         color = colors.getBrand('primary')
@@ -718,21 +683,22 @@ export default {
       this.player.mode = mode
     },
     updateColorHandler ({ id, color }) {
+      this.$emit('update-color', id, color)
+    },
+    updateDeviceColorOnMap (id, color) {
+      if (!this.tracks[id] || !(this.tracks[id] instanceof L.Polyline) ||
+          !this.markers[id] || !(this.markers[id] instanceof L.Marker)) {
+        return false
+      }
       this.tracks[id].setStyle({ color })
       this.tracks[id].tail && this.tracks[id].tail.setStyle({ color })
       this.tracks[id].overview && this.tracks[id].overview.setStyle({ color })
       this.markers[id].color = color
       this.markers[id].setIcon(this.generateIcon(id, this.markers[id].options.title, color))
-      this.setColorById(id, color)
       if (this.messages[id][this.messages[id].length - 1]['position.direction']) {
         /* restore marker's direction, if known */
         this.updateMarkerDirection(id, this.messages[id][this.messages[id].length - 1]['position.direction'])
       }
-    },
-    changeSelectedDeviceHandler (id) {
-      this.selected = id
-      this.telemetryDeviceId = id
-      this.$emit('update-telemetry-device-id', this.telemetryDeviceId)
     },
     queueCreatedHandler () {
       this.$emit('queue-created')
@@ -796,7 +762,7 @@ export default {
           /* this is needed for Queue component to know the current color of the device for color-view div (color picker button) */
           this.markers[id] = {}
           this.markers[id].id = id
-          this.markers[id].color = this.getColorById(id)
+          this.markers[id].color = this.devicesColors[id]
           this.tracks[id] = {}
         }
         return false
@@ -1045,11 +1011,21 @@ export default {
       }
     },
     isSelectedDeviceFollowed (state) {
-      if (state === true && this.devicesState[this.selectedDeviceId].initStatus === true) {
+      if (state === true && this.devicesState[this.selectedDeviceId] && this.devicesState[this.selectedDeviceId].initStatus === true) {
         /* user enabled following the selected device on map */
         /* center on device, if device is already initialized */
         this.centerOnDevice(this.selectedDeviceId, this.map.getZoom())
       }
+    },
+    devicesColors: {
+      deep: true,
+      handler(newVal, oldVal){
+        this.activeDevicesID.forEach(id => {
+          if (newVal[id] !== oldVal[id]) {
+            this.updateDeviceColorOnMap(id, newVal[id])
+          }
+        })
+      },
     },
     'params.needShowNamesOnMap': function (needShowNamesOnMap) {
       Object.keys(this.markers).forEach(id => {

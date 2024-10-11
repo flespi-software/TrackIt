@@ -1,60 +1,56 @@
 <template>
   <q-layout ref="layout" view="hHh LpR lFf" @click.stop="layoutCkickHandler">
-    <q-drawer
+    <q-drawer persistent
+      id="left-drawer"
       v-if="isInit && needShowList"
-      id="left_drawer"
       v-model="devicesListSettings.opened"
       side="left"
       :no-swipe-open="$q.platform.is.desktop"
       :no-swipe-close="$q.platform.is.desktop"
       :breakpoint="576"
-      :overlay="!devicesListSettings.pinned"
-    >
+      :overlay="!devicesListSettings.pinned">
       <device-list
         v-show="devices.length"
         :selectedDeviceId="selectedDevice.id"
         :isFollowed="selectedDevice.follow"
         :activeDevicesID="activeDevicesID"
         :devices="devices"
+        :devicesColors="devicesColors"
         :devicesListPinned="devicesListSettings.pinned"
         @select-device="selectDeviceInListHandler"
         @follow-selected-device="followSelectedDeviceHandler"
         @device-in-devices-list-ckick="deviceInListClickHandler"
         @click-hide="devicesListOpenedHandler(false)"
         @devices-list-pinned="devicesListPinnedHandler"
-      />
+        @update-color="updateColorHandler"/>
     </q-drawer>
-    <q-drawer
+    <q-drawer no-swipe-open no-swipe-close
+      v-if="needShowTelemetry"
       v-model="telemetrySettings.opened"
       side="right"
-      no-swipe-open
-      no-swipe-close
-      :content-class="{'bg-grey-9':telemetrySettings.inverted}"
-    >
+      :content-class="{'bg-grey-9':telemetrySettings.inverted}">
       <div style="position: relative; height: 100vh; overflow: hidden;">
         <q-item>
           <q-item-section avatar>
-            <q-btn
-              flat
-              round
-              small
+            <q-btn flat round small
               icon="mdi-chevron-right"
               :color="telemetrySettings.inverted ? 'white' : ''"
-              @click="telemetryButtonClickHandler"
-            />
+              @click="telemetryButtonClickHandler"/>
           </q-item-section>
           <q-item-section>
-            <q-item-label header class="ellipsis text-bold q-pa-none" style="font-size: 1.3rem" :class="{'text-white': telemetrySettings.inverted}">Telemetry</q-item-label>
+            <q-item-label header
+              class="ellipsis text-bold q-pa-none"
+              style="font-size: 1.3rem"
+              :class="{'text-white': telemetrySettings.inverted}">
+              Telemetry
+            </q-item-label>
           </q-item-section>
           <q-item-section side>
-            <q-btn
-              round
-              flat
+            <q-btn round flat
               icon="mdi-image-filter-black-white"
               class="text-grey"
               :color="telemetrySettings.inverted ? 'white' : 'grey'"
-              @click="telemetryInvertedHandler"
-            >
+              @click="telemetryInvertedHandler">
               <q-tooltip>Inverted</q-tooltip>
             </q-btn>
           </q-item-section>
@@ -68,8 +64,7 @@
           <q-item-section side :class="{'text-grey-4': telemetrySettings.inverted}">
             <q-icon
               size="1.7rem"
-              name="mdi-developer-board"
-            />
+              name="mdi-developer-board"/>
           </q-item-section>
           <q-item-section>
             <q-item-label class="ellipsis q-pa-none" :class="{'text-grey-4': telemetrySettings.inverted}" header>{{deviceForTelemetry.name || '&lt;noname&gt;'}}
@@ -84,11 +79,23 @@
           </q-item-section>
         </q-item>
         <q-item v-else>
-          <q-item-label header class="ellipsis text-bold" :class="{'text-white': telemetrySettings.inverted}" style="width: 100%; text-align: center">No selected device</q-item-label>
+          <q-item-label header
+            class="ellipsis text-bold"
+            :class="{'text-white': telemetrySettings.inverted}"
+            style="width: 100%; text-align: center">
+            No selected device
+          </q-item-label>
         </q-item>
         <q-item v-if="deviceIdForTelemetry">
           <q-item-section>
-            <q-input dense type="text" label="Search" v-model="telemetrySearch" :dark="telemetrySettings.inverted" :color="telemetrySettings.inverted ? 'white' : 'grey'" outlined hide-bottom-space class="q-mb-xs"/>
+            <q-input dense outlined hide-bottom-space
+              type="text"
+              label="Search"
+              :value="telemetrySearch"
+              :dark="telemetrySettings.inverted"
+              :color="telemetrySettings.inverted ? 'white' : 'grey'"
+              class="q-mb-xs"
+              @input= "val => { telemetrySearch = val.toLowerCase() }"/>
           </q-item-section>
         </q-item>
         <q-telemetry class="scroll" style="height: calc(100% - 128px)" v-if="deviceIdForTelemetry" :propHistoryFlag="telemetryConfig.propHistoryFlag" :device="deviceForTelemetry" :inverted="telemetrySettings.inverted" :search="telemetrySearch" />
@@ -96,17 +103,13 @@
     </q-drawer>
     <q-page-container>
       <q-page>
-        <q-btn
+        <q-btn small round flat
           v-if="devices.length && needShowList"
-          small
-          round
-          flat
           color="bg-grey-9"
           size="md"
           class="floated menu white-background"
           icon="mdi-menu"
-          @click.stop="devicesListOpenedHandler(!devicesListSettings.opened)"
-        />
+          @click.stop="devicesListOpenedHandler(!devicesListSettings.opened)"/>
         <div class="floated label">
           <img src="track-it-logo.png" alt="Track it!" style="height: 40px; margin-top: 3px; display: inline-block">
           <div class="q-toolbar-title" style="color: rgb(51, 51, 51); display: inline-block">
@@ -123,8 +126,7 @@
               <q-item
                 v-for="(error, index) in errors"
                 :key="index"
-                style="cursor: default"
-              >
+                style="cursor: default">
                 <q-item-section>
                   <q-item-label>{{error}}</q-item-label>
                 </q-item-section>
@@ -148,8 +150,7 @@
               style="pointer-events: auto"
               color="black"
               size="md"
-              @click.stop="devicesListOpenedHandler(!devicesListSettings.opened)"
-            >
+              @click.stop="devicesListOpenedHandler(!devicesListSettings.opened)">
               select devices
             </q-btn>
           </div>
@@ -162,15 +163,27 @@
           </div>
         </div>
         <a v-if="$q.platform.is.desktop" href="https://github.com/flespi-software/TrackIt/" target="_blank">
-          <q-btn flat round color="bg-grey-9" class="floated github white-background">
+          <q-btn flat round
+            color="bg-grey-9"
+            :class="[needShowTelemetry ? 'github' : 'telemetry']"
+            class="floated white-background">
             <img style="height: 30px;" src="GitHub-Mark-32px.png" alt="GitHub">
             <q-tooltip>Show on GitHub</q-tooltip>
           </q-btn>
         </a>
-        <q-btn small round flat size="md" class="floated telemetry white-background" @click="telemetryButtonClickHandler" icon="mdi-list-box-outline">
+        <q-btn small round flat
+          v-if="needShowTelemetry"
+          size="md"
+          icon="mdi-list-box-outline"
+          class="floated telemetry white-background"
+          @click="telemetryButtonClickHandler">
           <q-tooltip>Device telemetry</q-tooltip>
         </q-btn>
-        <q-btn small round flat size="md" class="floated options white-background" color="bg-grey-9" icon="mdi-dots-vertical">
+        <q-btn small round flat
+          size="md"
+          icon="mdi-dots-vertical"
+          class="floated options white-background"
+          color="bg-grey-9">
           <q-menu ref="popover-menu">
             <q-list link separator class="scroll" style="min-width: 200px">
               <q-item dense v-if="!needHideMessagesInMenu">
@@ -205,14 +218,16 @@
           </q-menu>
         </q-btn>
         <map-component
-          @update-telemetry-device-id="updateTelemetryDeviceId"
-          @queue-created="queueCreatedHandler"
           :activeDevices="activeDevices"
+          :devicesColors="computedDevicesColors"
           :selectedDeviceId="selectedDevice.id"
           :isSelectedDeviceFollowed="selectedDevice.follow"
           :params="params"
           :date="date"
           @change-need-show-messages="(value) => { params.needShowMessages = value }"
+          @update-telemetry-device-id="updateTelemetryDeviceId"
+          @queue-created="queueCreatedHandler"
+          @update-color="updateColorHandler"
         />
       </q-page>
     </q-page-container>
@@ -237,8 +252,10 @@ export default {
         id: null,
         follow: false
       },
+      devicesColors: {},
       deviceIdForTelemetry: null,
       needShowList: true,
+      needShowTelemetry: true,
       needHideNamesInMenu: false,
       needHidePlayerInMenu: false,
       needHideMessagesInMenu: false,
@@ -303,6 +320,10 @@ export default {
         return this.deviceIdForTelemetry ? state.devices.filter(device => device.id === this.deviceIdForTelemetry)[0] : {}
       }
     }),
+    computedDevicesColors () {
+      /* this is a computed devicesColor property, needed in order to have old and new values in devicesColors watcher in map component */
+      return Object.assign({}, this.devicesColors)
+    },
     date: {
       get () { return this.$store.state.date },
       set (date) {
@@ -342,7 +363,7 @@ export default {
         /* left drawer is already closed, nothing to do here */
         return
       }
-      if (!event.target.closest('#left_drawer') && !this.devicesListSettings.pinned) {
+      if (!event.target.closest('#left-drawer') && !this.devicesListSettings.pinned) {
         /* click outside of the unpinned left drawer - close it */
         this.devicesListOpenedHandler(false)
       }
@@ -352,6 +373,12 @@ export default {
       /* the event is generated by pin button inside DeviceList component */
       this.devicesListSettings.pinned = pinned
       setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'devicesListSettings', value: this.devicesListSettings })
+    },
+    updateColorHandler (id, color) {
+      /* update device's color using vue set to ensure devicesColors vue property's reactivity */
+      this.$set(this.devicesColors, id, color)
+      /* sync updated colors to localstorage */
+      setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'colors', value: this.devicesColors })
     },
     devicesListOpenedHandler (state) {
       /* open-close the left drawer handler */
@@ -409,7 +436,7 @@ export default {
       setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'telemetrySettings', value: this.telemetrySettings })
     },
     telemetryInvertedHandler () {
-      /* telementry inverted button handler*/
+      /* telemetry inverted button handler*/
       this.$set(this.telemetrySettings, 'inverted', !this.telemetrySettings.inverted)
       setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'telemetrySettings', value: this.telemetrySettings })
     },
@@ -455,6 +482,30 @@ export default {
       if (devicesListSettings) {
         this.$set(this, 'devicesListSettings', Object.assign(this.devicesListSettings, devicesListSettings))
       }
+      /* load device's colors from localstorage and set to devicesColors vue property */
+      let devicesColorsLS = getFromStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'colors' })
+      if (!devicesColorsLS) {
+        /* init colors object in localstorage, if not yet */
+        devicesColorsLS = {}
+        setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'colors', value: devicesColorsLS })
+      }
+      /* ensure that all active devices have assigned colors, synced to localstorage */
+      const letters = '0123456789ABCDEF'
+      this.activeDevicesID.forEach(id => {
+        if (!devicesColorsLS[id]) {
+          let color = `#${letters[Math.floor(Math.random() * 5)]}`
+          for (let i = 0; i < 5; i++) {
+            color += letters[Math.floor(Math.random() * 15)]
+          }
+          devicesColorsLS[id] = color
+          setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'colors', value: devicesColorsLS })
+        }
+      })
+      /* now copy colors loaded from localstorage to the devicesColors vue property */
+      Object.keys(devicesColorsLS).forEach(id => {
+        /* use vue set to ensure devicesColors vue property's reactivity */
+        this.$set(this.devicesColors, id, devicesColorsLS[id])
+      });
     },
     connectProcess () {
       if (!this.isInit) {
@@ -479,6 +530,7 @@ export default {
         player = this.$route.query.player || getFromStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'player' }),
         messages = this.$route.query.messages || getFromStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'messages' }),
         invalid = this.$route.query.invalid || getFromStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'invalid' }),
+        telemetry = this.$route.query.telemetry || getFromStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'telemetry' }),
         devices = this.$route.params.devices
       if (from && to) {
         this.date = [from * 1000, to * 1000]
@@ -487,7 +539,11 @@ export default {
       }
       if (hidelist) {
         setToStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'hidelist', value: hidelist })
-        this.needShowList = false
+        this.needShowList = hidelist === 'true' ? false : true
+      }
+      if (telemetry) {
+        setToStore({ store: this.$q.sessionStorage, storeName: this.$store.state.storeName, name: 'telemetry', value: telemetry })
+        this.needShowTelemetry = telemetry === 'false' ? false : true
       }
       if (names) {
         this.needHideNamesInMenu = true
@@ -560,9 +616,16 @@ export default {
         /* the last device was unset, and there are no active devices left */
         this.deviceIdForTelemetry = null
         this.updateSelectedDevice(null, false)
-      } else if (newVal.length === 1) {
-        /* first active device was added to the active devices list */
-        this.updateTelemetryDeviceId(newVal[0])
+      } else if (!newVal.includes(this.selectedDevice.id)) {
+        /* selected device was removed from the list */
+        /* select new device from the active devices - the next one, if exists, the last one - otherwise */
+        const sorted = newVal.toSorted((a, b) => {return a-b})
+        let index = sorted.length - 1
+        const nextIndex = sorted.findIndex((id) => {return id > this.selectedDevice.id})
+        if (nextIndex > 0) {
+          index = nextIndex
+        }
+        this.updateTelemetryDeviceId(sorted[index])
       }
     },
     devices (devices, prev) {

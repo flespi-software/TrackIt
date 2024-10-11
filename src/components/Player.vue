@@ -30,12 +30,12 @@
         x{{currentSpeed}}
         <q-menu ref="currentSpeedPopover" anchor="top left" style="background-color: #424242">
           <div class="column">
-            <q-btn 
+            <q-btn
               v-for="speed in [100, 70, 50, 30, 10, 1]"
               :key="speed"
-              class="text-white bg-grey-9 no-border-radius full-width" 
-              :size="$q.platform.is.desktop ? '1rem' : 'md'" 
-              flat 
+              class="text-white bg-grey-9 no-border-radius full-width"
+              :size="$q.platform.is.desktop ? '1rem' : 'md'"
+              flat
               @click="changeSpeed(speed)"
             >
               x{{speed}}
@@ -72,13 +72,13 @@
     </div>
 
     <div class="col-12 col-md relative-position">
-      <q-btn 
-        :disable="max <= min || mode === 'data'" 
-        class="absolute-left text-white" 
-        icon="mdi-skip-previous" 
-        :size="$q.platform.is.desktop ? '1rem' : 'md'" 
-        round 
-        flat 
+      <q-btn
+        :disable="max <= min || mode === 'data'"
+        class="absolute-left text-white"
+        icon="mdi-skip-previous"
+        :size="$q.platform.is.desktop ? '1rem' : 'md'"
+        round
+        flat
         @click="$emit('player-prev')"
       >
         <q-tooltip v-if="$q.platform.is.desktop">Prev message</q-tooltip>
@@ -93,21 +93,21 @@
               <div class="line line__disabled line__disabled--right" :style="{width: `${100 / (max - min) * (max - rangeMax)}%`}"></div>
             </div>
             <div
-              :style="{left: `${mode === 'time' ? current : 0}%`}" 
-              v-touch-pan.horizontal.mouse="dragPlayerControl" 
-              class="player__control cursor-pointer" 
+              :style="{left: `${mode === 'time' ? current : 0}%`}"
+              v-touch-pan.horizontal.mouse="dragPlayerControl"
+              class="player__control cursor-pointer"
               :class="{'player__control--mobile': $q.platform.is.mobile, 'player__control--disabled': max <= min || mode === 'data', disabled: max <= min || mode === 'data'}"
             ></div>
           </div>
         </div>
       </div>
-      <q-btn 
-        :disable="max <= min || mode === 'data'" 
-        class="absolute-right text-white" 
-        icon="mdi-skip-next" 
-        :size="$q.platform.is.desktop ? '1rem' : 'md'" 
-        round 
-        flat 
+      <q-btn
+        :disable="max <= min || mode === 'data'"
+        class="absolute-right text-white"
+        icon="mdi-skip-next"
+        :size="$q.platform.is.desktop ? '1rem' : 'md'"
+        round
+        flat
         @click="$emit('player-next')"
       >
         <q-tooltip v-if="$q.platform.is.desktop">Next message</q-tooltip>
@@ -403,7 +403,7 @@ export default {
             width 16px
             height 16px
             top 50%
-          &--disabled 
+          &--disabled
             background-color rgba(100,100,100,.8)
       .q-slider
         height 7px
