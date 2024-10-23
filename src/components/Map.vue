@@ -21,7 +21,7 @@
       @player-speed="playerSpeedChangeHandler"
       @player-mode="playerModeChange"
       @change-need-show-messages="(flag) => {$emit('change-need-show-messages', flag)}"
-      @queue-created="queueCreatedHandler"
+      @queue-created="$emit('queue-created')"
       @update-color="updateColorHandler"
       @view-on-map="viewOnMapHandler"
     />
@@ -699,9 +699,6 @@ export default {
         /* restore marker's direction, if known */
         this.updateMarkerDirection(id, this.messages[id][this.messages[id].length - 1]['position.direction'])
       }
-    },
-    queueCreatedHandler () {
-      this.$emit('queue-created')
     },
     registerModule (id) {
       this.devicesState[id] = { messagesAccess: true }

@@ -457,10 +457,18 @@ export default {
       }
     },
     queueCreatedHandler () {
+      // assign selected device
       const storedSelectedDevice = getFromStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'selected'})
-      if (storedSelectedDevice && storedSelectedDevice.id) {
+      if (storedSelectedDevice && storedSelectedDevice.id && this.activeDevicesID.length && this.activeDevicesID.includes(storedSelectedDevice.id)) {
+        // selected device is loaded from local storage and it's among the active devices
         this.selectedDevice.id = storedSelectedDevice.id
         this.selectedDevice.follow = storedSelectedDevice.follow ? storedSelectedDevice.follow : false
+      } else {
+        // there is no selected device in the local storage or selected device loaded from local storage is not in the list of current active devices
+        // assign the first device from the list of active devices as selected device
+        if (this.activeDevicesID.length) {
+          this.updateSelectedDevice(this.activeDevicesID[0], false)
+        }
       }
     },
     formatDate (timestamp) {
