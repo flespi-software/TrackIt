@@ -29,7 +29,7 @@
       v-model="telemetrySettings.opened"
       side="right"
       :content-class="{'bg-grey-9':telemetrySettings.inverted}">
-      <div style="position: relative; height: 100vh; overflow: hidden;">
+      <div style="position: relative; height: 100dvh; overflow: hidden;">
         <q-item>
           <q-item-section avatar>
             <q-btn flat round small

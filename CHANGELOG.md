@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+### [2.0.2] - 2024-10-24
+[fix] scrolling of the devices list on mobile is fixed
+
 ### [2.0.1] - 2024-10-23
 [fix] initial assignment of selected device is fixed
 

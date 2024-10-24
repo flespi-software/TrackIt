@@ -1,5 +1,5 @@
 <template>
-  <div style="position: relative; height: 100vh; overflow: hidden;">
+  <div style="position: relative; height: 100dvh; overflow: hidden;">
     <q-list dark class="bg-grey-9 text-white">
       <q-item :style="{'height':`${listHeaderHeight}px` }" style="line-height: 58px!important;">
         <q-item-section avatar>
@@ -27,10 +27,9 @@
       </q-item>
       <div :style="{'max-height': `${activeDevicesMaxHeight}px`}" style="overflow: auto;" ref="activeDevicesList">
         <q-resize-observer @resize="onResizeActiveDevicesList"/>
-        <device
+        <ActiveDevice
           v-for="device in classifiedDevices.active"
           class="with-separator"
-          :isActive="true"
           :key="device.id"
           :device="device"
           :deviceColor="devicesColors[device.id + '']"
@@ -61,12 +60,8 @@
           <device
             v-for="device in filteredInactiveDevices"
             class="with-separator"
-            :isActive="false"
             :key="device.id"
             :device="device"
-            :activeDevicesID="activeDevicesID"
-            :isSelected="selectedDeviceId === device.id"
-            :isFollowed="selectedDeviceId === device.id && isFollowed === true"
             @select-device="$emit('select-device', device.id)"
             @follow-selected-device="$emit('follow-selected-device', !isFollowed)"
             @device-in-devices-list-ckick="$emit('device-in-devices-list-ckick')"
@@ -82,6 +77,7 @@
 
 <script>
 import Device from './Device.vue'
+import ActiveDevice from './ActiveDevice.vue'
 import VirtualList from 'vue-virtual-scroll-list'
 
 export default {
@@ -109,6 +105,7 @@ export default {
     'devicesListPinned'
   ],
   components: {
+    ActiveDevice,
     Device,
     VirtualList
   },
