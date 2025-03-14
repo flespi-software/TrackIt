@@ -386,6 +386,7 @@ export default {
       setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'devicesListSettings', value: this.devicesListSettings })
     },
     updateSelectedDevice (id, follow) {
+      this.fillColors()
       /* update selected device id and and its follow property */
       this.selectedDevice.id = id
       if (follow !== undefined) {
@@ -412,6 +413,7 @@ export default {
       if (id) {
         this.updateTelemetryDeviceId(id)
         this.updateSelectedDevice(id, true)
+        this.fillColors()
       }
       if (this.$q.platform.is.mobile || !this.devicesListSettings.pinned) {
         /* close devices list when device is selected, unless left drawer is pinned */
@@ -420,6 +422,7 @@ export default {
     },
     followSelectedDeviceHandler (state) {
       this.updateSelectedDevice(this.selectedDevice.id, state)
+      this.fillColors()
     },
     deviceInListClickHandler () {
       if (this.$q.platform.is.mobile || !this.devicesListSettings.pinned) {
@@ -497,6 +500,10 @@ export default {
         devicesColorsLS = {}
         setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'colors', value: devicesColorsLS })
       }
+      this.fillColors()
+    },
+    fillColors () {
+      let devicesColorsLS = getFromStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'colors' })
       /* ensure that all active devices have assigned colors, synced to localstorage */
       const letters = '0123456789ABCDEF'
       this.activeDevicesID.forEach(id => {
@@ -508,12 +515,12 @@ export default {
           devicesColorsLS[id] = color
           setToStore({ store: this.$q.localStorage, storeName: this.$store.state.storeName, name: 'colors', value: devicesColorsLS })
         }
+        /* now copy colors loaded from localstorage to the devicesColors vue property */
+        Object.keys(devicesColorsLS).forEach(id => {
+          /* use vue set to ensure devicesColors vue property's reactivity */
+          this.$set(this.devicesColors, id, devicesColorsLS[id])
+        });
       })
-      /* now copy colors loaded from localstorage to the devicesColors vue property */
-      Object.keys(devicesColorsLS).forEach(id => {
-        /* use vue set to ensure devicesColors vue property's reactivity */
-        this.$set(this.devicesColors, id, devicesColorsLS[id])
-      });
     },
     connectProcess () {
       if (!this.isInit) {

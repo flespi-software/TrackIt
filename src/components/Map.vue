@@ -360,7 +360,7 @@ export default {
     },
     generateFlag (props) {
       let { id, status } = props || {}
-      let color = id ? this.devicesColors[id] : '#e53935',
+      let color = id && this.devicesColors[id] ? this.devicesColors[id] : '#e53935',
         icon = 'map-marker-star-outline'
       if (status === 'start') {
         color = colors.getBrand('primary')
@@ -759,7 +759,7 @@ export default {
           /* this is needed for Queue component to know the current color of the device for color-view div (color picker button) */
           this.markers[id] = {}
           this.markers[id].id = id
-          this.markers[id].color = this.devicesColors[id]
+          this.markers[id].color = this.devicesColors[id] || '#e53935'
           this.tracks[id] = {}
         }
         return false

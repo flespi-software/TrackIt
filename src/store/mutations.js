@@ -66,7 +66,7 @@ function updateDevices (state, payload) {
     }
     case 'updated': {
       state.devices.some((device, index) => {
-        if (device.id === payload.device.id) {
+        if (payload.device && device.id === payload.device.id) {
           state.devices[index] = Object.assign(state.devices[index], payload.device)
           return true
         }
@@ -76,7 +76,7 @@ function updateDevices (state, payload) {
     }
     case 'deleted': {
       state.devices.some((device, index) => {
-        if (device.id === payload.device.id) {
+        if (payload.device && device.id === payload.device.id) {
           state.devices.splice(index, 1)
           return true
         }
