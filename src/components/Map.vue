@@ -141,7 +141,7 @@ export default {
   methods: {
     initMap () {
       if (!this.map) {
-        let osm = L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { minZoom: 3, noWrap: true })
+        let osm = L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { minZoom: 2, maxZoom:19, noWrap: true })
         this.map = L.map('map', {
           center: [51.50853, -0.12574],
           zoom: 3,
@@ -157,13 +157,13 @@ export default {
           }
         })
         this.map.addEventListener('click', this.mapClickHandler)
-        let satellite = L.tileLayer('//server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { minZoom: 3, noWrap: true, attribution: '© ArcGIS' })
-        let opentopo = L.tileLayer('//{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { minZoom: 3, maxZoom: 19, attribution: 'Map data: © OpenStreetMap contributors, SRTM | Map style: © OpenTopoMap (CC-BY-SA)', noWrap: true})
+        let satellite = L.tileLayer('//server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { minZoom: 2, maxZoom: 19, noWrap: true, attribution: '© ArcGIS' })
+        let opentopo = L.tileLayer('//{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { minZoom: 2, maxZoom: 16, attribution: 'Map data: © OpenStreetMap contributors, SRTM | Map style: © OpenTopoMap (CC-BY-SA)', noWrap: true})
         let osmtransp = L.tileLayer.wms('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           layers: 'semitransparent',
           transparent: 'true',
           format: 'image/png',
-          maxZoom: 21,
+          maxZoom: 19,
           opacity: 0.5
         })
         var baseMaps = {

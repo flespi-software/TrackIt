@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+### [2.0.4] - 2025-03-27
+[fix] for osm added 19 zoom level
+
 ### [2.0.3] - 2025-03-14
 [fix] fill missing colors
 
