@@ -1,6 +1,6 @@
 # Track It!
 
-> A GPS tracking application based on [flespi.io](https://flespi.io) and built with [Quasar](http://quasar-framework.org) and [Leaflet.js](http://leafletjs.com). Shows devices on the map and their telemetry messages; includes a track player.
+> A GPS tracking application based on [flespi.io](https://flespi.io) and built with [Quasar](https://quasar.dev/) and [Leaflet.js](https://leafletjs.com/). Shows devices on the map and their telemetry messages; includes a track player.
 
 ![Screenshot](/misc/screenshot.jpg?raw=true "Track it!")
 
@@ -8,8 +8,8 @@
 * ES6 Javascript
 * Vue.js
 * Writing .vue files
-* Vuex
-* Webpack
+* Pinia
+* Vite
 * Responsive layout
 * NPM ecosystems
 * Leaflet
@@ -33,14 +33,10 @@ flespi/log/gw/devices/{selector}/created<br />
 flespi/log/gw/devices/{selector}/updated<br />
 flespi/log/gw/devices/{selector}/deleted<br />
 flespi/message/gw/devices/{selector}/#<br />
+flespi/state/gw/devices/{selector}/telemetry/+<br />
 
 ## Requirements:
-You need to have a separate token with at least the following ACLs:<br />
-REST<br />
-https://flespi.io/gw/devices/{selector}<br />
-https://flespi.io/gw/devices/{selector}/telemetry<br />
-https://flespi.io/gw/devices/{selector}/messages<br />
-https://flespi.io/gw/protocols
+[flespi token](https://flespi.com/kb/tokens-access-keys-to-flespi-platform#token-trackit "flespi knowledge base article")<br />
 
 ## Build Setup
 
@@ -52,17 +48,18 @@ $ git clone https://github.com/flespi-software/TrackIt.git mytracker
 $ cd mytracker
 $ npm install
 
-# serve with hot reload at localhost:7006 for flespi.io
+# start the app in development mode with hot reload at localhost:7006
 $ npm run dev
 
-# build for production with minification for flespi.io
+# build the app for production with minification
 $ npm run build
 
-# serve with hot reload at localhost:7006 for localhost:9005
-$ npm run dev_local
+# app checks if local flespi installation is available at localhost:9005
+# is local flespi installation is running, then it's used as backend
+# otherwise flespi.io is used as backend
 ```
 ## Demo
-Check it out [live](http://trackit.flespi.io)!
+Check it out [live](https://trackit.flespi.io)!
 
 ## License
 [MIT](https://github.com/flespi-software/TrackIt/blob/master/LICENSE) license.

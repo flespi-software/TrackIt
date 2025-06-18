@@ -1,17 +1,16 @@
 <template>
-  <div id="q-app">
-    <router-view />
-    <offline logo="trackit.png"/>
-  </div>
+  <router-view />
+  <offline logo="trackit.png" />
 </template>
 
 <script>
-import Offline from './components/Offline'
-export default {
-  name: 'App',
-  components: { Offline }
-}
-</script>
+import Offline from './components/Offline.vue'
+import { defineComponent } from 'vue'
 
-<style>
-</style>
+export default defineComponent({
+  name: 'App',
+  components: {
+    Offline,
+  },
+})
+</script>

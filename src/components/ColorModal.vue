@@ -1,48 +1,51 @@
 <template>
-  <q-dialog minimized ref="colorModal" class="color-modal" :content-css="{minWidth: '240px', minHeight: '201px'}">
+  <q-dialog minimized ref="colorModal" :content-css="{ minWidth: '240px', minHeight: '201px' }">
     <div class="bg-grey-9">
-      <q-color dark v-model="color" format-model="hex"/>
-      <q-btn @click="modalSubmit(color)" class="full-width" flat color="white">Set</q-btn>
+      <q-color dark no-header-tabs no-footer v-model="modalColor" format-model="hex" />
+      <q-btn flat class="full-width" color="white" @click="modalSubmit"> Set </q-btn>
     </div>
   </q-dialog>
 </template>
 
 <script>
-export default {
+import { defineComponent } from 'vue'
+
+export default defineComponent({
   name: 'ColorModal',
-  props: ['value'],
-  data () {
+  emits: ['update:modelValue'],
+  props: ['modelValue'],
+  data() {
     return {
-      color: this.value || '#fff'
+      selectedColor: '', // variable to store selected color until user hits Submit button
     }
+  },
+  computed: {
+    modalColor: {
+      get() {
+        return this.modelValue || '#fff'
+      },
+      set(value) {
+        /* remember currently selected color */
+        this.selectedColor = value
+      },
+    },
   },
   methods: {
-    modalSubmit (color) {
-      this.$emit('input', color)
-      this.currentColorId = 0
-      this.color = '#fff'
+    modalSubmit() {
+      /* user as finished color selection - notify parent about new selected color */
+      this.$emit('update:modelValue', this.selectedColor)
+      /* and close modal dialog */
       this.$refs.colorModal.hide()
-      this.$emit('hide')
     },
-    modalButtonCloseHandler () {
-      this.color = '#fff'
-      this.$refs.colorModal.hide()
-      this.$emit('hide')
-    },
-    show () {
+    show() {
+      /* method is used by ActiveDevice and MapContainer components to display color modal dialog */
       this.$refs.colorModal.show()
-    }
+    },
   },
-  watch: {
-    value (color) {
-      this.color = color
-    }
-  }
-}
+})
 </script>
 
-<style lang="stylus" scoped>
-  .color-modal
-    .q-color-inputs
-      display none
+<style lang="sass" scoped>
+.q-color-picker
+  width: 250px
 </style>

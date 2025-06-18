@@ -1,4 +1,4 @@
-export default function getIconHTML (name, color, needNames) {
+export default function getIconHTML(name, color, needNames) {
   const icon = `
     <svg
       xmlns="http://www.w3.org/2000/svg" version="1.0" width="20" height="35" viewBox="0 0 322.41 644.26"

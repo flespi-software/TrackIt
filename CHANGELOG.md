@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+### [3.0.0] - 2025-06-05
+[update] app migrated to vue3&pinia
+
 ### [2.0.4] - 2025-03-27
 [fix] for osm added 19 zoom level
 

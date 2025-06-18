@@ -8,7 +8,6 @@ this stuff is worth it, you can buy me a beer in return. */
 
 export default function (L) {
   L.Polyline.include({
-
     // Hi-res timestamp indicating when the last calculations for vertices and
     // distance took place.
     _snakingTimestamp: 0,
@@ -34,11 +33,11 @@ export default function (L) {
     /// TODO: accept a 'map' parameter, fall back to addTo() in case
     /// performance.now is not available.
     snakeIn: function () {
-      if (this._snakingIn || this._snakingOut) { return }
+      if (this._snakingIn || this._snakingOut) {
+        return
+      }
 
-      if (!('performance' in window) ||
-          !('now' in window.performance) ||
-          !this._map) {
+      if (!('performance' in window) || !('now' in window.performance) || !this._map) {
         return
       }
 
@@ -47,9 +46,7 @@ export default function (L) {
       this._snakingVertices = this._snakingRings = this._snakingDistance = 0
 
       if (!this._snakeLatLngs) {
-        this._snakeLatLngs = L.LineUtil.isFlat(this._latlngs)
-          ? [this._latlngs]
-          : this._latlngs
+        this._snakeLatLngs = L.LineUtil.isFlat(this._latlngs) ? [this._latlngs] : this._latlngs
       }
 
       // Init with just the first (0th) vertex in a new ring
@@ -64,11 +61,11 @@ export default function (L) {
     },
 
     snakeOut: function () {
-      if (this._snakingOut) { return }
+      if (this._snakingOut) {
+        return
+      }
 
-      if (!('performance' in window) ||
-      !('now' in window.performance) ||
-      !this._map) {
+      if (!('performance' in window) || !('now' in window.performance) || !this._map) {
         return
       }
 
@@ -77,9 +74,7 @@ export default function (L) {
       this._snakingTailVertices = this._snakingTailRings = this._snakingTailDistance = 0
 
       if (!this._snakeLatLngs) {
-        this._snakeLatLngs = L.LineUtil.isFlat(this._latlngs)
-          ? [this._latlngs]
-          : this._latlngs
+        this._snakeLatLngs = L.LineUtil.isFlat(this._latlngs) ? [this._latlngs] : this._latlngs
       }
 
       if (!this._snakingIn) {
@@ -117,8 +112,8 @@ export default function (L) {
 
       const now = performance.now()
       let diff = now - this._snakingTime // In milliseconds
-      diff = (diff === 0 ? 0.001 : diff) // avoids low time resolution issues in some browsers
-      const forward = diff * this.options.snakingSpeed / 1000 // In pixels
+      diff = diff === 0 ? 0.001 : diff // avoids low time resolution issues in some browsers
+      const forward = (diff * this.options.snakingSpeed) / 1000 // In pixels
       this._snakingTime = now
 
       // Chop the head from the previous frame
@@ -150,9 +145,11 @@ export default function (L) {
     _snakeHeadForward: function (forward) {
       // Calculate distance from current vertex to next vertex
       let currPoint = this._map.latLngToContainerPoint(
-        this._snakeLatLngs[this._snakingRings][this._snakingVertices])
+        this._snakeLatLngs[this._snakingRings][this._snakingVertices],
+      )
       let nextPoint = this._map.latLngToContainerPoint(
-        this._snakeLatLngs[this._snakingRings][this._snakingVertices + 1])
+        this._snakeLatLngs[this._snakingRings][this._snakingVertices + 1],
+      )
 
       let distance = currPoint.distanceTo(nextPoint)
 
@@ -162,7 +159,9 @@ export default function (L) {
       while (this._snakingDistance + forward > distance) {
         // Jump to next vertex
         this._snakingVertices++
-        this._latlngs[this._snakingRings].push(this._snakeLatLngs[this._snakingRings][this._snakingVertices])
+        this._latlngs[this._snakingRings].push(
+          this._snakeLatLngs[this._snakingRings][this._snakingVertices],
+        )
 
         if (this._snakingVertices >= this._snakeLatLngs[this._snakingRings].length - 1) {
           if (this._snakingRings >= this._snakeLatLngs.length - 1) {
@@ -171,16 +170,18 @@ export default function (L) {
             this._snakingVertices = 0
             this._snakingRings++
             this._latlngs[this._snakingRings] = [
-              this._snakeLatLngs[this._snakingRings][this._snakingVertices]
+              this._snakeLatLngs[this._snakingRings][this._snakingVertices],
             ]
           }
         }
 
         this._snakingDistance -= distance
         currPoint = this._map.latLngToContainerPoint(
-          this._snakeLatLngs[this._snakingRings][this._snakingVertices])
+          this._snakeLatLngs[this._snakingRings][this._snakingVertices],
+        )
         nextPoint = this._map.latLngToContainerPoint(
-          this._snakeLatLngs[this._snakingRings][this._snakingVertices + 1])
+          this._snakeLatLngs[this._snakingRings][this._snakingVertices + 1],
+        )
         distance = currPoint.distanceTo(nextPoint)
       }
 
@@ -188,9 +189,7 @@ export default function (L) {
 
       const percent = this._snakingDistance / distance
 
-      const headPoint = nextPoint.multiplyBy(percent).add(
-        currPoint.multiplyBy(1 - percent)
-      )
+      const headPoint = nextPoint.multiplyBy(percent).add(currPoint.multiplyBy(1 - percent))
 
       // Put a new head in place.
       const headLatLng = this._map.containerPointToLatLng(headPoint)
@@ -205,9 +204,11 @@ export default function (L) {
     _snakeTailForward: function (forward) {
       // Calculate distance from current vertex to next vertex
       let currPoint = this._map.latLngToContainerPoint(
-        this._snakeLatLngs[this._snakingTailRings][this._snakingTailVertices])
+        this._snakeLatLngs[this._snakingTailRings][this._snakingTailVertices],
+      )
       let nextPoint = this._map.latLngToContainerPoint(
-        this._snakeLatLngs[this._snakingTailRings][this._snakingTailVertices + 1])
+        this._snakeLatLngs[this._snakingTailRings][this._snakingTailVertices + 1],
+      )
 
       let distance = currPoint.distanceTo(nextPoint)
 
@@ -232,9 +233,11 @@ export default function (L) {
 
         this._snakingTailDistance -= distance
         currPoint = this._map.latLngToContainerPoint(
-          this._snakeLatLngs[this._snakingTailRings][this._snakingTailVertices])
+          this._snakeLatLngs[this._snakingTailRings][this._snakingTailVertices],
+        )
         nextPoint = this._map.latLngToContainerPoint(
-          this._snakeLatLngs[this._snakingTailRings][this._snakingTailVertices + 1])
+          this._snakeLatLngs[this._snakingTailRings][this._snakingTailVertices + 1],
+        )
         distance = currPoint.distanceTo(nextPoint)
       }
 
@@ -242,9 +245,7 @@ export default function (L) {
 
       const percent = this._snakingTailDistance / distance
 
-      const tailPoint = nextPoint.multiplyBy(percent).add(
-        currPoint.multiplyBy(1 - percent)
-      )
+      const tailPoint = nextPoint.multiplyBy(percent).add(currPoint.multiplyBy(1 - percent))
 
       // Put a new tail in place.
       const tailLatLng = this._map.containerPointToLatLng(tailPoint)
@@ -292,17 +293,15 @@ export default function (L) {
       this._snakingPauseTime = 0
       this._snakingTime += diff
       L.Util.requestAnimFrame(this._snake, this)
-    }
-
+    },
   })
 
   L.Polyline.mergeOptions({
     snakingSpeed: 200, // In pixels/sec
-    followHead: false // center the map on the head
+    followHead: false, // center the map on the head
   })
 
   L.LayerGroup.include({
-
     _snakingLayers: [],
     _snakingLayersDone: 0,
     _snakingTailLayersDone: 0,
@@ -313,10 +312,13 @@ export default function (L) {
     _snakeTimeoutsId: [],
 
     snakeIn: function () {
-      if (!('performance' in window) ||
-          !('now' in window.performance) ||
-          !this._map ||
-          this._snakingIn || this._snakingOut) {
+      if (
+        !('performance' in window) ||
+        !('now' in window.performance) ||
+        !this._map ||
+        this._snakingIn ||
+        this._snakingOut
+      ) {
         return
       }
 
@@ -329,7 +331,8 @@ export default function (L) {
         this.clearLayers()
       } else {
         for (const currentLayer in this._snakingLayers) {
-          if (this._snakingLayers[currentLayer] instanceof L.Polyline) { // remove only paths
+          if (this._snakingLayers[currentLayer] instanceof L.Polyline) {
+            // remove only paths
             this.removeLayer(this._snakingLayers[currentLayer])
           }
         }
@@ -341,10 +344,12 @@ export default function (L) {
     },
 
     snakeOut: function () {
-      if (!('performance' in window) ||
-      !('now' in window.performance) ||
-      !this._map ||
-      this._snakingOut) {
+      if (
+        !('performance' in window) ||
+        !('now' in window.performance) ||
+        !this._map ||
+        this._snakingOut
+      ) {
         return
       }
 
@@ -370,7 +375,9 @@ export default function (L) {
     },
 
     _snakeHeadNext: function () {
-      if (!this._snakingIn) { return this }
+      if (!this._snakingIn) {
+        return this
+      }
 
       if (this._snakingLayersDone >= this._snakingLayers.length) {
         this.fire('snakeend')
@@ -383,17 +390,26 @@ export default function (L) {
 
       this._snakingLayersDone++
 
-      if (!this.getLayer(currentLayer)) { // avoid layer duplications
+      if (!this.getLayer(currentLayer)) {
+        // avoid layer duplications
         this.addLayer(currentLayer)
       }
 
       if ('snakeIn' in currentLayer) {
-        currentLayer.once('snakeInEnd', function () {
-          this._snakeTimeoutsId.push(setTimeout(this._snakeHeadNext.bind(this), this.options.snakingPause))
-        }, this)
+        currentLayer.once(
+          'snakeInEnd',
+          function () {
+            this._snakeTimeoutsId.push(
+              setTimeout(this._snakeHeadNext.bind(this), this.options.snakingPause),
+            )
+          },
+          this,
+        )
         currentLayer.snakeIn()
       } else {
-        this._snakeTimeoutsId.push(setTimeout(this._snakeHeadNext.bind(this), this.options.snakingPause))
+        this._snakeTimeoutsId.push(
+          setTimeout(this._snakeHeadNext.bind(this), this.options.snakingPause),
+        )
       }
 
       this.fire('snake')
@@ -401,7 +417,9 @@ export default function (L) {
     },
 
     _snakeTailNext: function () {
-      if (!this._snakingOut) { return this }
+      if (!this._snakingOut) {
+        return this
+      }
 
       if (this.options.snakeRemoveLayers) {
         this.removeLayer(this._snakingLayers[this._snakingTailLayersDone - 1])
@@ -417,12 +435,20 @@ export default function (L) {
       this._snakingTailLayersDone++
 
       if ('snakeOut' in currentLayer) {
-        currentLayer.once('snakeOutEnd', function () {
-          this._snakeTimeoutsId.push(setTimeout(this._snakeTailNext.bind(this), this.options.snakingPause))
-        }, this)
+        currentLayer.once(
+          'snakeOutEnd',
+          function () {
+            this._snakeTimeoutsId.push(
+              setTimeout(this._snakeTailNext.bind(this), this.options.snakingPause),
+            )
+          },
+          this,
+        )
         currentLayer.snakeOut()
       } else {
-        this._snakeTimeoutsId.push(setTimeout(this._snakeTailNext.bind(this), this.options.snakingPause))
+        this._snakeTimeoutsId.push(
+          setTimeout(this._snakeTailNext.bind(this), this.options.snakingPause),
+        )
       }
 
       this.fire('snake')
@@ -451,12 +477,11 @@ export default function (L) {
         }
       }
       return this
-    }
-
+    },
   })
 
   L.LayerGroup.mergeOptions({
     snakingPause: 200,
-    snakeRemoveLayers: true // should layers (other than polylines) desapear
+    snakeRemoveLayers: true, // should layers (other than polylines) desapear
   })
 }
