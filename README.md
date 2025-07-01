@@ -4,6 +4,9 @@
 
 ![Screenshot](/misc/screenshot.jpg?raw=true "Track it!")
 
+Current `master` works on Vue 3.
+Vue 2 branch [is here](https://github.com/flespi-software/TrackIt/tree/vue2).<br />
+
 ## Features
 * ES6 Javascript
 * Vue.js
