@@ -140,6 +140,7 @@
         </q-btn>
         <div v-if="devices.length" class="floated date">
           <date-range-modal
+            v-if="needShowDaterange"
             class="on-left"
             v-model="dateRange"
             :theme="dateTheme"
@@ -326,6 +327,7 @@ export default defineComponent({
       },
       needShowList: true,
       needShowTelemetry: true,
+      needShowDaterange: true,
       needHideNamesInMenu: false,
       needHidePlayerInMenu: false,
       needHideMessagesInMenu: false,
@@ -503,7 +505,10 @@ export default defineComponent({
           this.getFromStore({ store: this.$q.sessionStorage, name: 'invalid' }),
         telemetry =
           this.$route.query.telemetry ||
-          this.getFromStore({ store: this.$q.sessionStorage, name: 'telemetry' })
+          this.getFromStore({ store: this.$q.sessionStorage, name: 'telemetry' }),
+        daterange =
+          this.$route.query.daterange ||
+          this.getFromStore({ store: this.$q.sessionStorage, name: 'daterange' })
       if (from && to) {
         /* init date from url parameters, if provided */
         this.setDate([from * 1000, to * 1000])
@@ -513,6 +518,11 @@ export default defineComponent({
         this.setToStore({ store: this.$q.sessionStorage, name: 'hidelist', value: hidelist })
         this.needShowList = hidelist === 'true' ? false : true
       }
+      if (daterange) {
+        this.setToStore({ store: this.$q.sessionStorage, name: 'daterange', value: daterange })
+        this.needShowDaterange = daterange === 'false' ? false : true
+      }
+
       if (telemetry) {
         this.setToStore({ store: this.$q.sessionStorage, name: 'telemetry', value: telemetry })
         this.needShowTelemetry = telemetry === 'false' ? false : true

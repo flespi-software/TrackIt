@@ -30,6 +30,7 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.code-workspace
+.history
 
 # local .env files
 .env.local*
