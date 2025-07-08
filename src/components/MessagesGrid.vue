@@ -99,7 +99,7 @@ export default defineComponent({
     messagesStore() {
       return this.getMessagesStore(this.id)
     },
-    selectedMessageIndex: {
+    selectedMessageTimestamp: {
       get() {
         // only one message can be selected by design
         // so convert selected array from messages store to one index
@@ -107,9 +107,9 @@ export default defineComponent({
         let lastSelected = selected.slice(-1)[0]
         return lastSelected === undefined ? -1 : lastSelected
       },
-      set(index) {
-        // convert one index to the array of selected indexes for messages store
-        this.messagesStore.setSelected([index])
+      set(timestamp) {
+        // convert one timestamp to the array of selected timestamps for messages store
+        this.messagesStore.setSelected([timestamp])
       },
     },
   },
@@ -121,45 +121,47 @@ export default defineComponent({
       }
       /* this is Show message action handler */
       this.selectedMessageContent = content
-      this.selectedMessageIndex = index
+      this.selectedMessageTimestamp = content.timestamp
       this.highlightSelectedMessage()
       this.$refs.messageViewer.show()
       this.$emit('view-message-content')
     },
     closeMessageViewerHandler() {
       this.selectedMessageContent = undefined
-      this.selectedMessageIndex = -1
+      this.selectedMessageTimestamp = undefined
       this.highlightSelectedMessage()
     },
     highlightSelectedMessage() {
       let css = ''
-      if (this.selectedMessageIndex !== -1) {
-        css = `.row_${this.selectedMessageIndex} {background-color: rgba(255,255,255,0.7)!important; color: #333;}`
+      if (this.selectedMessageTimestamp !== undefined) {
+        css = `.row_${this.selectedMessageTimestamp} {background-color: rgba(255,255,255,0.7)!important; color: #333;}`
       }
       this.updateDynamicCSS(css)
     },
     messageListItemClickHandler({ index, content }) {
-      if (this.selectedMessageIndex === index) {
+      if (this.selectedMessageTimestamp === content) {
         // unselect message, if it was previously selected
-        this.selectedMessageIndex = -1
+        this.selectedMessageTimestamp = undefined
       } else {
         // select new message
-        this.selectedMessageIndex = index
+        this.selectedMessageTimestamp = content.timestamp
       }
       this.highlightSelectedMessage()
       this.$emit('view-on-map', content)
     },
     messageShow(indexes) {
-      if (this.selectedMessageIndex !== indexes[indexes.length - 1]) {
-        this.selectedMessageIndex = indexes[indexes.length - 1]
+      const index = this.messagesStore.messages.findIndex(el => el.timestamp === this.selectedMessageTimestamp)
+      if (index !== indexes[indexes.length - 1]) {
+        this.selectedMessageTimestamp = this.messagesStore.messages[indexes[indexes.length - 1]].timestamp
         this.highlightSelectedMessage()
         this.scrollToSelected()
       }
     },
     scrollToSelected() {
-      if (this.selectedMessageIndex >= 0 && this.$refs.scrollList) {
+      if (this.selectedMessageTimestamp >= 0 && this.$refs.scrollList) {
         const itemsCount = this.$refs.scrollList.itemsCount
-        let scrollToIndex = this.selectedMessageIndex - Math.floor(itemsCount / 2)
+        let scrollToIndex = this.messagesStore.messages.findIndex(el => el.timestamp === this.selectedMessageTimestamp)
+        scrollToIndex -= Math.floor(itemsCount / 2)
         if (scrollToIndex < 0) {
           scrollToIndex = 0
         }
@@ -188,9 +190,9 @@ export default defineComponent({
     limit(limit) {
       this.currentLimit = limit
     },
-    selectedMessageIndex() {
-      if (this.selectedMessageIndex > 0) {
-        this.scrollToSelected(this.selectedMessageIndex)
+    selectedMessageTimestamp() {
+      if (this.selectedMessageTimestamp > 0) {
+        this.scrollToSelected(this.selectedMessageTimestamp)
       }
       this.highlightSelectedMessage()
     },

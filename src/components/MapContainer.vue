@@ -779,7 +779,7 @@ export default defineComponent({
       e.originalEvent.view.L.DomEvent.stopPropagation(e)
       const messages = this.messages[id]
       const position = L.GeometryUtil.closest(this.map, track, e.latlng)
-      const indexes = messages.reduce((res, message, index) => {
+      let timestamps = messages.reduce((res, message, index) => {
         const lat = message['position.latitude']
         const lng = message['position.longitude']
         const nextMessage = messages[index + 1]
@@ -801,14 +801,16 @@ export default defineComponent({
             lng: nextLng,
           })
           const closestMessageIndex = distance > nextDistance ? index + 1 : index
-          res.push(closestMessageIndex)
+          res.push({ timestamp: messages[closestMessageIndex].timestamp, distance })
         }
         return res
       }, [])
-      const lastMessage = messages[indexes.slice(-1)[0]] || {}
+      timestamps.sort((a, b) => b.distance - a.distance)
+      timestamps = timestamps.map(el => el.timestamp)
+      const lastMessage = messages[messages.findIndex(el => el.timestamp === timestamps.slice(-1)[0])] || {}
 
       this.viewOnMapHandler(lastMessage)
-      this.messagesStores[id].setSelected(indexes)
+      this.messagesStores[id].setSelected(timestamps)
     },
     updateDeviceColorOnMap(id, color) {
       if (

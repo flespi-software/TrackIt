@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+### [3.0.2] - 2025-07-08
+[fix] highlight message on track click
+
 ### [3.0.1] - 2025-07-01
 [feature] added daterange query parameter to hide date picker
 
