@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+### [3.1.0] - 2025-07-10
+[feature] Tracks for messages with position.valid and timestamp - position.timestamp > 30 are displayed as a dashed line
+
 ### [3.0.2] - 2025-07-08
 [fix] highlight message on track click
 

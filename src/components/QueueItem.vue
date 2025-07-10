@@ -209,11 +209,15 @@ export default defineComponent({
     player: {
       deep: true,
       handler(player) {
-        if (
-          this.activeMessagesIndexes &&
-          this.activeMessagesIndexes[0] !== player.currentMsgIndex
-        ) {
-          this.activeMessagesIndexes = [player.currentMsgIndex]
+        if (player.currentMsgTimestamp !== null) {
+          // Find the message index that matches the current timestamp
+          const messageIndex = this.messages.findIndex(msg => msg.timestamp === player.currentMsgTimestamp)
+          if (messageIndex !== -1 && 
+              (this.activeMessagesIndexes.length === 0 || this.activeMessagesIndexes[0] !== messageIndex)) {
+            this.activeMessagesIndexes = [messageIndex]
+          }
+        } else {
+          this.activeMessagesIndexes = []
         }
       },
     },

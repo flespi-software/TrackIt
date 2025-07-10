@@ -3,7 +3,7 @@
     @click="itemClickHandler(index, item)"
     class="cursor-pointer"
     :class="{
-      [`row_${item.timestamp}`]: true,
+      [`row_${index} msg_${item.timestamp}`]: true,
       'missed-items': item['x-flespi-status'],
       'bg-white-opasity': selected,
       'item--telemetry-inited': item['x-flespi-inited-by-telemetry'],

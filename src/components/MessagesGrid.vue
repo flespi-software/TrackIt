@@ -4,7 +4,7 @@
       ref="scrollList"
       :actions="actions"
       :cols="messagesStore.cols"
-      :items="messagesStore.messages"
+      :items="filteredMessages"
       :theme="theme"
       :viewConfig="viewConfig"
       class="scrollable"
@@ -96,6 +96,16 @@ export default defineComponent({
         this.messagesStore.setLimit(val)
       },
     },
+    filteredMessages() {
+      if (!this.messagesStore.messages || !Array.isArray(this.messagesStore.messages)) {
+        return []
+      }
+      return this.messagesStore.messages.filter(message =>
+        message != null &&
+        typeof message === 'object' &&
+        Object.prototype.hasOwnProperty.call(message, 'timestamp')
+      )
+    },
     messagesStore() {
       return this.getMessagesStore(this.id)
     },
@@ -134,7 +144,7 @@ export default defineComponent({
     highlightSelectedMessage() {
       let css = ''
       if (this.selectedMessageTimestamp !== undefined) {
-        css = `.row_${this.selectedMessageTimestamp} {background-color: rgba(255,255,255,0.7)!important; color: #333;}`
+        css = `.msg_${this.selectedMessageTimestamp} {background-color: rgba(255,255,255,0.7)!important; color: #333;}`
       }
       this.updateDynamicCSS(css)
     },
@@ -150,9 +160,18 @@ export default defineComponent({
       this.$emit('view-on-map', content)
     },
     messageShow(indexes) {
+      if (!indexes || indexes.length === 0 || !this.messagesStore.messages) {
+        return
+      }
+      const lastIndex = indexes[indexes.length - 1]
+      const message = this.messagesStore.messages[lastIndex]
+      if (!message) {
+        return
+      }
+
       const index = this.messagesStore.messages.findIndex(el => el.timestamp === this.selectedMessageTimestamp)
-      if (index !== indexes[indexes.length - 1]) {
-        this.selectedMessageTimestamp = this.messagesStore.messages[indexes[indexes.length - 1]].timestamp
+      if (index !== lastIndex) {
+        this.selectedMessageTimestamp = message.timestamp
         this.highlightSelectedMessage()
         this.scrollToSelected()
       }
@@ -165,7 +184,7 @@ export default defineComponent({
         if (scrollToIndex < 0) {
           scrollToIndex = 0
         }
-        this.$refs.scrollList.scrollTo(scrollToIndex)
+        this.$refs.scrollList && this.$refs.scrollList.scrollTo(scrollToIndex)
       }
     },
     toBottomClickHandler() {

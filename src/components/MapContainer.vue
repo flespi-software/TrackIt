@@ -1,5 +1,5 @@
 <template>
-  <div class="map-wrapper absolute-top-left absolute-bottom-right">
+  <div class="map-wrapper absolute-top-left absolute-bottom-right" style="transform: translateZ(0);">
     <div id="map" :style="{ height: mapHeight }">
       <q-resize-observer @resize="onResize" />
     </div>
@@ -64,7 +64,7 @@ export default defineComponent({
       mapIsFlying: null,
       messagesStores: {}, // devices' messages stores
       player: {
-        currentMsgIndex: null,
+        currentMsgTimestamp: null,
         mode: 'time',
         tailInterval: 0,
         speed: 10,
@@ -224,6 +224,24 @@ export default defineComponent({
                 this.map.removeLayer(track)
                 disabledLayout.push(track)
               }
+            } else if (track instanceof L.LayerGroup) {
+              // Handle segmented tracks (layer groups)
+              if (track.tail && track.tail instanceof L.Polyline && this.map.hasLayer(track.tail)) {
+                this.map.removeLayer(track.tail)
+                disabledLayout.push(track.tail)
+              }
+              if (
+                track.overview &&
+                track.overview instanceof L.Polyline &&
+                this.map.hasLayer(track.overview)
+              ) {
+                this.map.removeLayer(track.overview)
+                disabledLayout.push(track.overview)
+              }
+              if (this.map.hasLayer(track)) {
+                this.map.removeLayer(track)
+                disabledLayout.push(track)
+              }
             }
           })
         }
@@ -295,6 +313,7 @@ export default defineComponent({
         const render = await deviceMessagesStore.pollingGet()
         render()
       }
+      this.removeFlags(id)
       this.addFlags(id)
       if (!deviceMessagesStore.messages.length) {
         try {
@@ -332,6 +351,126 @@ export default defineComponent({
         acc.push([message['position.latitude'], message['position.longitude']])
         return acc
       }, [])
+    },
+    getLatLngArrWithTimestampsById(id) {
+      if (!this.messages[id]) {
+        return []
+      }
+      return this.messages[id].map(message => ({
+        lat: message['position.latitude'],
+        lng: message['position.longitude'],
+        timestamp: message.timestamp,
+        positionTimestamp: message['position.timestamp']
+      }))
+    },
+    getColorById(id) {
+      return this.devicesColors[id] || '#e53935'
+    },
+    shouldUseDashedLine(message, prevMessage) {
+      if (!message || !prevMessage) return false
+
+      const timestamp = message.timestamp
+      const positionTimestamp = message['position.timestamp']
+
+      const prevTimestamp = prevMessage.timestamp
+      const prevPositionTimestamp = prevMessage['position.timestamp']
+
+      let dashed = false
+
+      // Check if current message has a time difference greater than 10 seconds (line going TO this position should be dashed)
+      if (positionTimestamp && Math.abs(timestamp - positionTimestamp) > 30) {
+        dashed = true
+      }
+
+      // Check if previous message has a time difference greater than 10 seconds (line coming FROM that position should be dashed)
+      if (prevPositionTimestamp && Math.abs(prevTimestamp - prevPositionTimestamp) > 30) {
+        dashed = true
+      }
+
+      // Also check if there's a large time gap between consecutive messages
+      if (!dashed && Math.abs(timestamp - prevTimestamp) > 300) { // 5 minutes gap
+        dashed = true
+      }
+      if (!dashed && ((Object.prototype.hasOwnProperty.call(message, 'position.valid') && !message['position.valid']) || (Object.prototype.hasOwnProperty.call(prevMessage, 'position.valid') && !prevMessage['position.valid']))) { // 5 minutes gap
+        dashed = true
+      }
+
+      return dashed
+    },
+    createSegmentedTrack(id) {
+      const messages = this.messages[id]
+      if (!messages || messages.length < 2) {
+        return null
+      }
+
+      const segments = []
+      let currentSegment = [messages[0]]
+      let currentStyle = this.getSegmentStyle(id, false) // First segment is always normal
+
+      for (let i = 1; i < messages.length; i++) {
+        const currentMessage = messages[i]
+        const prevMessage = messages[i - 1]
+        const shouldBeDashed = this.shouldUseDashedLine(currentMessage, prevMessage)
+        const newStyle = this.getSegmentStyle(id, shouldBeDashed)
+        // If style changes, finish current segment and start new one
+        if (JSON.stringify(currentStyle) !== JSON.stringify(newStyle)) {
+          // currentSegment.push(currentMessage)
+          segments.push({
+            messages: currentSegment,
+            style: currentStyle
+          })
+          currentSegment = [prevMessage, currentMessage]
+          currentStyle = newStyle
+        } else {
+          currentSegment.push(currentMessage)
+        }
+      }
+
+      // Add the last segment
+      if (currentSegment.length > 1) {
+        segments.push({
+          messages: currentSegment,
+          style: currentStyle
+        })
+      }
+
+      // Create polylines for each segment
+      const polylines = segments.map(segment => {
+        const latlngs = segment.messages.filter(msg =>
+          msg['position.latitude'] && msg['position.longitude']
+        ).map(msg => [
+          msg['position.latitude'],
+          msg['position.longitude']
+        ])
+
+        if (latlngs.length < 2) {
+          return null
+        }
+
+        const polyline = L.polyline(latlngs, segment.style)
+        polyline._segmentMessages = segment.messages // Store messages for click handling
+        return polyline
+      }).filter(polyline => polyline !== null)
+
+      return polylines.length > 0 ? polylines : null
+    },
+    getSegmentStyle(id, isDashed) {
+      const baseColor = this.getColorById(id)
+
+      if (isDashed) {
+        return {
+          weight: 2,
+          color: '#000',
+          opacity: 0.7,
+          dashArray: '5, 10'
+        }
+      } else {
+        return {
+          weight: 4,
+          color: baseColor,
+          opacity: 1
+        }
+      }
     },
     async initDevice(id) {
       if (!id) {
@@ -450,6 +589,8 @@ export default defineComponent({
           ],
           layers: [osm],
         })
+
+        // Map is ready for track initialization
         this.map.addEventListener('zoom', (e) => {
           if (!e.flyTo) {
             this.mapFlyToZoom = e.target.getZoom()
@@ -525,23 +666,31 @@ export default defineComponent({
         return
       }
       this.player.status = 'play'
-      this.tracks[id].remove()
+      // Remove main track (handles both regular polylines and layer groups)
+      if (this.tracks[id]) {
+        if (this.tracks[id].remove) {
+          this.tracks[id].remove()
+        } else {
+          this.map.removeLayer(this.tracks[id])
+        }
+      }
       const latlngs = this.messages[id].map((message, index) => ({
         lat: message['position.latitude'],
         lng: message['position.longitude'],
         dir: message['position.direction'],
         index,
+        timestamp: message.timestamp,
       }))
       if (latlngs.length < 2) {
         this.tracks[id].addTo(this.map)
         this.player.status = 'stop'
-        this.player.currentMsgIndex = null
+        this.player.currentMsgTimestamp = null
         return
       }
       this.map.setView([latlngs[0].lat, latlngs[0].lng], this.map.getZoom(), { animation: false })
       const line = L.polyline(latlngs, {
         snakingSpeed: 20 * this.player.speed,
-        color: this.tracks[id].options.color,
+        color: this.getColorById(id),
       })
       this.tracks[id].overview = line
       this.tracks[id].overview.addEventListener('click', (e) =>
@@ -554,8 +703,8 @@ export default defineComponent({
         const lastPos = point.slice(-1)[0]
         const message = latlngs[points[0].length - 1]
         this.updateMarker(id, lastPos, message.dir)
-        if (this.player.currentMsgIndex !== message.index) {
-          this.player.currentMsgIndex = message.index
+        if (this.player.currentMsgTimestamp !== message.timestamp) {
+          this.player.currentMsgTimestamp = message.timestamp
         }
       })
       line.on('snakeInEnd', () => {
@@ -568,14 +717,16 @@ export default defineComponent({
         this.tracks[id].overview.remove()
         delete this.tracks[id].overview
       }
-      if (this.tracks[id] && this.tracks[id] instanceof L.Polyline) {
+      if (this.tracks[id]) {
         this.tracks[id].addTo(this.map)
-        this.tracks[id].addEventListener('click', (e) =>
-          this.showMessageByTrackClick(e, id, this.tracks[id]),
-        )
+        if (this.tracks[id] instanceof L.Polyline) {
+          this.tracks[id].addEventListener('click', (e) =>
+            this.showMessageByTrackClick(e, id, this.tracks[id]),
+          )
+        }
       }
       const message = this.messages[id].slice(-1)[0]
-      this.player.currentMsgIndex = null
+      this.player.currentMsgTimestamp = null
       if (message) {
         const lastPos = [message['position.latitude'], message['position.longitude']]
         this.updateMarker(id, lastPos, message['position.direction'])
@@ -632,7 +783,7 @@ export default defineComponent({
       this.player.status = 'pause'
     },
     playerTimePlay({ id }) {
-      if (this.tracks[id] && this.tracks[id] instanceof L.Polyline) {
+      if (this.tracks[id]) {
         this.tracks[id].remove()
         this.player.status = 'play'
         this.map.setView(
@@ -643,7 +794,7 @@ export default defineComponent({
       }
     },
     playerTimeStop({ id }) {
-      if (this.tracks[id] && this.tracks[id] instanceof L.Polyline) {
+      if (this.tracks[id]) {
         if (this.tracks[id].tail) {
           this.tracks[id].tail.remove()
           delete this.tracks[id].tail
@@ -652,7 +803,7 @@ export default defineComponent({
         const msgIndex = realtimeEnabled ? this.messages[id].length - 1 : 0
         const message = this.messages[id][msgIndex]
         this.$nextTick(() => {
-          this.player.currentMsgIndex = msgIndex ? null : 0
+          this.player.currentMsgTimestamp = realtimeEnabled ? null : (this.messages[id] && this.messages[id].length > 0 ? this.messages[id][0].timestamp : null)
         })
         this.player.status = 'stop'
         this.tracks[id].addTo(this.map)
@@ -690,7 +841,7 @@ export default defineComponent({
             message &&
             typeof message['position.latitude'] === 'number' &&
             typeof message['position.longitude'] === 'number'
-          this.player.currentMsgIndex = messageIndex
+          this.player.currentMsgTimestamp = message.timestamp
           if (havePosition) {
             const pos = [message['position.latitude'], message['position.longitude']]
             if (this.player.status === 'play' && messagesIndexes[0] !== 0) {
@@ -726,9 +877,15 @@ export default defineComponent({
         }
       })
       /* tail render logic */
-      if (this.tracks[id] && this.tracks[id] instanceof L.Polyline && tail.length) {
+      if (this.tracks[id] && tail.length) {
         if (!this.tracks[id].tail || !(this.tracks[id].tail instanceof L.Polyline)) {
-          this.tracks[id].tail = L.polyline(tail, this.tracks[id].options)
+          // Create tail polyline with similar styling to main track
+          const tailOptions = {
+            weight: 4,
+            color: this.getColorById(id),
+            opacity: 0.8
+          }
+          this.tracks[id].tail = L.polyline(tail, tailOptions)
           this.tracks[id].tail.addTo(this.map)
           this.tracks[id].tail.addEventListener('click', (e) =>
             this.showMessageByTrackClick(e, id, this.tracks[id].tail),
@@ -749,36 +906,50 @@ export default defineComponent({
     removeFlags(id) {
       if (
         !this.markers[id] ||
-        !this.markers[id].flags ||
-        !(this.markers[id].flags.start instanceof L.Marker) ||
-        !(this.markers[id].flags.stop instanceof L.Marker)
+        !this.markers[id].flags // ||
+        // !(this.markers[id].flags.start instanceof L.Marker) ||
+        // !(this.markers[id].flags.stop instanceof L.Marker)
       ) {
         return false
       }
       this.markers[id].flags.start.remove()
       this.markers[id].flags.stop.remove()
       this.markers[id].flags = undefined
+      this.markers[id].remove()
     },
     removeMarker(id) {
       if (this.markers[id] && this.markers[id] instanceof L.Marker) {
         this.removeFlags(id)
         this.map.removeLayer(this.markers[id].accuracy)
         this.markers[id].remove()
+
+        // Remove tail and overview tracks
         if (this.tracks[id].tail && this.tracks[id].tail instanceof L.Polyline) {
           this.tracks[id].tail.remove()
         }
         if (this.tracks[id].overview && this.tracks[id].overview instanceof L.Polyline) {
           this.tracks[id].overview.remove()
         }
-        this.tracks[id].remove()
+
+        // Remove main track (handles both regular polylines and layer groups)
+        if (this.tracks[id]) {
+          if (this.tracks[id].remove) {
+            this.tracks[id].remove()
+          } else {
+            this.map.removeLayer(this.tracks[id])
+          }
+        }
       }
       delete this.markers[id]
       delete this.tracks[id]
     },
     showMessageByTrackClick(e, id, track) {
       e.originalEvent.view.L.DomEvent.stopPropagation(e)
-      const messages = this.messages[id]
+
+      // Use segment messages if available (for segmented tracks), otherwise use all messages
+      const messages = track._segmentMessages || this.messages[id]
       const position = L.GeometryUtil.closest(this.map, track, e.latlng)
+
       let timestamps = messages.reduce((res, message, index) => {
         const lat = message['position.latitude']
         const lng = message['position.longitude']
@@ -805,9 +976,13 @@ export default defineComponent({
         }
         return res
       }, [])
+
       timestamps.sort((a, b) => b.distance - a.distance)
       timestamps = timestamps.map(el => el.timestamp)
-      const lastMessage = messages[messages.findIndex(el => el.timestamp === timestamps.slice(-1)[0])] || {}
+
+      // Find the message from the original messages array, not the segment
+      const allMessages = this.messages[id]
+      const lastMessage = allMessages[allMessages.findIndex(el => el.timestamp === timestamps.slice(-1)[0])] || {}
 
       this.viewOnMapHandler(lastMessage)
       this.messagesStores[id].setSelected(timestamps)
@@ -815,17 +990,42 @@ export default defineComponent({
     updateDeviceColorOnMap(id, color) {
       if (
         !this.tracks[id] ||
-        !(this.tracks[id] instanceof L.Polyline) ||
         !this.markers[id] ||
         !(this.markers[id] instanceof L.Marker)
       ) {
         return false
       }
-      this.tracks[id].setStyle({ color })
-      this.tracks[id].tail && this.tracks[id].tail.setStyle({ color })
-      this.tracks[id].overview && this.tracks[id].overview.setStyle({ color })
+
+      // Update marker color first
       this.markers[id].color = color
       this.markers[id].setIcon(this.generateIcon(id, this.markers[id].options.title, color))
+
+      // Update track color
+      if (this.tracks[id] instanceof L.Polyline) {
+        // Regular polyline - use setStyle
+        this.tracks[id].setStyle({ color })
+      } else if (this.tracks[id] instanceof L.LayerGroup) {
+        // Segmented track - need to recreate with new color
+        this.map.removeLayer(this.tracks[id])
+        const segmentedTrack = this.createSegmentedTrack(id)
+        if (segmentedTrack && segmentedTrack.length > 0) {
+          this.tracks[id] = L.layerGroup()
+
+          segmentedTrack.forEach(polyline => {
+            polyline.addEventListener('click', (e) =>
+              this.showMessageByTrackClick(e, id, polyline),
+            )
+            this.tracks[id].addLayer(polyline)
+          })
+
+          this.tracks[id].addTo(this.map)
+        }
+      }
+
+      // Update tail and overview colors
+      this.tracks[id].tail && this.tracks[id].tail.setStyle({ color })
+      this.tracks[id].overview && this.tracks[id].overview.setStyle({ color })
+
       if (this.messages[id][this.messages[id].length - 1]['position.direction']) {
         /* restore marker's direction, if known */
         this.updateMarkerDirection(
@@ -874,21 +1074,61 @@ export default defineComponent({
             this.messages[id][this.messages[id].length - 1]['position.longitude'],
           ]
         this.initMarker(id, name, position)
-        /* init track */
-        this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), {
-          weight: 4,
-          color: this.markers[id] ? this.markers[id].color : this.getColorById(id),
-        }).addTo(this.map)
-        this.tracks[id].addEventListener('click', (e) =>
-          this.showMessageByTrackClick(e, id, this.tracks[id]),
-        )
+        /* init track with segmented polylines */
+        const segmentedTrack = this.createSegmentedTrack(id)
+        if (segmentedTrack && segmentedTrack.length > 0) {
+          // Create a layer group to hold all segments
+          this.tracks[id] = L.layerGroup()
+
+          segmentedTrack.forEach(polyline => {
+            polyline.addEventListener('click', (e) =>
+              this.showMessageByTrackClick(e, id, polyline),
+            )
+            this.tracks[id].addLayer(polyline)
+          })
+
+          this.tracks[id].addTo(this.map)
+        } else {
+          // Fallback to regular polyline if segmented track fails
+          this.tracks[id] = L.polyline(this.getLatLngArrByDevice(id), {
+            weight: 4,
+            color: this.markers[id] ? this.markers[id].color : this.getColorById(id),
+          }).addTo(this.map)
+          this.tracks[id].addEventListener('click', (e) =>
+            this.showMessageByTrackClick(e, id, this.tracks[id]),
+          )
+        }
 
         if (Number.parseInt(id) === this.selectedDeviceId) {
           // here typeof id is string
           if (this.messages[id].length > 1) {
             /* device has a bunch of messages - initially show the whole track on map */
-            const bounding = this.tracks[id].getBounds()
-            this.map.fitBounds(bounding)
+            let bounding
+            try {
+              if (this.tracks[id] instanceof L.Polyline) {
+                // Regular polyline
+                bounding = this.tracks[id].getBounds()
+              } else if (this.tracks[id] instanceof L.LayerGroup) {
+                // Layer group (segmented tracks) - manually calculate bounds
+                const coords = this.getLatLngArrByDevice(id)
+                if (coords.length > 1) {
+                  bounding = L.latLngBounds(coords)
+                }
+              } else {
+                // Fallback - use message coordinates
+                const coords = this.getLatLngArrByDevice(id)
+                if (coords.length > 1) {
+                  bounding = L.latLngBounds(coords)
+                }
+              }
+              if (bounding) {
+                this.map.fitBounds(bounding)
+              }
+            } catch (error) {
+              console.warn('Error getting track bounds:', error)
+              // Fallback to centering on the last position
+              this.map.setView(position, 14, { animation: false })
+            }
           } else {
             /* device has only one message - initially show only device in comfortable zoom */
             this.map.setView(position, 14, { animation: false })
@@ -940,7 +1180,16 @@ export default defineComponent({
         if (this.markers[id].accuracy) {
           this.map.removeLayer(this.markers[id].accuracy)
         }
-        this.map.removeLayer(this.tracks[id])
+
+        // Remove main track (handles both regular polylines and layer groups)
+        if (this.tracks[id]) {
+          if (this.tracks[id].remove) {
+            this.tracks[id].remove()
+          } else {
+            this.map.removeLayer(this.tracks[id])
+          }
+        }
+
         this.map.removeLayer(this.markers[id])
         this.tracks[id] = {}
         this.markers[id] = {
@@ -955,7 +1204,28 @@ export default defineComponent({
         )
         this.markers[id].accuracy.setLatLng(currentArrPos[currentArrPos.length - 1])
         this.markers[id].setOpacity(1)
-        this.tracks[id].setLatLngs(currentArrPos)
+
+        // Update track with segmented polylines or fallback to regular polyline
+        if (this.tracks[id] && typeof this.tracks[id].setLatLngs === 'function') {
+          // Regular polyline update
+          this.tracks[id].setLatLngs(currentArrPos)
+        } else {
+          // Segmented track update - need to recreate
+          this.map.removeLayer(this.tracks[id])
+          const segmentedTrack = this.createSegmentedTrack(id)
+          if (segmentedTrack && segmentedTrack.length > 0) {
+            this.tracks[id] = L.layerGroup()
+
+            segmentedTrack.forEach(polyline => {
+              polyline.addEventListener('click', (e) =>
+                this.showMessageByTrackClick(e, id, polyline),
+              )
+              this.tracks[id].addLayer(polyline)
+            })
+
+            this.tracks[id].addTo(this.map)
+          }
+        }
       }
     },
     updateStateByMessages(messages) {
@@ -1159,7 +1429,7 @@ export default defineComponent({
     },
     date() {
       this.player.status = 'stop'
-      this.player.currentMsgIndex = null
+      this.player.currentMsgTimestamp = null
       this.activeDevicesIDs.forEach(async (id) => {
         if (this.devicesStates[id].initStatus === true) {
           await this.getDeviceData(id)
