@@ -915,7 +915,6 @@ export default defineComponent({
       this.markers[id].flags.start.remove()
       this.markers[id].flags.stop.remove()
       this.markers[id].flags = undefined
-      this.markers[id].remove()
     },
     removeMarker(id) {
       if (this.markers[id] && this.markers[id] instanceof L.Marker) {
